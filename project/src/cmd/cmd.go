@@ -2,14 +2,10 @@ package cmd
 
 import (
 	"github.com/68696c6c/capricorn_rnd/golang"
-	"github.com/68696c6c/capricorn_rnd/utils"
 )
 
-type Map map[string]Command
-
 type CMD struct {
-	pkg      *golang.Package
-	commands Map
+	*golang.Package
 }
 
 type Command struct {
@@ -18,23 +14,9 @@ type Command struct {
 	Args []string `yaml:"args"`
 }
 
-func NewCMD(pkg *golang.Package, commands []Command) CMD {
-	result := make(Map)
+func Build(pkg *golang.Package, commands []Command) {
 	pkgCmd := pkg.AddPackage("cmd")
-	for _, e := range commands {
-		key := utils.Kebob(e.Name)
-		result[key] = newCommand(pkgCmd, e)
-	}
-	return CMD{
-		pkg:      pkgCmd,
-		commands: result,
-	}
-}
-
-func newCommand(pkg *golang.Package, c Command) Command {
-	return Command{
-		file: pkg.AddGoFile(c.Name),
-		Name: c.Name,
-		Args: c.Args,
+	for _, c := range commands {
+		pkgCmd.AddGoFile(c.Name)
 	}
 }

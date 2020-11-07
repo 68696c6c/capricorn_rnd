@@ -40,4 +40,6 @@ type Directory interface {
 	GetDirectories() []Directory
 	AddFile(name, ext string) *File
 	AddFolder(name string) *Folder
+	AddDirectory(d Directory)
+	AddRenderableFile(r RenderableFile)
 }

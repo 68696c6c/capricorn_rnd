@@ -6,14 +6,11 @@ import (
 )
 
 type HTTP struct {
-	pkg   *golang.Package
+	*golang.Package
 	Serve Serve
 }
 
-func NewHTTP(pkg *golang.Package, a app.App) HTTP {
+func Build(pkg *golang.Package, a app.App) {
 	pkgHttp := pkg.AddPackage("http")
-	return HTTP{
-		pkg:   pkgHttp,
-		Serve: NewServe(pkgHttp, a),
-	}
+	buildServe(pkgHttp, a)
 }

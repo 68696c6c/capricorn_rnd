@@ -7,14 +7,10 @@ import (
 )
 
 type DB struct {
-	pkg        *golang.Package
-	migrations migrations.Migrations
+	*golang.Package
 }
 
-func NewDB(pkg *golang.Package, a app.App) DB {
+func Build(pkg *golang.Package, a app.App) {
 	pkgDb := pkg.AddPackage("db")
-	return DB{
-		pkg:        pkgDb,
-		migrations: migrations.NewMigrations(pkgDb, a),
-	}
+	migrations.Build(pkgDb, a)
 }

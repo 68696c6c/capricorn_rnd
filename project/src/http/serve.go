@@ -6,11 +6,11 @@ import (
 )
 
 type Serve struct {
-	file *golang.File
+	*golang.File
 }
 
-func NewServe(pkg *golang.Package, a app.App) Serve {
+func buildServe(pkg *golang.Package, a app.App) Serve {
 	return Serve{
-		file: pkg.AddGoFile("serve"),
+		File: pkg.AddGoFile("serve"),
 	}
 }

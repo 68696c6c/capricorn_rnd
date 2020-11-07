@@ -52,22 +52,24 @@ func NewProjectFromSpec(specPath string) (*Project, error) {
 func (p *Project) Build(basePath string) utils.Directory {
 	projectDir := utils.NewFolder(basePath, utils.Snake(p.Name))
 
-	opsFiles := ops.NewOps(projectDir.GetPath(), p.Ops)
-	projectDir.AddRenderableFile(opsFiles.AppEnv)
-	projectDir.AddRenderableFile(opsFiles.AppEnvExample)
-	projectDir.AddRenderableFile(opsFiles.Makefile)
-	projectDir.AddRenderableFile(opsFiles.Dockerfile)
-	projectDir.AddRenderableFile(opsFiles.DockerCompose)
-	projectDir.AddRenderableFile(opsFiles.GitIgnore)
+	ops.Build(projectDir, p.Ops)
 
-	srcPkg := src.NewSRC(src.Meta{
-		BasePath:  projectDir.GetPath(),
+	src.Build(projectDir, src.Meta{
+		// BasePath:  projectDir.GetPath(),
 		Module:    p.Module,
 		Commands:  p.Commands,
 		Enums:     p.Enums,
 		Resources: p.Resources,
 	})
-	projectDir.AddDirectory(srcPkg.GetDirectory())
+
+	// src.NewSRC(projectDir, src.Meta{
+	// 	// BasePath:  projectDir.GetPath(),
+	// 	Module:    p.Module,
+	// 	Commands:  p.Commands,
+	// 	Enums:     p.Enums,
+	// 	Resources: p.Resources,
+	// })
+	// projectDir.AddDirectory(srcPkg.GetDirectory())
 
 	return projectDir
 }

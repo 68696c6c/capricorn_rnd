@@ -10,67 +10,36 @@ import (
 // Package represents an internal node in a golang project tree.
 type Package struct {
 	Paths
-	packages    []utils.Directory
-	files       []utils.RenderableFile
 	reference   string
 	declaration string
+	*utils.Folder
 }
 
-func newPackage(name string, paths Paths) *Package {
+func NewPackage(name, basePath, baseImport string) *Package {
+	pkgName := utils.Snake(name)
 	return &Package{
-		Paths:       paths,
-		reference:   name,
-		declaration: fmt.Sprintf("package %s", name),
+		Folder: utils.NewFolder(basePath, pkgName),
+		Paths: Paths{
+			FilePath:   path.Join(basePath, pkgName),
+			ImportPath: path.Join(baseImport, pkgName),
+		},
+		reference:   pkgName,
+		declaration: fmt.Sprintf("package %s", pkgName),
 	}
 }
 
-func NewRootPackage(basePath, baseImport string) *Package {
-	return newPackage("main", Paths{
-		File:   basePath,
-		Import: baseImport,
-	})
-}
-
-func NewPackage(name string, base Paths) *Package {
-	snake := utils.Snake(name)
-	return newPackage(snake, Paths{
-		File:   path.Join(base.File, snake),
-		Import: path.Join(base.Import, snake),
-	})
-}
-
 func (p *Package) AddPackage(name string) *Package {
-	pkg := NewPackage(name, p.Paths)
-	p.packages = append(p.packages, pkg)
+	pkg := NewPackage(name, p.FilePath, p.ImportPath)
+	p.AddDirectory(pkg)
 	return pkg
 }
 
 func (p *Package) AddGoFile(name string) *File {
 	file := NewFile(name, p.Paths)
-	p.files = append(p.files, file)
-	return file
-}
-
-func (p *Package) AddFile(name, ext string) *utils.File {
-	file := utils.NewFile(p.GetPath(), name, ext)
-	p.files = append(p.files, file)
+	p.AddRenderableFile(file)
 	return file
 }
 
 func (p *Package) GetPath() string {
-	return p.Paths.File
-}
-
-func (p *Package) GetFiles() []utils.RenderableFile {
-	return p.files
-}
-
-func (p *Package) GetDirectories() []utils.Directory {
-	return p.packages
-}
-
-func (p *Package) AddFolder(name string) *utils.Folder {
-	folder := utils.NewFolder(p.GetPath(), name)
-	p.packages = append(p.packages, folder)
-	return folder
+	return p.Paths.FilePath
 }

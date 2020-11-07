@@ -25,35 +25,26 @@ type SRC struct {
 	CMD  cmd.CMD
 	DB   db.DB
 	HTTP http.HTTP
-	root *golang.Package
 }
 
-func NewSRC(meta Meta) SRC {
-	root := golang.NewRootPackage(meta.BasePath, meta.Module)
-	pkgSrc := root.AddPackage("src")
-
+func Build(root *utils.Folder, meta Meta) {
+	pkgSrc := golang.NewPackage("src", root.GetPath(), meta.Module)
 	srcApp := app.NewApp(pkgSrc, meta.Enums, meta.Resources)
 
-	return SRC{
-		Main: NewMainGo(pkgSrc),
-		App:  srcApp,
-		CMD:  cmd.NewCMD(pkgSrc, meta.Commands),
-		DB:   db.NewDB(pkgSrc, srcApp),
-		HTTP: http.NewHTTP(pkgSrc, srcApp),
-		root: root,
-	}
-}
+	cmd.Build(pkgSrc, meta.Commands)
+	db.Build(pkgSrc, srcApp)
+	http.Build(pkgSrc, srcApp)
+	buildMainGo(pkgSrc)
 
-func (s SRC) GetDirectory() utils.Directory {
-	return s.root
+	root.AddDirectory(pkgSrc)
 }
 
 type MainGo struct {
-	file *golang.File
+	*golang.File
 }
 
-func NewMainGo(pkg *golang.Package) MainGo {
+func buildMainGo(pkgSrc *golang.Package) MainGo {
 	return MainGo{
-		file: pkg.AddGoFile("main"),
+		File: pkgSrc.AddGoFile("main"),
 	}
 }

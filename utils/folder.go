@@ -16,6 +16,8 @@ func NewFolder(basePath, name string) *Folder {
 		FullPath: path.Join(basePath, name),
 		BasePath: basePath,
 		Name:     name,
+		folders:  []Directory{},
+		files:    []RenderableFile{},
 	}
 }
 
