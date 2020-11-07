@@ -1,0 +1,42 @@
+package utils
+
+type Generator interface {
+	Printf(format string, args ...interface{}) Generator
+	Reset() Generator
+	Write(b []byte) Generator
+	WriteString(s string) Generator
+	Render(r Renderable) Generator
+	Out() []byte
+	Format() []byte
+	WriteFile(r RenderableFile) []byte
+	Generate(p Package)
+}
+
+type Renderable interface {
+	Render() []byte
+}
+
+type RenderableFile interface {
+	Renderable
+
+	// Returns the full path to the file, including the file name and extension.
+	GetFullPath() string
+
+	// Returns the path to the directory containing the file.
+	GetBasePath() string
+
+	// Returns file name, including extension.
+	GetFullName() string
+
+	// Returns file name without the extension.
+	GetBaseName() string
+
+	// Returns the file extension.
+	GetExtension() string
+}
+
+type Package interface {
+	GetPath() string
+	GetFiles() []RenderableFile
+	GetPackages() []Package
+}
