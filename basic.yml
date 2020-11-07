@@ -6,6 +6,17 @@ author:
   name: Aaron Hill
   email: 68696c6c@gmail.com
 
+ops:
+  workdir: gonad-example
+  app_http_alias: gonad-example.local
+  database:
+    host: db
+    port: 3306
+    username: root
+    password: secret
+    name: gonad_example
+    debug: 1
+
 commands:
   - name: example
     args:

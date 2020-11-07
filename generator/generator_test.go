@@ -76,12 +76,6 @@ func TestGenerator_Render(t *testing.T) {
 	cupaloy.SnapshotT(t, g.Out())
 }
 
-func TestGenerator_Format(t *testing.T) {
-	g := NewGenerator(PanicHandler{})
-	g.WriteString(testSRC)
-	cupaloy.SnapshotT(t, g.Format())
-}
-
 func TestGenerator_WriteFile(t *testing.T) {
 	fPath := ".snapshots/test_write_file"
 	defer os.Remove(fPath)
@@ -90,5 +84,5 @@ func TestGenerator_WriteFile(t *testing.T) {
 	g.WriteFile(srcTestRenderer{"test_write_file"})
 
 	assert.FileExists(t, fPath)
-	cupaloy.SnapshotT(t, g.Format())
+	cupaloy.SnapshotT(t, g.Out())
 }

@@ -10,7 +10,7 @@ import (
 // Package represents an internal node in a golang project tree.
 type Package struct {
 	Paths
-	packages    []utils.Package
+	packages    []utils.Directory
 	files       []utils.RenderableFile
 	reference   string
 	declaration string
@@ -39,26 +39,38 @@ func NewPackage(name string, base Paths) *Package {
 	})
 }
 
-func (n *Package) AddFile(name, ext string) *File {
-	file := NewFile(name, ext, n.Paths)
-	n.files = append(n.files, file)
-	return file
-}
-
-func (n *Package) AddPackage(name string) *Package {
-	pkg := NewPackage(name, n.Paths)
-	n.packages = append(n.packages, pkg)
+func (p *Package) AddPackage(name string) *Package {
+	pkg := NewPackage(name, p.Paths)
+	p.packages = append(p.packages, pkg)
 	return pkg
 }
 
-func (n *Package) GetPath() string {
-	return n.File
+func (p *Package) AddGoFile(name string) *File {
+	file := NewFile(name, p.Paths)
+	p.files = append(p.files, file)
+	return file
 }
 
-func (n *Package) GetFiles() []utils.RenderableFile {
-	return n.files
+func (p *Package) AddFile(name, ext string) *utils.File {
+	file := utils.NewFile(p.GetPath(), name, ext)
+	p.files = append(p.files, file)
+	return file
 }
 
-func (n *Package) GetPackages() []utils.Package {
-	return n.packages
+func (p *Package) GetPath() string {
+	return p.Paths.File
+}
+
+func (p *Package) GetFiles() []utils.RenderableFile {
+	return p.files
+}
+
+func (p *Package) GetDirectories() []utils.Directory {
+	return p.packages
+}
+
+func (p *Package) AddFolder(name string) *utils.Folder {
+	folder := utils.NewFolder(p.GetPath(), name)
+	p.packages = append(p.packages, folder)
+	return folder
 }

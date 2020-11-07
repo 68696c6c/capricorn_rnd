@@ -1,6 +1,32 @@
 package utils
 
-import "strings"
+import (
+	"strings"
+)
+
+var specialChars = []rune{
+	'@',
+	'#',
+	'$',
+	'%',
+	'^',
+	'&',
+	'*',
+	'(',
+	')',
+	':',
+	';',
+	'<',
+	'>',
+	',',
+	'?',
+	'"',
+	'\'',
+	'+',
+	'=',
+	'~',
+	'`',
+}
 
 type Inflection struct {
 	Kebob  string
@@ -40,24 +66,48 @@ func Camel(separated string) string {
 	return separatedToCamel(separated)
 }
 
+func isSpecialChar(r rune) bool {
+	for _, c := range specialChars {
+		if c == r {
+			return true
+		}
+	}
+	return false
+}
+
+func clean(s string, separator rune) string {
+	var result strings.Builder
+	for i := 0; i < len(s); i++ {
+		b := s[i]
+		if ('a' <= b && b <= 'z') ||
+			('A' <= b && b <= 'Z') ||
+			('0' <= b && b <= '9') || b == ' ' || b == '-' || b == '_' {
+			result.WriteByte(b)
+		} else if isSpecialChar(rune(b)) {
+			result.WriteRune(separator)
+		}
+	}
+	return result.String()
+}
+
 func separatedToCamel(input string) string {
-	return separatedToMedial(input, false)
+	return separatedToMedial(clean(input, '-'), false)
 }
 
 func separatedToPascal(input string) string {
-	return separatedToMedial(input, true)
+	return separatedToMedial(clean(input, '-'), true)
 }
 
 func separatedToSpace(input string) string {
-	return separatedToSeparated(input, ' ')
+	return separatedToSeparated(clean(input, ' '), ' ')
 }
 
 func separatedToSnake(input string) string {
-	return separatedToSeparated(input, '_')
+	return separatedToSeparated(clean(input, '_'), '_')
 }
 
 func separatedToKebob(input string) string {
-	return separatedToSeparated(input, '-')
+	return separatedToSeparated(clean(input, '-'), '-')
 }
 
 func separatedToMedial(input string, leadingCap bool) string {
@@ -71,7 +121,7 @@ func separatedToMedial(input string, leadingCap bool) string {
 				output += strings.ToUpper(string(v))
 				isToUpper = false
 			} else {
-				if v == '_' || v == '-' {
+				if v == '_' || v == '-' || v == ' ' {
 					isToUpper = true
 				} else {
 					output += string(v)
@@ -85,7 +135,7 @@ func separatedToMedial(input string, leadingCap bool) string {
 func separatedToSeparated(input string, separator rune) string {
 	var output string
 	for _, v := range input {
-		if v == '_' || v == '-' {
+		if v == '_' || v == '-' || v == ' ' {
 			output += string(separator)
 		} else {
 			output += strings.ToLower(string(v))

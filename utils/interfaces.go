@@ -7,9 +7,8 @@ type Generator interface {
 	WriteString(s string) Generator
 	Render(r Renderable) Generator
 	Out() []byte
-	Format() []byte
 	WriteFile(r RenderableFile) []byte
-	Generate(p Package)
+	Generate(d Directory)
 }
 
 type Renderable interface {
@@ -35,8 +34,10 @@ type RenderableFile interface {
 	GetExtension() string
 }
 
-type Package interface {
+type Directory interface {
 	GetPath() string
 	GetFiles() []RenderableFile
-	GetPackages() []Package
+	GetDirectories() []Directory
+	AddFile(name, ext string) *File
+	AddFolder(name string) *Folder
 }

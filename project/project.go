@@ -4,6 +4,12 @@ import (
 	"io/ioutil"
 
 	"github.com/68696c6c/gonad/golang"
+	"github.com/68696c6c/gonad/project/ops"
+	"github.com/68696c6c/gonad/project/ops/local"
+	"github.com/68696c6c/gonad/project/src"
+	"github.com/68696c6c/gonad/project/src/app/domain/model"
+	"github.com/68696c6c/gonad/project/src/app/enum"
+	"github.com/68696c6c/gonad/project/src/cmd"
 	"github.com/68696c6c/gonad/utils"
 
 	"github.com/pkg/errors"
@@ -11,13 +17,14 @@ import (
 )
 
 type Project struct {
-	Name      string      `yaml:"Inflection,omitempty"`
-	Module    string      `yaml:"module,omitempty"`
-	License   string      `yaml:"license,omitempty"`
-	Author    Author      `yaml:"author,omitempty"`
-	Commands  []*Command  `yaml:"commands"`
-	Enums     []*Enum     `yaml:"enums"`
-	Resources []*Resource `yaml:"resources"`
+	Name      string        `yaml:"name,omitempty"`
+	Module    string        `yaml:"module,omitempty"`
+	License   string        `yaml:"license,omitempty"`
+	Author    Author        `yaml:"author,omitempty"`
+	Ops       local.Config  `yaml:"ops"`
+	Commands  []cmd.Command `yaml:"commands"`
+	Enums     []enum.Enum   `yaml:"enums"`
+	Resources []model.Model `yaml:"resources"`
 	root      *golang.Package
 }
 
@@ -42,41 +49,25 @@ func NewProjectFromSpec(specPath string) (*Project, error) {
 	return &result, nil
 }
 
-func (m *Project) Build(basePath string) utils.Package {
-	root := golang.NewRootPackage(basePath, m.Module)
-	pkgSrc := root.AddPackage("src")
-	pkgSrc.AddFile("main", "go")
+func (p *Project) Build(basePath string) utils.Directory {
+	projectDir := utils.NewFolder(basePath, utils.Snake(p.Name))
 
-	pkgCmd := pkgSrc.AddPackage("cmd")
-	for _, c := range m.Commands {
-		pkgCmd.AddFile(c.Name, "go")
-	}
+	opsFiles := ops.NewOps(projectDir.GetPath(), p.Ops)
+	projectDir.AddRenderableFile(opsFiles.AppEnv)
+	projectDir.AddRenderableFile(opsFiles.AppEnvExample)
+	projectDir.AddRenderableFile(opsFiles.Makefile)
+	projectDir.AddRenderableFile(opsFiles.Dockerfile)
+	projectDir.AddRenderableFile(opsFiles.DockerCompose)
+	projectDir.AddRenderableFile(opsFiles.GitIgnore)
 
-	pkgApp := pkgSrc.AddPackage("app")
-	pkgApp.AddFile("app", "go")
-	pkgApp.AddFile("config", "go")
+	srcPkg := src.NewSRC(src.Meta{
+		BasePath:  projectDir.GetPath(),
+		Module:    p.Module,
+		Commands:  p.Commands,
+		Enums:     p.Enums,
+		Resources: p.Resources,
+	})
+	projectDir.AddDirectory(srcPkg.GetDirectory())
 
-	pkgEnums := pkgApp.AddPackage("enums")
-	for _, e := range m.Enums {
-		pkgEnums.AddFile(e.Name, "go")
-	}
-
-	for _, r := range m.Resources {
-		pkgDomain := pkgApp.AddPackage(r.Name)
-		pkgDomain.AddFile("handlers", "go")
-		pkgDomain.AddFile("model", "go")
-		pkgDomain.AddFile("repo", "go")
-		pkgDomain.AddFile("service", "go")
-	}
-
-	pkgHttp := pkgSrc.AddPackage("http")
-	pkgHttp.AddFile("routes", "go")
-
-	pkgDb := pkgSrc.AddPackage("db")
-	pkgDbMigrations := pkgDb.AddPackage("migrations")
-	pkgDbMigrations.AddFile("initial", "go")
-	pkgDbSeeders := pkgDb.AddPackage("seeders")
-	pkgDbSeeders.AddFile("initial", "go")
-
-	return root
+	return projectDir
 }

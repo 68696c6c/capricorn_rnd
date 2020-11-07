@@ -1,57 +1,42 @@
 package golang
 
 import (
-	"fmt"
-	"github.com/68696c6c/gonad/utils"
-	"path"
 	"strings"
+
+	"github.com/68696c6c/gonad/utils"
 )
 
 // File represents a leaf node in a golang project tree.
 type File struct {
-	Paths
-	// imports  *imports
-	// pkg      *Package
-	// Paths     string
-	fullPath string
-	basePath string
-	fullName string
-	baseName string
-	ext      string
+	*utils.File
 }
 
-func NewFile(name, ext string, p Paths) *File {
-	n := utils.NewInflection(name)
-	baseName := n.Snake
-	fullName := fmt.Sprintf("%s.%s", baseName, ext)
+func NewFile(name string, paths Paths) *File {
+	nanes := utils.NewInflection(name)
 	return &File{
-		fullName: fullName,
-		baseName: baseName,
-		ext:      ext,
-		fullPath: path.Join(p.File, fullName),
-		basePath: p.File,
+		File: utils.NewFile(paths.File, nanes.Snake, "go"),
 	}
 }
 
-func (f *File) GetFullPath() string {
-	return f.fullPath
-}
-
-func (f *File) GetBasePath() string {
-	return f.basePath
-}
-
-func (f *File) GetFullName() string {
-	return f.fullName
-}
-
-func (f *File) GetBaseName() string {
-	return f.baseName
-}
-
-func (f *File) GetExtension() string {
-	return f.ext
-}
+// func (f *File) GetFullPath() string {
+// 	return f.FullPath
+// }
+//
+// func (f *File) GetBasePath() string {
+// 	return f.BasePath
+// }
+//
+// func (f *File) GetFullName() string {
+// 	return f.FullName
+// }
+//
+// func (f *File) GetBaseName() string {
+// 	return f.BaseName
+// }
+//
+// func (f *File) GetExtension() string {
+// 	return f.Ext
+// }
 
 func (f *File) Render() []byte {
 	lines := []string{

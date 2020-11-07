@@ -53,29 +53,24 @@ func (g *generator) Out() []byte {
 	return g.buffer.Bytes()
 }
 
-// Returns the gofmt'ed contents of the generator's accumulated output.
-func (g *generator) Format() []byte {
-	return handleFormat(g.errors, g.Out())
-}
-
 // Sets and writes the provided RenderableFile to it's target file.
 func (g *generator) WriteFile(r utils.RenderableFile) []byte {
 	out := r.Render()
-	result := g.Reset().Write(out).Format()
+	result := g.Reset().Write(out).Out()
 	err := writeFile(r.GetFullPath(), result)
 	g.errors.HandleError(err)
 	return result
 }
 
-func (g *generator) Generate(p utils.Package) {
-	err := createDir(p.GetPath())
+func (g *generator) Generate(d utils.Directory) {
+	err := createDir(d.GetPath())
 	if err != nil {
 		panic(err)
 	}
-	for _, file := range p.GetFiles() {
+	for _, file := range d.GetFiles() {
 		g.WriteFile(file)
 	}
-	for _, pkg := range p.GetPackages() {
-		g.Generate(pkg)
+	for _, dir := range d.GetDirectories() {
+		g.Generate(dir)
 	}
 }
