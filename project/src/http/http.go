@@ -1,8 +1,8 @@
 package http
 
 import (
-	"github.com/68696c6c/gonad/golang"
-	"github.com/68696c6c/gonad/project/src/app"
+	"github.com/68696c6c/capricorn_rnd/golang"
+	"github.com/68696c6c/capricorn_rnd/project/src/app"
 )
 
 type HTTP struct {

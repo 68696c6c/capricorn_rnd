@@ -1,7 +1,7 @@
 package local
 
 import (
-	"github.com/68696c6c/gonad/utils"
+	"github.com/68696c6c/capricorn_rnd/utils"
 )
 
 const makefileTemplate = `DCR = docker-compose run --rm

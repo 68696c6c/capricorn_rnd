@@ -1,14 +1,14 @@
 package src
 
 import (
-	"github.com/68696c6c/gonad/golang"
-	"github.com/68696c6c/gonad/project/src/app"
-	"github.com/68696c6c/gonad/project/src/app/domain/model"
-	"github.com/68696c6c/gonad/project/src/app/enum"
-	"github.com/68696c6c/gonad/project/src/cmd"
-	"github.com/68696c6c/gonad/project/src/db"
-	"github.com/68696c6c/gonad/project/src/http"
-	"github.com/68696c6c/gonad/utils"
+	"github.com/68696c6c/capricorn_rnd/golang"
+	"github.com/68696c6c/capricorn_rnd/project/src/app"
+	"github.com/68696c6c/capricorn_rnd/project/src/app/domain/model"
+	"github.com/68696c6c/capricorn_rnd/project/src/app/enum"
+	"github.com/68696c6c/capricorn_rnd/project/src/cmd"
+	"github.com/68696c6c/capricorn_rnd/project/src/db"
+	"github.com/68696c6c/capricorn_rnd/project/src/http"
+	"github.com/68696c6c/capricorn_rnd/utils"
 )
 
 type Meta struct {

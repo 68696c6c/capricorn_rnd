@@ -1,6 +1,6 @@
 package local
 
-import "github.com/68696c6c/gonad/utils"
+import "github.com/68696c6c/capricorn_rnd/utils"
 
 // @TODO use a hosted base image
 const dockerfileTemplate = `FROM golang:1.15-alpine as env

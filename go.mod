@@ -1,4 +1,4 @@
-module github.com/68696c6c/gonad
+module github.com/68696c6c/capricorn_rnd
 
 go 1.15
 

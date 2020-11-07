@@ -3,14 +3,14 @@ package project
 import (
 	"io/ioutil"
 
-	"github.com/68696c6c/gonad/golang"
-	"github.com/68696c6c/gonad/project/ops"
-	"github.com/68696c6c/gonad/project/ops/local"
-	"github.com/68696c6c/gonad/project/src"
-	"github.com/68696c6c/gonad/project/src/app/domain/model"
-	"github.com/68696c6c/gonad/project/src/app/enum"
-	"github.com/68696c6c/gonad/project/src/cmd"
-	"github.com/68696c6c/gonad/utils"
+	"github.com/68696c6c/capricorn_rnd/golang"
+	"github.com/68696c6c/capricorn_rnd/project/ops"
+	"github.com/68696c6c/capricorn_rnd/project/ops/local"
+	"github.com/68696c6c/capricorn_rnd/project/src"
+	"github.com/68696c6c/capricorn_rnd/project/src/app/domain/model"
+	"github.com/68696c6c/capricorn_rnd/project/src/app/enum"
+	"github.com/68696c6c/capricorn_rnd/project/src/cmd"
+	"github.com/68696c6c/capricorn_rnd/utils"
 
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v3"

@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 
-	"github.com/68696c6c/gonad/generator"
-	"github.com/68696c6c/gonad/project"
+	"github.com/68696c6c/capricorn_rnd/generator"
+	"github.com/68696c6c/capricorn_rnd/project"
 )
 
 func main() {

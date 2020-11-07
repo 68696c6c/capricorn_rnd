@@ -1,7 +1,7 @@
 package model
 
 import (
-	"github.com/68696c6c/gonad/golang"
+	"github.com/68696c6c/capricorn_rnd/golang"
 )
 
 type Meta struct {

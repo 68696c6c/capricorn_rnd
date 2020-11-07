@@ -3,7 +3,7 @@ package golang
 import (
 	"strings"
 
-	"github.com/68696c6c/gonad/utils"
+	"github.com/68696c6c/capricorn_rnd/utils"
 )
 
 // File represents a leaf node in a golang project tree.

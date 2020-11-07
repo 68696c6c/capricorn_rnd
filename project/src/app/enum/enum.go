@@ -1,8 +1,8 @@
 package enum
 
 import (
-	"github.com/68696c6c/gonad/golang"
-	"github.com/68696c6c/gonad/utils"
+	"github.com/68696c6c/capricorn_rnd/golang"
+	"github.com/68696c6c/capricorn_rnd/utils"
 )
 
 type Map map[string]Enum

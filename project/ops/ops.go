@@ -1,7 +1,7 @@
 package ops
 
 import (
-	"github.com/68696c6c/gonad/project/ops/local"
+	"github.com/68696c6c/capricorn_rnd/project/ops/local"
 )
 
 type Ops struct {

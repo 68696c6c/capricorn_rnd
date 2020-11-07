@@ -1,6 +1,6 @@
 package local
 
-import "github.com/68696c6c/gonad/utils"
+import "github.com/68696c6c/capricorn_rnd/utils"
 
 const appEnvTemplate = `
 DB_HOST={{ .MainDatabase.Host }}

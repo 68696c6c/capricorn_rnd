@@ -1,5 +1,5 @@
-name: "Gonad Example"
-module: "github.com/68696c6c/gonad-example"
+name: "Capricorn Example"
+module: "github.com/68696c6c/capricorn-example"
 
 license: "none"
 author:
@@ -7,14 +7,14 @@ author:
   email: 68696c6c@gmail.com
 
 ops:
-  workdir: gonad-example
-  app_http_alias: gonad-example.local
+  workdir: capricorn-example
+  app_http_alias: capricorn-example.local
   database:
     host: db
     port: 3306
     username: root
     password: secret
-    name: gonad_example
+    name: capricorn_example
     debug: 1
 
 commands:

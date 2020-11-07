@@ -1,11 +1,11 @@
 package app
 
 import (
-	"github.com/68696c6c/gonad/golang"
-	"github.com/68696c6c/gonad/project/src/app/container"
-	"github.com/68696c6c/gonad/project/src/app/domain"
-	"github.com/68696c6c/gonad/project/src/app/domain/model"
-	"github.com/68696c6c/gonad/project/src/app/enum"
+	"github.com/68696c6c/capricorn_rnd/golang"
+	"github.com/68696c6c/capricorn_rnd/project/src/app/container"
+	"github.com/68696c6c/capricorn_rnd/project/src/app/domain"
+	"github.com/68696c6c/capricorn_rnd/project/src/app/domain/model"
+	"github.com/68696c6c/capricorn_rnd/project/src/app/enum"
 )
 
 type App struct {
