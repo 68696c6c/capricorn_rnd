@@ -3,7 +3,6 @@ package project
 import (
 	"io/ioutil"
 
-	"github.com/68696c6c/capricorn_rnd/golang"
 	"github.com/68696c6c/capricorn_rnd/project/ops"
 	"github.com/68696c6c/capricorn_rnd/project/ops/local"
 	"github.com/68696c6c/capricorn_rnd/project/src"
@@ -25,11 +24,10 @@ type Project struct {
 	Commands  []cmd.Command `yaml:"commands"`
 	Enums     []enum.Enum   `yaml:"enums"`
 	Resources []model.Model `yaml:"resources"`
-	root      *golang.Package
 }
 
 type Author struct {
-	Name         string `yaml:"Inflection,omitempty"`
+	Name         string `yaml:"name,omitempty"`
 	Email        string `yaml:"email,omitempty"`
 	Organization string `yaml:"organization,omitempty"`
 }
@@ -55,21 +53,11 @@ func (p *Project) Build(basePath string) utils.Directory {
 	ops.Build(projectDir, p.Ops)
 
 	src.Build(projectDir, src.Meta{
-		// BasePath:  projectDir.GetPath(),
 		Module:    p.Module,
 		Commands:  p.Commands,
 		Enums:     p.Enums,
 		Resources: p.Resources,
 	})
-
-	// src.NewSRC(projectDir, src.Meta{
-	// 	// BasePath:  projectDir.GetPath(),
-	// 	Module:    p.Module,
-	// 	Commands:  p.Commands,
-	// 	Enums:     p.Enums,
-	// 	Resources: p.Resources,
-	// })
-	// projectDir.AddDirectory(srcPkg.GetDirectory())
 
 	return projectDir
 }

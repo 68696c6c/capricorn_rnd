@@ -9,7 +9,7 @@ type CMD struct {
 }
 
 type Command struct {
-	file *golang.File
+	*golang.File
 	Name string   `yaml:"name"`
 	Args []string `yaml:"args"`
 }

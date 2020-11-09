@@ -6,11 +6,11 @@ import (
 )
 
 type Repo struct {
-	file *golang.File
+	*golang.File
 }
 
 func NewRepo(fileName string, meta model.Meta) Repo {
 	return Repo{
-		file: meta.PKG.AddGoFile(fileName),
+		File: meta.PKG.AddGoFile(fileName),
 	}
 }

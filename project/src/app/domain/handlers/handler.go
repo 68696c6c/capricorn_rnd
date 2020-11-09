@@ -8,7 +8,7 @@ import (
 type Endpoints map[string]Handler
 
 type Handlers struct {
-	file      *golang.File
+	*golang.File
 	endpoints Endpoints
 }
 
@@ -25,6 +25,6 @@ type handlerFunc struct {
 
 func NewHandlers(fileName string, meta model.Meta) Handlers {
 	return Handlers{
-		file: meta.PKG.AddGoFile(fileName),
+		File: meta.PKG.AddGoFile(fileName),
 	}
 }

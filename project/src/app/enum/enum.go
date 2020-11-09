@@ -8,12 +8,12 @@ import (
 type Map map[string]Enum
 
 type Enums struct {
-	pkg   *golang.Package
+	*golang.Package
 	enums Map
 }
 
 type Enum struct {
-	file        *golang.File
+	*golang.File
 	Name        string   `yaml:"name,omitempty"`
 	Description string   `yaml:"description,omitempty"`
 	Type        string   `yaml:"type,omitempty"`
@@ -28,14 +28,14 @@ func NewEnums(pkg *golang.Package, enums []Enum) Enums {
 		result[key] = newEnum(pkgEnums, e)
 	}
 	return Enums{
-		pkg:   pkgEnums,
-		enums: result,
+		Package: pkgEnums,
+		enums:   result,
 	}
 }
 
 func newEnum(pkg *golang.Package, e Enum) Enum {
 	return Enum{
-		file:        pkg.AddGoFile(e.Name),
+		File:        pkg.AddGoFile(e.Name),
 		Name:        e.Name,
 		Description: e.Description,
 		Type:        e.Type,

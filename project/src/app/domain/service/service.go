@@ -6,11 +6,11 @@ import (
 )
 
 type Service struct {
-	file *golang.File
+	*golang.File
 }
 
 func NewService(fileName string, meta model.Meta) Service {
 	return Service{
-		file: meta.PKG.AddGoFile(fileName),
+		File: meta.PKG.AddGoFile(fileName),
 	}
 }
