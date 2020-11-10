@@ -32,8 +32,7 @@ func (f *File) Render() string {
 	var lines []string
 
 	for _, s := range f.structs {
-		merged := mergeImports(*f.imports, s.GetImports())
-		f.imports = &merged
+		f.imports = mergeImports(*f.imports, s.GetImports())
 		lines = append(lines, s.Render())
 	}
 

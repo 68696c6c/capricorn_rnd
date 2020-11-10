@@ -12,14 +12,14 @@ type Model struct {
 	BelongsTo    []string `yaml:"belongs_to,omitempty"`
 	HasMany      []string `yaml:"has_many,omitempty"`
 	Fields       []Field  `yaml:"fields,omitempty"`
-	Actions      []string `yaml:"actions,omitempty"`
+	Actions      []Action `yaml:"actions,omitempty"`
 	Custom       []string `yaml:"custom,omitempty"`
-	built        bool     `yaml:"-"`
+	modelType    *Type    `yaml:"-"`
 }
 
-func (m *Model) Build(pkg *golang.Package, enums *enum.Enums, fileName string) {
-	if m.built {
-		return
+func (m *Model) Build(pkg *golang.Package, enums *enum.Enums, fileName string) Type {
+	if m.modelType != nil {
+		return *m.modelType
 	}
 
 	m.File = pkg.AddGoFile(fileName)
@@ -52,5 +52,7 @@ func (m *Model) Build(pkg *golang.Package, enums *enum.Enums, fileName string) {
 	model.buildFields()
 
 	m.AddStruct(model.Struct)
-	m.built = true
+	m.modelType = model
+
+	return *m.modelType
 }

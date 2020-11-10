@@ -3,6 +3,7 @@ module github.com/68696c6c/capricorn_rnd
 go 1.15
 
 require (
+	github.com/68696c6c/goat v0.1.28 // indirect
 	github.com/bradleyjkemp/cupaloy/v2 v2.6.0
 	github.com/jinzhu/inflection v1.0.0
 	github.com/pkg/errors v0.9.1

@@ -10,7 +10,10 @@ type Repo struct {
 }
 
 func NewRepo(fileName string, meta model.Meta) Repo {
-	return Repo{
+	result := &Repo{
 		File: meta.PKG.AddGoFile(fileName),
 	}
+	repo := newRepo(result.PKG.GetBaseImport(), result.PKG.GetName(), fileName, meta)
+	result.AddStruct(repo.Struct)
+	return *result
 }

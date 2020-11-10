@@ -9,9 +9,24 @@ import (
 
 const dddModelName = "Model"
 
+type Action string
+
+const (
+	ActionCreate = "create"
+	ActionView   = "view"
+	ActionList   = "list"
+	ActionUpdate = "update"
+	ActionDelete = "delete"
+)
+
+func GetAllActions() []Action {
+	return []Action{ActionCreate, ActionView, ActionList, ActionUpdate, ActionDelete}
+}
+
 type Meta struct {
-	PKG *golang.Package
-	Model
+	PKG       *golang.Package
+	ModelType Type
+	Actions   []Action
 }
 
 func getAssumedModelType(baseImport, inputName string, isPointer bool) golang.IType {
@@ -54,47 +69,17 @@ func newBaseModelStruct() *golang.Struct {
 
 func getModelSoftDelete() *golang.Struct {
 	result := newBaseModelStruct()
-	result.AddField(makeField("id", getIdType(), true))
-	result.AddField(makeField("created_at", getTimeType(false), true))
-	result.AddField(makeField("updated_at", getTimeType(true), true))
-	result.AddField(makeField("deleted_at", getTimeType(true), true))
+	result.AddField(makeField("id", golang.MakeIdType(), true))
+	result.AddField(makeField("created_at", golang.MakeTimeType(false), true))
+	result.AddField(makeField("updated_at", golang.MakeTimeType(true), true))
+	result.AddField(makeField("deleted_at", golang.MakeTimeType(true), true))
 	return result
 }
 
 func getModelHardDelete() *golang.Struct {
 	result := newBaseModelStruct()
-	result.AddField(makeField("id", getIdType(), true))
-	result.AddField(makeField("created_at", getTimeType(false), true))
-	result.AddField(makeField("updated_at", getTimeType(true), true))
+	result.AddField(makeField("id", golang.MakeIdType(), true))
+	result.AddField(makeField("created_at", golang.MakeTimeType(false), true))
+	result.AddField(makeField("updated_at", golang.MakeTimeType(true), true))
 	return result
-}
-
-func getIdType() golang.IType {
-	return golang.Type{
-		Import:    golang.ImportGoat,
-		Package:   "goat",
-		Name:      "ID",
-		IsPointer: false,
-		IsSlice:   false,
-	}
-}
-
-func getStringType() golang.IType {
-	return golang.Type{
-		Import:    "",
-		Package:   "",
-		Name:      "string",
-		IsPointer: false,
-		IsSlice:   false,
-	}
-}
-
-func getTimeType(isPointer bool) golang.IType {
-	return golang.Type{
-		Import:    "time",
-		Package:   "time",
-		Name:      "Time",
-		IsPointer: isPointer,
-		IsSlice:   false,
-	}
 }

@@ -29,16 +29,21 @@ func NewDomains(pkg *golang.Package, resources []*model.Model, enums *enum.Enums
 	return result
 }
 
-func newDomain(pkg *golang.Package, m *model.Model, enums *enum.Enums) Domain {
-	pkgDomain := pkg.AddPackage(utils.Plural(m.Name))
-	m.Build(pkgDomain, enums, "model")
+func newDomain(pkg *golang.Package, resource *model.Model, enums *enum.Enums) Domain {
+	pkgDomain := pkg.AddPackage(utils.Plural(resource.Name))
+	modelType := resource.Build(pkgDomain, enums, "model")
+	actions := resource.Actions
+	if len(actions) == 0 {
+		actions = model.GetAllActions()
+	}
 	meta := model.Meta{
-		PKG:   pkgDomain,
-		Model: *m,
+		PKG:       pkgDomain,
+		ModelType: modelType,
+		Actions:   actions,
 	}
 	return Domain{
 		pkg:      pkgDomain,
-		Model:    *m,
+		Model:    *resource,
 		Repo:     repo.NewRepo("repo", meta),
 		Service:  service.NewService("service", meta),
 		Handlers: handlers.NewHandlers("handlers", meta),

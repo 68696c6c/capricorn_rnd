@@ -102,3 +102,43 @@ func getPkgAndTypeFromReference(trimmedReference string) (pkgName, typeName stri
 	}
 	return "", trimmedReference
 }
+
+func MakeIdType() Type {
+	return Type{
+		Import:    ImportGoat,
+		Package:   "goat",
+		Name:      "ID",
+		IsPointer: false,
+		IsSlice:   false,
+	}
+}
+
+func MakeErrorType() Type {
+	return Type{
+		Import:    "",
+		Package:   "",
+		Name:      "error",
+		IsPointer: false,
+		IsSlice:   false,
+	}
+}
+
+func MakeTimeType(isPointer bool) Type {
+	return Type{
+		Import:    "time",
+		Package:   "time",
+		Name:      "Time",
+		IsPointer: isPointer,
+		IsSlice:   false,
+	}
+}
+
+func MakeQueryType() Type {
+	return Type{
+		Import:    ImportQuery,
+		Package:   "query",
+		Name:      "Query",
+		IsPointer: true,
+		IsSlice:   false,
+	}
+}

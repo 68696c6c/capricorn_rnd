@@ -66,11 +66,11 @@ func (i *imports) AddImportsVendor(pkgImport ...string) {
 	i.vendorImports = append(i.vendorImports, pkgImport...)
 }
 
-func mergeImports(target, additional imports) imports {
+func mergeImports(target, additional imports) *imports {
 	target.standardImports = append(target.standardImports, additional.standardImports...)
 	target.appImports = append(target.appImports, additional.appImports...)
 	target.vendorImports = append(target.vendorImports, additional.vendorImports...)
-	return imports{
+	return &imports{
 		standardImports: removeDuplicateStrings(target.standardImports),
 		appImports:      removeDuplicateStrings(target.appImports),
 		vendorImports:   removeDuplicateStrings(target.vendorImports),

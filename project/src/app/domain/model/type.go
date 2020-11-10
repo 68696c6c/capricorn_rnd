@@ -8,15 +8,15 @@ import (
 	"github.com/68696c6c/capricorn_rnd/utils"
 )
 
-type modelStruct struct {
+type Type struct {
 	*golang.Struct
 	*fields
 	baseImport string
 	hardDelete bool
 }
 
-func newModel(baseImport, pkgName, fileName string, hardDelete bool) *modelStruct {
-	return &modelStruct{
+func newModel(baseImport, pkgName, fileName string, hardDelete bool) *Type {
+	return &Type{
 		Struct: golang.NewStructFromType(golang.Type{
 			Import:    path.Join(baseImport, pkgName),
 			Package:   pkgName,
@@ -30,14 +30,14 @@ func newModel(baseImport, pkgName, fileName string, hardDelete bool) *modelStruc
 	}
 }
 
-func (m *modelStruct) buildFields() {
+func (m *Type) buildFields() {
 	for _, f := range m.modelFields {
 		m.AddField(f)
 	}
 }
 
 // Determine the base model type, compose it into our type, and register the base model fields.
-func (m *modelStruct) addBaseFields() {
+func (m *Type) addBaseFields() {
 	modelType := getModelSoftDelete()
 	if m.hardDelete {
 		modelType = getModelHardDelete()
@@ -56,7 +56,7 @@ func (m *modelStruct) addBaseFields() {
 	}
 }
 
-func (m *modelStruct) addUserDefinedField(enums *enum.Enums, f Field) {
+func (m *Type) addUserDefinedField(enums *enum.Enums, f Field) {
 	fieldType := golang.NewTypeFromReference(f.Type)
 	eType, isEnum := enums.GetEnumType(f.Type)
 	if isEnum {
@@ -66,19 +66,19 @@ func (m *modelStruct) addUserDefinedField(enums *enum.Enums, f Field) {
 	m.AddAllField(makeField(f.Name, fieldType, true))
 }
 
-func (m *modelStruct) addBelongsToIdField(relation string) {
+func (m *Type) addBelongsToIdField(relation string) {
 	name := utils.Pascal(utils.Singular(relation) + "_id")
-	m.AddAllField(makeField(name, getIdType(), true))
+	m.AddAllField(makeField(name, golang.MakeIdType(), true))
 }
 
-func (m *modelStruct) addBelongsToTargetField(relation string) {
+func (m *Type) addBelongsToTargetField(relation string) {
 	name := utils.Pascal(utils.Plural(relation))
 	relModel := getAssumedModelType(m.baseImport, relation, true)
 	m.AddImportsApp(relModel.GetImport())
 	m.AddModelField(makeField(name, relModel, true))
 }
 
-func (m *modelStruct) addHasManyField(relation string) {
+func (m *Type) addHasManyField(relation string) {
 	name := utils.Pascal(relation)
 	relModel := getAssumedModelType(m.baseImport, relation, true)
 	m.AddImportsApp(relModel.GetImport())
