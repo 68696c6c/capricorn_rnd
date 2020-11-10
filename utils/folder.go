@@ -4,37 +4,49 @@ import "path"
 
 // Folder represents an internal node in a project tree.
 type Folder struct {
-	FullPath string
-	BasePath string
-	Name     string
+	fullPath string
+	basePath string
+	name     string
 	folders  []Directory
 	files    []RenderableFile
 }
 
 func NewFolder(basePath, name string) *Folder {
 	return &Folder{
-		FullPath: path.Join(basePath, name),
-		BasePath: basePath,
-		Name:     name,
+		fullPath: path.Join(basePath, name),
+		basePath: basePath,
+		name:     name,
 		folders:  []Directory{},
 		files:    []RenderableFile{},
 	}
 }
 
 func (f *Folder) AddFolder(name string) *Folder {
-	dir := NewFolder(f.BasePath, name)
+	dir := NewFolder(f.basePath, name)
 	f.folders = append(f.folders, dir)
 	return dir
 }
 
 func (f *Folder) AddFile(name, ext string) *File {
-	file := NewFile(f.BasePath, name, ext)
+	file := NewFile(f.basePath, name, ext)
 	f.files = append(f.files, file)
 	return file
 }
 
-func (f *Folder) GetPath() string {
-	return f.FullPath
+func (f *Folder) GetName() string {
+	return f.name
+}
+
+func (f *Folder) GetFullPath() string {
+	return f.fullPath
+}
+
+func (f *Folder) GetBasePath() string {
+	return f.basePath
+}
+
+func (f *Folder) GetImport() string {
+	return f.fullPath
 }
 
 func (f *Folder) GetFiles() []RenderableFile {

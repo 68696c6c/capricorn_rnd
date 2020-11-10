@@ -5,6 +5,32 @@ import (
 	"strings"
 )
 
+type importRequirements struct {
+	imports Imports
+}
+
+func newImportRequirements() *importRequirements {
+	return &importRequirements{
+		imports: Imports{
+			Standard: []string{},
+			App:      []string{},
+			Vendor:   []string{},
+		},
+	}
+}
+
+func (i *importRequirements) AddImportsStandard(pkgImport ...string) {
+	i.imports.Standard = append(i.imports.Standard, pkgImport...)
+}
+
+func (i *importRequirements) AddImportsApp(pkgImport ...string) {
+	i.imports.App = append(i.imports.App, pkgImport...)
+}
+
+func (i *importRequirements) AddImportsVendor(pkgImport ...string) {
+	i.imports.Vendor = append(i.imports.Vendor, pkgImport...)
+}
+
 type Imports struct {
 	Standard []string
 	App      []string

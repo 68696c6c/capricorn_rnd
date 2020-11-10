@@ -28,10 +28,17 @@ func (t Type) GetImport() string {
 }
 
 func (t Type) GetReference() string {
-	if t.Package == "" {
-		return t.Name
+	prefix := ""
+	if t.IsPointer {
+		prefix += "*"
 	}
-	return fmt.Sprintf("%s.%s", t.Package, t.Name)
+	if t.IsSlice {
+		prefix += "[]"
+	}
+	if t.Package == "" {
+		return prefix + t.Name
+	}
+	return fmt.Sprintf("%s%s.%s", prefix, t.Package, t.Name)
 }
 
 func (t Type) GetName() string {

@@ -16,10 +16,10 @@ type App struct {
 	Config    container.Config
 }
 
-func NewApp(pkg *golang.Package, enums []enum.Enum, resources []model.Model) App {
+func NewApp(pkg *golang.Package, enums []enum.Enum, resources []*model.Model) App {
 	pkgApp := pkg.AddPackage("app")
 	appEnums := enum.NewEnums(pkgApp, enums)
-	appDomains := domain.NewDomains(pkgApp, resources)
+	appDomains := domain.NewDomains(pkgApp, resources, &appEnums)
 	return App{
 		Package:   pkgApp,
 		Enums:     appEnums,

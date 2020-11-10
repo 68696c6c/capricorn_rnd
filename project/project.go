@@ -16,14 +16,14 @@ import (
 )
 
 type Project struct {
-	Name      string        `yaml:"name,omitempty"`
-	Module    string        `yaml:"module,omitempty"`
-	License   string        `yaml:"license,omitempty"`
-	Author    Author        `yaml:"author,omitempty"`
-	Ops       local.Config  `yaml:"ops"`
-	Commands  []cmd.Command `yaml:"commands"`
-	Enums     []enum.Enum   `yaml:"enums"`
-	Resources []model.Model `yaml:"resources"`
+	Name      string         `yaml:"name,omitempty"`
+	Module    string         `yaml:"module,omitempty"`
+	License   string         `yaml:"license,omitempty"`
+	Author    Author         `yaml:"author,omitempty"`
+	Ops       local.Config   `yaml:"ops"`
+	Commands  []cmd.Command  `yaml:"commands"`
+	Enums     []enum.Enum    `yaml:"enums"`
+	Resources []*model.Model `yaml:"resources"`
 }
 
 type Author struct {

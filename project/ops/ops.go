@@ -16,7 +16,7 @@ type Ops struct {
 }
 
 func Build(root *utils.Folder, c local.Config) {
-	rootPath := root.GetPath()
+	rootPath := root.GetFullPath()
 	root.AddRenderableFile(local.NewAppEnv(rootPath, c, false))
 	root.AddRenderableFile(local.NewAppEnv(rootPath, c, true))
 	root.AddRenderableFile(local.NewMakefile(rootPath, c))

@@ -16,7 +16,7 @@ type Meta struct {
 	Module    string
 	Commands  []cmd.Command
 	Enums     []enum.Enum
-	Resources []model.Model
+	Resources []*model.Model
 }
 
 type SRC struct {
@@ -28,7 +28,7 @@ type SRC struct {
 }
 
 func Build(root *utils.Folder, meta Meta) {
-	pkgSrc := golang.NewPackage("src", root.GetPath(), meta.Module)
+	pkgSrc := golang.NewPackage("src", root.GetFullPath(), meta.Module)
 	srcApp := app.NewApp(pkgSrc, meta.Enums, meta.Resources)
 
 	cmd.Build(pkgSrc, meta.Commands)

@@ -30,7 +30,7 @@ func NewEnums(pkg *golang.Package, enums []Enum) Enums {
 	result := make(Map)
 	pkgEnums := pkg.AddPackage(pkgNameEnums)
 	for _, e := range enums {
-		key := utils.Kebob(e.Name)
+		key := utils.Snake(e.Name)
 		result[key] = newEnum(pkgEnums, e)
 	}
 	return Enums{
@@ -49,11 +49,11 @@ func newEnum(pkg *golang.Package, e Enum) Enum {
 	}
 }
 
-func GetEnumType(input string) (golang.IType, bool) {
+func (e Enums) GetEnumType(input string) (golang.IType, bool) {
 	if strings.HasPrefix(input, specPrefix) {
 		name := strings.TrimPrefix(input, specPrefix)
 		return golang.Type{
-			Import:    "???",
+			Import:    e.GetImport(),
 			Package:   pkgNameEnums,
 			Name:      utils.Pascal(name),
 			IsPointer: false,

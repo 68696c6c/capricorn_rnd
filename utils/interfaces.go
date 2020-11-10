@@ -35,7 +35,8 @@ type RenderableFile interface {
 }
 
 type Directory interface {
-	GetPath() string
+	GetFullPath() string
+	GetBasePath() string
 	GetFiles() []RenderableFile
 	GetDirectories() []Directory
 	AddFile(name, ext string) *File

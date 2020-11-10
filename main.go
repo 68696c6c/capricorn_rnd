@@ -9,7 +9,7 @@ import (
 
 func main() {
 	var err error
-	exampleName := "basic"
+	exampleName := "complex"
 	module, err := project.NewProjectFromSpec(fmt.Sprintf("%s.yml", exampleName))
 	if err != nil {
 		panic(err)

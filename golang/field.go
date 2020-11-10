@@ -22,7 +22,7 @@ func (f Field) Render() string {
 func (f Fields) Render() string {
 	var builtValues []string
 	for _, field := range f {
-		valueString := string(field.Render())
+		valueString := field.Render()
 		builtValues = append(builtValues, valueString)
 	}
 	if len(builtValues) == 0 {

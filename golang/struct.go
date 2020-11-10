@@ -3,8 +3,17 @@ package golang
 import "github.com/68696c6c/capricorn_rnd/utils"
 
 type Struct struct {
+	*importRequirements
 	Type
 	fields Fields
+}
+
+func NewStructFromType(t Type) *Struct {
+	return &Struct{
+		Type:               t,
+		fields:             Fields{},
+		importRequirements: newImportRequirements(),
+	}
 }
 
 func (s *Struct) AddField(f Field) {

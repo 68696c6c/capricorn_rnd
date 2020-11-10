@@ -63,7 +63,7 @@ func (g *generator) WriteFile(r utils.RenderableFile) []byte {
 }
 
 func (g *generator) Generate(d utils.Directory) {
-	err := createDir(d.GetPath())
+	err := createDir(d.GetFullPath())
 	if err != nil {
 		panic(err)
 	}

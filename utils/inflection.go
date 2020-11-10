@@ -1,6 +1,10 @@
 package utils
 
-import "strings"
+import (
+	"strings"
+
+	"github.com/jinzhu/inflection"
+)
 
 var specialChars = []rune{
 	'@',
@@ -42,6 +46,14 @@ func NewInflection(separated string) Inflection {
 		Pascal: Pascal(separated),
 		Camel:  Camel(separated),
 	}
+}
+
+func Singular(input string) string {
+	return inflection.Singular(input)
+}
+
+func Plural(input string) string {
+	return inflection.Plural(input)
 }
 
 func Kebob(separated string) string {
