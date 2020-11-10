@@ -5,17 +5,17 @@ import (
 	"strings"
 )
 
-type imports struct {
-	standard []string
-	app      []string
-	vendor   []string
+type Imports struct {
+	Standard []string
+	App      []string
+	Vendor   []string
 }
 
-func (i imports) hasImports() bool {
-	return len(i.standard) > 0 || len(i.app) > 0 || len(i.vendor) > 0
+func (i Imports) hasImports() bool {
+	return len(i.Standard) > 0 || len(i.App) > 0 || len(i.Vendor) > 0
 }
 
-func (i imports) Render() []byte {
+func (i Imports) Render() []byte {
 	if !i.hasImports() {
 		return []byte{}
 	}
@@ -32,9 +32,9 @@ func (i imports) Render() []byte {
 	}
 
 	var sectionImports []string
-	sectionImports = appendSection(sectionImports, i.standard)
-	sectionImports = appendSection(sectionImports, i.app)
-	sectionImports = appendSection(sectionImports, i.vendor)
+	sectionImports = appendSection(sectionImports, i.Standard)
+	sectionImports = appendSection(sectionImports, i.App)
+	sectionImports = appendSection(sectionImports, i.Vendor)
 
 	result := []string{"import ("}
 
@@ -46,14 +46,14 @@ func (i imports) Render() []byte {
 	return []byte(strings.Join(result, "\n"))
 }
 
-func mergeImports(target, additional imports) imports {
-	target.standard = append(target.standard, additional.standard...)
-	target.app = append(target.app, additional.app...)
-	target.vendor = append(target.vendor, additional.vendor...)
-	return imports{
-		standard: removeDuplicateStrings(target.standard),
-		app:      removeDuplicateStrings(target.app),
-		vendor:   removeDuplicateStrings(target.vendor),
+func mergeImports(target, additional Imports) Imports {
+	target.Standard = append(target.Standard, additional.Standard...)
+	target.App = append(target.App, additional.App...)
+	target.Vendor = append(target.Vendor, additional.Vendor...)
+	return Imports{
+		Standard: removeDuplicateStrings(target.Standard),
+		App:      removeDuplicateStrings(target.App),
+		Vendor:   removeDuplicateStrings(target.Vendor),
 	}
 }
 

@@ -37,6 +37,7 @@ func (p *Package) AddPackage(name string) *Package {
 func (p *Package) AddGoFile(name string) *File {
 	file := NewFile(name, p.Paths)
 	p.AddRenderableFile(file)
+	file.PKG = p
 	return file
 }
 

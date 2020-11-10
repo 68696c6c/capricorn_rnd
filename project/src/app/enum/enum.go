@@ -3,6 +3,12 @@ package enum
 import (
 	"github.com/68696c6c/capricorn_rnd/golang"
 	"github.com/68696c6c/capricorn_rnd/utils"
+	"strings"
+)
+
+const (
+	pkgNameEnums = "enums"
+	specPrefix   = "enum:"
 )
 
 type Map map[string]Enum
@@ -22,7 +28,7 @@ type Enum struct {
 
 func NewEnums(pkg *golang.Package, enums []Enum) Enums {
 	result := make(Map)
-	pkgEnums := pkg.AddPackage("enums")
+	pkgEnums := pkg.AddPackage(pkgNameEnums)
 	for _, e := range enums {
 		key := utils.Kebob(e.Name)
 		result[key] = newEnum(pkgEnums, e)
@@ -41,4 +47,18 @@ func newEnum(pkg *golang.Package, e Enum) Enum {
 		Type:        e.Type,
 		Values:      e.Values,
 	}
+}
+
+func GetEnumType(input string) (golang.IType, bool) {
+	if strings.HasPrefix(input, specPrefix) {
+		name := strings.TrimPrefix(input, specPrefix)
+		return golang.Type{
+			Import:    "???",
+			Package:   pkgNameEnums,
+			Name:      utils.Pascal(name),
+			IsPointer: false,
+			IsSlice:   false,
+		}, true
+	}
+	return nil, false
 }
