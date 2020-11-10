@@ -22,7 +22,7 @@ func NewGitIgnore(basePath string, c Config) GitIgnore {
 	}
 }
 
-func (g GitIgnore) Render() []byte {
+func (g GitIgnore) Render() string {
 	result, err := utils.ParseTemplate(g.FullPath, gitignoreTemplate, g.data)
 	if err != nil {
 		panic(err)

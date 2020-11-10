@@ -44,7 +44,7 @@ func (g *generator) WriteString(s string) utils.Generator {
 
 // Appends the provided Renderable to the output.
 func (g *generator) Render(r utils.Renderable) utils.Generator {
-	g.Write(r.Render())
+	g.Write([]byte(r.Render()))
 	return g
 }
 
@@ -55,7 +55,7 @@ func (g *generator) Out() []byte {
 
 // Sets and writes the provided RenderableFile to it's target file.
 func (g *generator) WriteFile(r utils.RenderableFile) []byte {
-	out := r.Render()
+	out := []byte(r.Render())
 	result := g.Reset().Write(out).Out()
 	err := writeFile(r.GetFullPath(), result)
 	g.errors.HandleError(err)

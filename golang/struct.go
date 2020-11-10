@@ -15,7 +15,7 @@ func (s *Struct) GetStructFields() []Field {
 	return s.fields
 }
 
-func (s Struct) Render() []byte {
+func (s Struct) Render() string {
 	var template = `type {{ .Name }} struct {
 	{{- range $key, $value := .Fields }}
 	{{ $value.Render }}
@@ -33,38 +33,3 @@ func (s Struct) Render() []byte {
 	}
 	return result
 }
-
-// func hmm() Struct {
-// 	userSiteModel := Struct{
-// 		Type: Type{
-// 			Import:    "github.com/68696c6c/src/app/user_sites",
-// 			Package:   "user_sites",
-// 			Name:      "Model",
-// 			IsPointer: true,
-// 			IsSlice:   false,
-// 		},
-// 	}
-// 	userModel := Struct{
-// 		Type: Type{
-// 			Import:    "github.com/68696c6c/src/app/users",
-// 			Package:   "users",
-// 			Name:      "Model",
-// 			IsPointer: false,
-// 			IsSlice:   false,
-// 		},
-// 		fields: []*Field{
-// 			{
-// 				Type: GetModelSoftDelete(),
-// 			},
-// 			makeField("email", getStringType(), true),
-// 			makeField("first_name", getStringType(), true),
-// 			makeField("last_name", getStringType(), true),
-// 			{
-// 				Name: "UserSites",
-// 				Type: MakeSliceType(false, userSiteModel),
-// 				Tags: nil,
-// 			},
-// 		},
-// 	}
-// 	return userModel
-// }

@@ -101,7 +101,7 @@ func NewMakefile(basePath string, c Config) Makefile {
 	}
 }
 
-func (m Makefile) Render() []byte {
+func (m Makefile) Render() string {
 	result, err := utils.ParseTemplate(m.FullPath, makefileTemplate, m.data)
 	if err != nil {
 		panic(err)

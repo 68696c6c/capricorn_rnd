@@ -138,7 +138,6 @@ func (m *Model) build() {
 		},
 	}
 	for _, f := range fields.model {
-		println("adding field " + f.Name)
 		modelStruct.AddField(f)
 	}
 

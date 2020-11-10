@@ -12,7 +12,7 @@ type Generator interface {
 }
 
 type Renderable interface {
-	Render() []byte
+	Render() string
 }
 
 type RenderableFile interface {

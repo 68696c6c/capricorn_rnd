@@ -46,6 +46,6 @@ func (f *File) GetExtension() string {
 	return f.Ext
 }
 
-func (f *File) Render() []byte {
-	return nil
+func (f *File) Render() string {
+	return ""
 }

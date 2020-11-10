@@ -56,7 +56,7 @@ func NewDockerfile(basePath string, c Config) Dockerfile {
 	}
 }
 
-func (d Dockerfile) Render() []byte {
+func (d Dockerfile) Render() string {
 	result, err := utils.ParseTemplate(d.FullPath, dockerfileTemplate, d.data)
 	if err != nil {
 		panic(err)

@@ -21,21 +21,21 @@ func (t Tag) getValues() string {
 	return strings.TrimSpace(joinedValues)
 }
 
-func (t Tag) Render() []byte {
+func (t Tag) Render() string {
 	result := fmt.Sprintf(`%s:"%s"`, t.Key, t.getValues())
-	return []byte(result)
+	return result
 }
 
-func (t Tags) Render() []byte {
+func (t Tags) Render() string {
 	var builtValues []string
 	for _, tag := range t {
-		valueString := string(tag.Render())
+		valueString := tag.Render()
 		builtValues = append(builtValues, valueString)
 	}
 	if len(builtValues) == 0 {
-		return []byte("")
+		return ""
 	}
 	joinedValues := strings.TrimSpace(strings.Join(builtValues, " "))
 	result := fmt.Sprintf("`%s`", joinedValues)
-	return []byte(result)
+	return result
 }

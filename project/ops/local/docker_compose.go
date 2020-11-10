@@ -62,7 +62,7 @@ func NewDockerCompose(basePath string, c Config) DockerCompose {
 	}
 }
 
-func (d DockerCompose) Render() []byte {
+func (d DockerCompose) Render() string {
 	result, err := utils.ParseTemplate(d.FullPath, dockerComposeTemplate, d.data)
 	if err != nil {
 		panic(err)

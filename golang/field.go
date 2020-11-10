@@ -13,22 +13,22 @@ type Field struct {
 	Tags Tags
 }
 
-func (f Field) Render() []byte {
+func (f Field) Render() string {
 	built := fmt.Sprintf(`%s %s %s`, f.Name, f.Type.GetReference(), string(f.Tags.Render()))
 	result := strings.TrimSpace(built)
-	return []byte(result)
+	return result
 }
 
-func (f Fields) Render() []byte {
+func (f Fields) Render() string {
 	var builtValues []string
 	for _, field := range f {
 		valueString := string(field.Render())
 		builtValues = append(builtValues, valueString)
 	}
 	if len(builtValues) == 0 {
-		return []byte("")
+		return ""
 	}
 	joinedValues := strings.Join(builtValues, "\n")
 	result := strings.TrimSpace(joinedValues)
-	return []byte(result)
+	return result
 }

@@ -38,7 +38,7 @@ func NewAppEnv(basePath string, c Config, isExample bool) AppEnv {
 	}
 }
 
-func (a AppEnv) Render() []byte {
+func (a AppEnv) Render() string {
 	t := appEnvTemplate
 	if a.isExample {
 		t = appExampleEnvTemplate

@@ -35,8 +35,8 @@ func (s srcTestRenderer) GetExtension() string {
 	return ""
 }
 
-func (s srcTestRenderer) Render() []byte {
-	return []byte(testSRC)
+func (s srcTestRenderer) Render() string {
+	return testSRC
 }
 
 func TestGenerator_Out(t *testing.T) {

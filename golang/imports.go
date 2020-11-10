@@ -15,9 +15,9 @@ func (i Imports) hasImports() bool {
 	return len(i.Standard) > 0 || len(i.App) > 0 || len(i.Vendor) > 0
 }
 
-func (i Imports) Render() []byte {
+func (i Imports) Render() string {
 	if !i.hasImports() {
-		return []byte{}
+		return ""
 	}
 
 	appendSection := func(heap []string, section []string) []string {
@@ -43,7 +43,7 @@ func (i Imports) Render() []byte {
 
 	result = append(result, ")")
 
-	return []byte(strings.Join(result, "\n"))
+	return strings.Join(result, "\n")
 }
 
 func mergeImports(target, additional Imports) Imports {
