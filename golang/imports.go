@@ -5,43 +5,25 @@ import (
 	"strings"
 )
 
-type importRequirements struct {
-	imports Imports
+type imports struct {
+	standardImports []string
+	appImports      []string
+	vendorImports   []string
 }
 
-func newImportRequirements() *importRequirements {
-	return &importRequirements{
-		imports: Imports{
-			Standard: []string{},
-			App:      []string{},
-			Vendor:   []string{},
-		},
+func newImports() *imports {
+	return &imports{
+		standardImports: []string{},
+		appImports:      []string{},
+		vendorImports:   []string{},
 	}
 }
 
-func (i *importRequirements) AddImportsStandard(pkgImport ...string) {
-	i.imports.Standard = append(i.imports.Standard, pkgImport...)
+func (i imports) hasImports() bool {
+	return len(i.standardImports) > 0 || len(i.appImports) > 0 || len(i.vendorImports) > 0
 }
 
-func (i *importRequirements) AddImportsApp(pkgImport ...string) {
-	i.imports.App = append(i.imports.App, pkgImport...)
-}
-
-func (i *importRequirements) AddImportsVendor(pkgImport ...string) {
-	i.imports.Vendor = append(i.imports.Vendor, pkgImport...)
-}
-
-type Imports struct {
-	Standard []string
-	App      []string
-	Vendor   []string
-}
-
-func (i Imports) hasImports() bool {
-	return len(i.Standard) > 0 || len(i.App) > 0 || len(i.Vendor) > 0
-}
-
-func (i Imports) Render() string {
+func (i imports) Render() string {
 	if !i.hasImports() {
 		return ""
 	}
@@ -58,9 +40,9 @@ func (i Imports) Render() string {
 	}
 
 	var sectionImports []string
-	sectionImports = appendSection(sectionImports, i.Standard)
-	sectionImports = appendSection(sectionImports, i.App)
-	sectionImports = appendSection(sectionImports, i.Vendor)
+	sectionImports = appendSection(sectionImports, i.standardImports)
+	sectionImports = appendSection(sectionImports, i.appImports)
+	sectionImports = appendSection(sectionImports, i.vendorImports)
 
 	result := []string{"import ("}
 
@@ -72,14 +54,26 @@ func (i Imports) Render() string {
 	return strings.Join(result, "\n")
 }
 
-func mergeImports(target, additional Imports) Imports {
-	target.Standard = append(target.Standard, additional.Standard...)
-	target.App = append(target.App, additional.App...)
-	target.Vendor = append(target.Vendor, additional.Vendor...)
-	return Imports{
-		Standard: removeDuplicateStrings(target.Standard),
-		App:      removeDuplicateStrings(target.App),
-		Vendor:   removeDuplicateStrings(target.Vendor),
+func (i *imports) AddImportsStandard(pkgImport ...string) {
+	i.standardImports = append(i.standardImports, pkgImport...)
+}
+
+func (i *imports) AddImportsApp(pkgImport ...string) {
+	i.appImports = append(i.appImports, pkgImport...)
+}
+
+func (i *imports) AddImportsVendor(pkgImport ...string) {
+	i.vendorImports = append(i.vendorImports, pkgImport...)
+}
+
+func mergeImports(target, additional imports) imports {
+	target.standardImports = append(target.standardImports, additional.standardImports...)
+	target.appImports = append(target.appImports, additional.appImports...)
+	target.vendorImports = append(target.vendorImports, additional.vendorImports...)
+	return imports{
+		standardImports: removeDuplicateStrings(target.standardImports),
+		appImports:      removeDuplicateStrings(target.appImports),
+		vendorImports:   removeDuplicateStrings(target.vendorImports),
 	}
 }
 

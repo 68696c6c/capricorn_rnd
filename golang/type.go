@@ -13,6 +13,7 @@ type IType interface {
 	GetIsPointer() bool
 	GetIsSlice() bool
 	GetStructFields() []Field
+	GetImports() imports
 }
 
 type Type struct {
@@ -25,6 +26,10 @@ type Type struct {
 
 func (t Type) GetImport() string {
 	return t.Import
+}
+
+func (t Type) GetImports() imports {
+	return imports{}
 }
 
 func (t Type) GetReference() string {

@@ -7,10 +7,10 @@ import (
 )
 
 func Test_imports_Render(t *testing.T) {
-	input := Imports{
-		Standard: []string{"standard-one", "standard-two"},
-		App:      []string{"app-one", "app-two"},
-		Vendor:   []string{"vendor-one", "vendor-two"},
+	input := imports{
+		standardImports: []string{"standard-one", "standard-two"},
+		appImports:      []string{"app-one", "app-two"},
+		vendorImports:   []string{"vendor-one", "vendor-two"},
 	}
 
 	result := input.Render()
@@ -29,7 +29,7 @@ func Test_imports_Render(t *testing.T) {
 }
 
 func Test_imports_Render_none(t *testing.T) {
-	input := Imports{}
+	input := imports{}
 
 	result := input.Render()
 	expected := ""
@@ -38,9 +38,9 @@ func Test_imports_Render_none(t *testing.T) {
 }
 
 func Test_imports_Render_noStandard(t *testing.T) {
-	input := Imports{
-		App:    []string{"app-one", "app-two"},
-		Vendor: []string{"vendor-one", "vendor-two"},
+	input := imports{
+		appImports:    []string{"app-one", "app-two"},
+		vendorImports: []string{"vendor-one", "vendor-two"},
 	}
 
 	result := input.Render()
@@ -56,9 +56,9 @@ func Test_imports_Render_noStandard(t *testing.T) {
 }
 
 func Test_imports_Render_noApp(t *testing.T) {
-	input := Imports{
-		Standard: []string{"standard-one", "standard-two"},
-		Vendor:   []string{"vendor-one", "vendor-two"},
+	input := imports{
+		standardImports: []string{"standard-one", "standard-two"},
+		vendorImports:   []string{"vendor-one", "vendor-two"},
 	}
 
 	result := input.Render()
@@ -74,9 +74,9 @@ func Test_imports_Render_noApp(t *testing.T) {
 }
 
 func Test_imports_Render_noVendor(t *testing.T) {
-	input := Imports{
-		Standard: []string{"standard-one", "standard-two"},
-		App:      []string{"app-one", "app-two"},
+	input := imports{
+		standardImports: []string{"standard-one", "standard-two"},
+		appImports:      []string{"app-one", "app-two"},
 	}
 
 	result := input.Render()
@@ -92,21 +92,21 @@ func Test_imports_Render_noVendor(t *testing.T) {
 }
 
 func Test_mergeImports(t *testing.T) {
-	stack := Imports{
-		Standard: []string{"one"},
-		App:      []string{"one", "two"},
-		Vendor:   []string{"one", "two", "three"},
+	stack := imports{
+		standardImports: []string{"one"},
+		appImports:      []string{"one", "two"},
+		vendorImports:   []string{"one", "two", "three"},
 	}
 
-	additional := Imports{
-		Standard: []string{},
-		App:      []string{},
-		Vendor:   []string{"one", "two", "three", "four"},
+	additional := imports{
+		standardImports: []string{},
+		appImports:      []string{},
+		vendorImports:   []string{"one", "two", "three", "four"},
 	}
 
 	stack = mergeImports(stack, additional)
 
-	assert.Len(t, stack.Standard, 1)
-	assert.Len(t, stack.App, 2)
-	assert.Len(t, stack.Vendor, 4)
+	assert.Len(t, stack.standardImports, 1)
+	assert.Len(t, stack.appImports, 2)
+	assert.Len(t, stack.vendorImports, 4)
 }
