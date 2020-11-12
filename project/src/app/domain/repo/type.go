@@ -3,58 +3,78 @@ package repo
 import (
 	"path"
 
-	"github.com/68696c6c/capricorn_rnd/project/src/app/domain/model"
-
 	"github.com/68696c6c/capricorn_rnd/golang"
+	"github.com/68696c6c/capricorn_rnd/project/src/app/domain/model"
 	"github.com/68696c6c/capricorn_rnd/utils"
 )
 
-const repoReceiverName = "r"
+func newRepo(modelMeta model.Meta, baseImport, pkgName, fileName string) (*golang.Struct, *golang.Interface) {
+	baseTypeName := utils.Pascal(fileName)
+	repoStruct := golang.NewStructFromType(golang.Type{
+		Import:    path.Join(baseImport, pkgName),
+		Package:   pkgName,
+		Name:      baseTypeName + "Gorm",
+		IsPointer: false,
+		IsSlice:   false,
+	})
 
-type repoStruct struct {
-	*golang.Struct
-	baseImport string
-	pkgName    string
-	modelType  model.Type
+	repoInterface := golang.NewInterfaceFromType(golang.Type{
+		Import:    path.Join(baseImport, pkgName),
+		Package:   pkgName,
+		Name:      baseTypeName,
+		IsPointer: false,
+		IsSlice:   false,
+	})
 
-	// Methods
-	filter            *golang.Function
-	getById           *golang.Function
-	save              *golang.Function
-	delete            *golang.Function
-	getBaseQuery      *golang.Function
-	getFilteredQuery  *golang.Function
-	getPaginatedCount *golang.Function
-}
+	meta := makeMethodMeta(modelMeta, baseImport, pkgName, repoStruct.GetReceiverName(), repoStruct.Type, repoInterface.Type)
 
-func newRepo(baseImport, pkgName, fileName string, meta model.Meta) *repoStruct {
-	result := &repoStruct{
-		Struct: golang.NewStructFromType(golang.Type{
-			Import:    path.Join(baseImport, pkgName),
-			Package:   pkgName,
-			Name:      utils.Pascal(fileName),
-			IsPointer: false,
-			IsSlice:   false,
-		}),
-		baseImport: baseImport,
-		pkgName:    pkgName,
-		modelType:  meta.ModelType,
-	}
-	result.SetReceiverName(repoReceiverName)
-	result.SetReceiverTypeRef(result.Name)
+	repoStruct.AddField(golang.Field{
+		Name: meta.dbFieldName,
+		Type: meta.dbType,
+	})
 
-	for _, a := range meta.Actions {
+	repoStruct.AddConstructor(makeConstructor(meta))
+
+	var needFilterFuncs bool
+	var saveDone bool
+	for _, a := range modelMeta.Actions {
 		switch a {
+		case model.ActionCreate:
+			fallthrough
+		case model.ActionUpdate:
+			if !saveDone {
+				m := makeSave(meta)
+				repoStruct.AddFunction(m)
+				repoInterface.AddFunction(m)
+			}
+			saveDone = true
+			break
+		case model.ActionView:
+			m := makeGetById(meta)
+			repoStruct.AddFunction(m)
+			repoInterface.AddFunction(m)
+			break
 		case model.ActionList:
-			result.AddFilterFunc()
+			m := makeFilter(meta)
+			repoStruct.AddFunction(m)
+			repoInterface.AddFunction(m)
+			needFilterFuncs = true
+			break
+		case model.ActionDelete:
+			m := makeDelete(meta)
+			repoStruct.AddFunction(m)
+			repoInterface.AddFunction(m)
 			break
 		}
 	}
 
-	return result
-}
+	// Add the unexported filter helper methods last so that they appear at the bottom of the file, keeping exported the
+	// interface methods at the top.
+	if needFilterFuncs {
+		repoStruct.AddFunction(makeGetBaseQuery(meta))
+		repoStruct.AddFunction(makeGetFilteredQuery(meta))
+		repoStruct.AddFunction(makeApplyPaginationToQuery(meta))
+	}
 
-func (r *repoStruct) AddFilterFunc() {
-	filter := makeFilter(r.baseImport, r.pkgName, r.GetReceiver().Name, r.modelType)
-	r.AddFunction(filter)
+	return repoStruct, repoInterface
 }

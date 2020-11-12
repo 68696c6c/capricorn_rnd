@@ -142,3 +142,13 @@ func MakeQueryType() Type {
 		IsSlice:   false,
 	}
 }
+
+func MakeDbConnectionType() Type {
+	return Type{
+		Import:    ImportGorm,
+		Package:   "gorm",
+		Name:      "DB",
+		IsPointer: true,
+		IsSlice:   false,
+	}
+}

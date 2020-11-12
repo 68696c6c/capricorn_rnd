@@ -1,6 +1,10 @@
 package golang
 
-import "github.com/68696c6c/capricorn_rnd/utils"
+import (
+	"strings"
+
+	"github.com/68696c6c/capricorn_rnd/utils"
+)
 
 type Struct struct {
 	Type
@@ -17,14 +21,19 @@ func NewStructFromType(t Type) *Struct {
 		imports: newImports(),
 		fields:  Fields{},
 		receiver: Value{
-			TypeRef: t.GetReference(),
-			Name:    typeName[0:1],
+			TypeRef: typeName,
+			Name:    strings.ToLower(typeName[0:1]),
 		},
 	}
 }
 
 func (s *Struct) AddField(f Field) {
 	s.fields = append(s.fields, f)
+}
+
+func (s *Struct) AddConstructor(f *Function) {
+	s.imports = mergeImports(*s.imports, f.GetImports())
+	s.functions = append(s.functions, f)
 }
 
 func (s *Struct) AddFunction(f *Function) {
@@ -41,16 +50,8 @@ func (s *Struct) GetImports() imports {
 	return *s.imports
 }
 
-func (s *Struct) SetReceiverName(name string) {
-	s.receiver.Name = name
-}
-
-func (s *Struct) SetReceiverTypeRef(typeRef string) {
-	s.receiver.TypeRef = typeRef
-}
-
-func (s *Struct) GetReceiver() Value {
-	return s.receiver
+func (s *Struct) GetReceiverName() string {
+	return s.receiver.Name
 }
 
 func (s *Struct) Render() string {

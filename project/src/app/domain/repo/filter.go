@@ -1,46 +1,49 @@
 package repo
 
 import (
+	"fmt"
+
 	"github.com/68696c6c/capricorn_rnd/golang"
-	"github.com/68696c6c/capricorn_rnd/project/src/app/domain/model"
 )
 
-func makeFilter(baseImport, pkgName, receiverName string, modelType model.Type) *golang.Function {
-	filter := golang.NewFunction(baseImport, pkgName, "Filter")
+func makeFilter(meta methodMeta) *golang.Function {
+	method := golang.NewFunction(meta.baseImport, meta.pkgName, "Filter")
 	t := `
-	dataQuery, err := {{ .ReceiverName }}.getFilteredQuery(q)
+	dataQuery, err := {{ .FilterQueryFuncCall }}
 	if err != nil {
-		return result, errors.Wrap(err, "failed to build filter sites query")
+		return result, errors.Wrap(err, "failed to build filter {{ .PluralName }} query")
 	}
 
 	errs := dataQuery.Find(&result).GetErrors()
 	if len(errs) > 0 && goat.ErrorsBesidesRecordNotFound(errs) {
 		err := goat.ErrorsToError(errs)
-		return result, errors.Wrap(err, "failed to execute filter sites data query")
+		return result, errors.Wrap(err, "failed to execute filter {{ .PluralName }} data query")
 	}
 
-	if err := {{ .ReceiverName }}.applyPaginationToQuery(q); err != nil {
+	err = {{ .PageQueryFuncCall }}
+	if err != nil {
 		return result, err
 	}
 
 	return result, nil
 `
-	mt := modelType
-	mt.IsPointer = true
 
-	queryType := golang.MakeQueryType()
-	filter.AddArg("q", queryType)
+	method.AddArg(meta.queryArgName, meta.queryType)
 
-	filter.AddReturn("result", golang.MakeSliceType(false, mt))
-	filter.AddReturn("err", golang.MakeErrorType())
+	method.AddReturn("result", golang.MakeSliceType(false, meta.modelType))
+	method.AddReturn("err", golang.MakeErrorType())
 
-	filter.SetBodyTemplate(t, struct {
-		ReceiverName string
+	method.SetBodyTemplate(t, struct {
+		PluralName          string
+		FilterQueryFuncCall string
+		PageQueryFuncCall   string
 	}{
-		ReceiverName: receiverName,
+		PluralName:          meta.modelPlural,
+		FilterQueryFuncCall: fmt.Sprintf("%s.%s(%s)", meta.receiverName, meta.filterQueryFuncName, meta.queryArgName),
+		PageQueryFuncCall:   fmt.Sprintf("%s.%s(%s)", meta.receiverName, meta.pageQueryFuncName, meta.queryArgName),
 	})
 
-	filter.AddImportsVendor(golang.ImportErrors, queryType.Import)
+	method.AddImportsVendor(golang.ImportGoat, meta.queryType.Import, golang.ImportErrors)
 
-	return filter
+	return method
 }

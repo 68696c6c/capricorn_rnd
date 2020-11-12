@@ -13,7 +13,8 @@ func NewRepo(fileName string, meta model.Meta) Repo {
 	result := &Repo{
 		File: meta.PKG.AddGoFile(fileName),
 	}
-	repo := newRepo(result.PKG.GetBaseImport(), result.PKG.GetName(), fileName, meta)
-	result.AddStruct(repo.Struct)
+	repoStruct, repoInterface := newRepo(meta, result.PKG.GetBaseImport(), result.PKG.GetName(), fileName)
+	result.AddStruct(repoStruct)
+	result.AddInterface(repoInterface)
 	return *result
 }

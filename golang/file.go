@@ -11,13 +11,12 @@ type File struct {
 	*utils.File
 	*imports
 	PKG *Package // this is set when a File is passed to package.AddGoFile()
-	// imports      Imports
 	// InitFunction Function    `yaml:"init_function,omitempty"`
 	// Consts       []Const     `yaml:"consts,omitempty"`
 	// Vars         []Var       `yaml:"vars,omitempty"`
-	// Interfaces   []Interface `yaml:"interfaces,omitempty"`
 	// TypeAliases  []Value     `yaml:"type_aliases,omitempty"`
-	structs []*Struct
+	structs    []*Struct
+	interfaces []*Interface
 	// Functions    []Function  `yaml:"functions,omitempty"`
 }
 
@@ -30,6 +29,11 @@ func NewFile(basePath, name string) *File {
 
 func (f *File) Render() string {
 	var lines []string
+
+	for _, i := range f.interfaces {
+		f.imports = mergeImports(*f.imports, i.GetImports())
+		lines = append(lines, i.Render())
+	}
 
 	for _, s := range f.structs {
 		f.imports = mergeImports(*f.imports, s.GetImports())
@@ -48,4 +52,8 @@ func (f *File) Render() string {
 
 func (f *File) AddStruct(s *Struct) {
 	f.structs = append(f.structs, s)
+}
+
+func (f *File) AddInterface(i *Interface) {
+	f.interfaces = append(f.interfaces, i)
 }

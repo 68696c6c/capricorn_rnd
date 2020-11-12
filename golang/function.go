@@ -71,7 +71,7 @@ func (f *Function) GetSignature() string {
 			break
 		}
 	}
-	if len(f.returns) > 0 || hasNamedReturns {
+	if len(f.returns) > 1 || hasNamedReturns {
 		returns = fmt.Sprintf("(%s)", returns)
 	}
 	result := fmt.Sprintf("%s(%s) %s", f.Name, args, returns)
@@ -79,6 +79,9 @@ func (f *Function) GetSignature() string {
 }
 
 func (f *Function) getReceiver() string {
+	if f.receiver == nil {
+		return ""
+	}
 	r := fmt.Sprintf("%s %s", f.receiver.Name, f.receiver.TypeRef)
 	r = strings.TrimSpace(r)
 	if r != "" {
@@ -100,7 +103,7 @@ func (f Functions) Render() string {
 	for _, function := range f {
 		rec := function.getReceiver()
 		sig := function.GetSignature()
-		builtValues = append(builtValues, fmt.Sprintf("func %s%s {%s}", rec, sig, function.Render()))
+		builtValues = append(builtValues, fmt.Sprintf("func %s%s {%s}\n", rec, sig, function.Render()))
 	}
 	if len(builtValues) == 0 {
 		return ""
