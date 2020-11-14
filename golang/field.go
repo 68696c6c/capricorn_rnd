@@ -82,10 +82,3 @@ func (f Fields) Render() string {
 	result := strings.TrimSpace(joinedValues)
 	return result
 }
-
-func MakeModelField(separatedName string, t IType, isExported, isRequired, omitEmpty bool) *Field {
-	result := NewField(separatedName, t, isExported)
-	result.SetRequired(isRequired)
-	result.SetJsonTag(omitEmpty)
-	return result
-}

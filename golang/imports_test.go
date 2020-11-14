@@ -25,7 +25,7 @@ func Test_imports_Render(t *testing.T) {
 	"vendor-two"
 )`
 
-	assert.Equal(t, expected, string(result))
+	assert.Equal(t, expected, result)
 }
 
 func Test_imports_Render_none(t *testing.T) {
@@ -34,7 +34,7 @@ func Test_imports_Render_none(t *testing.T) {
 	result := input.Render()
 	expected := ""
 
-	assert.Equal(t, expected, string(result))
+	assert.Equal(t, expected, result)
 }
 
 func Test_imports_Render_noStandard(t *testing.T) {
@@ -52,7 +52,7 @@ func Test_imports_Render_noStandard(t *testing.T) {
 	"vendor-two"
 )`
 
-	assert.Equal(t, expected, string(result))
+	assert.Equal(t, expected, result)
 }
 
 func Test_imports_Render_noApp(t *testing.T) {
@@ -70,7 +70,7 @@ func Test_imports_Render_noApp(t *testing.T) {
 	"vendor-two"
 )`
 
-	assert.Equal(t, expected, string(result))
+	assert.Equal(t, expected, result)
 }
 
 func Test_imports_Render_noVendor(t *testing.T) {
@@ -88,7 +88,7 @@ func Test_imports_Render_noVendor(t *testing.T) {
 	"app-two"
 )`
 
-	assert.Equal(t, expected, string(result))
+	assert.Equal(t, expected, result)
 }
 
 func Test_mergeImports(t *testing.T) {
@@ -104,9 +104,9 @@ func Test_mergeImports(t *testing.T) {
 		vendorImports:   []string{"one", "two", "three", "four"},
 	}
 
-	stack = mergeImports(stack, additional)
+	result := mergeImports(stack, additional)
 
-	assert.Len(t, stack.standardImports, 1)
-	assert.Len(t, stack.appImports, 2)
-	assert.Len(t, stack.vendorImports, 4)
+	assert.Len(t, result.standardImports, 1)
+	assert.Len(t, result.appImports, 2)
+	assert.Len(t, result.vendorImports, 4)
 }

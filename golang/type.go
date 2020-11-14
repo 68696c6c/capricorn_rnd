@@ -131,27 +131,3 @@ func getPkgAndTypeFromReference(trimmedReference string) (pkgName, typeName stri
 	}
 	return "", trimmedReference
 }
-
-func makeBaseModelType() Type {
-	return NewTypeMock(ImportGoat, "Model", false, false)
-}
-
-func MakeIdType() Type {
-	return NewTypeMock(ImportGoat, "ID", false, false)
-}
-
-func MakeErrorType() Type {
-	return NewTypeMock("", "error", false, false)
-}
-
-func MakeTimeType(isPointer bool) Type {
-	return NewTypeMock("time", "Time", isPointer, false)
-}
-
-func MakeQueryType() Type {
-	return NewTypeMock(ImportQuery, "Query", true, false)
-}
-
-func MakeDbConnectionType() Type {
-	return NewTypeMock(ImportGorm, "DB", true, false)
-}
