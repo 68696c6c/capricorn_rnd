@@ -25,6 +25,7 @@ func (m *Model) Build(pkg *golang.Package, enums *enum.Enums, fileName string) T
 	m.File = pkg.AddGoFile(fileName)
 	baseImport := m.PKG.GetBaseImport()
 	model := newModel(fileName, m.Delete == "hard")
+	m.AddStruct(model.Struct)
 
 	// Build the base model fields.
 	model.addBaseFields()
@@ -54,7 +55,6 @@ func (m *Model) Build(pkg *golang.Package, enums *enum.Enums, fileName string) T
 	// Build the struct using the accumulated fields.
 	model.buildFields()
 
-	m.AddStruct(model.Struct)
 	m.modelType = model
 
 	return *m.modelType

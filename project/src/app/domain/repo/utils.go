@@ -17,17 +17,17 @@ type methodMeta struct {
 	receiverName        string
 	dbFieldRef          string
 	dbFieldName         string
-	dbType              golang.Type
+	dbType              *golang.Type
 	queryArgName        string
-	queryType           golang.Type
+	queryType           *golang.Type
 	baseQueryFuncName   string
 	filterQueryFuncName string
 	pageQueryFuncName   string
-	repoStructType      golang.Type
-	repoInterfaceType   golang.Type
+	repoStructType      *golang.Type
+	repoInterfaceType   *golang.Type
 }
 
-func makeMethodMeta(modelType model.Type, recName string, repoStruct, repoInterface golang.Type) methodMeta {
+func makeMethodMeta(modelType model.Type, recName string, repoStruct, repoInterface *golang.Type) methodMeta {
 	dbFieldName := "db"
 	return methodMeta{
 		modelType:           modelType,

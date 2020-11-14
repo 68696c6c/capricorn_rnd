@@ -10,25 +10,22 @@ import (
 type Functions []*Function
 
 type Function struct {
-	Type
-	*imports
+	*Type
 	arguments    []Value
 	returns      []Value
-	receiver     *Value
 	bodyTemplate string
 	bodyData     interface{}
 }
 
 func NewFunction(name string) *Function {
+	funcType := NewType(name, false, false)
+	// The Type constructor sets a default receiver because that is usually helpful, but by default a function should not
+	// have a receiver.
+	funcType.SetReceiver(&Value{})
 	return &Function{
-		Type:         NewType(name, false, false),
-		imports:      newImports(),
+		Type:         funcType,
 		bodyTemplate: "",
 	}
-}
-
-func (f *Function) getImports() imports {
-	return *f.imports
 }
 
 func (f *Function) AddArg(name string, t IType) {
@@ -43,10 +40,6 @@ func (f *Function) AddReturn(name string, t IType) {
 		TypeRef: t.GetReference(),
 		Name:    name,
 	})
-}
-
-func (f *Function) SetReceiver(v Value) {
-	f.receiver = &v
 }
 
 func (f *Function) SetBodyTemplate(t string, data interface{}) {

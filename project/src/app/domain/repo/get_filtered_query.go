@@ -18,7 +18,7 @@ func makeGetFilteredQuery(meta methodMeta) *golang.Function {
 	method.AddArg(meta.queryArgName, meta.queryType)
 
 	method.AddReturn("", meta.dbType)
-	method.AddReturn("", golang.MakeErrorType())
+	method.AddReturn("", golang.MakeTypeError())
 
 	method.SetBodyTemplate(t, struct {
 		BaseQueryFuncCall string

@@ -1,17 +1,10 @@
 package golang
 
-import (
-	"strings"
-
-	"github.com/68696c6c/capricorn_rnd/utils"
-)
+import "github.com/68696c6c/capricorn_rnd/utils"
 
 type Struct struct {
-	Type
-	*imports
-	fields    Fields
-	functions Functions
-	receiver  Value
+	*Type
+	fields Fields
 }
 
 // Use this for generating structs.
@@ -24,16 +17,10 @@ func MockStruct(importPath, typeName string, isPointer, isSlice bool) *Struct {
 	return StructFromType(MockType(importPath, typeName, isPointer, isSlice))
 }
 
-func StructFromType(t Type) *Struct {
-	typeName := t.GetName()
+func StructFromType(t *Type) *Struct {
 	return &Struct{
-		Type:    t,
-		imports: newImports(),
-		fields:  Fields{},
-		receiver: Value{
-			TypeRef: typeName,
-			Name:    strings.ToLower(typeName[0:1]),
-		},
+		Type:   t,
+		fields: Fields{},
 	}
 }
 
@@ -46,22 +33,12 @@ func (s *Struct) AddConstructor(f *Function) {
 	s.functions = append(s.functions, f)
 }
 
-func (s *Struct) AddFunction(f *Function) {
-	f.SetReceiver(s.receiver)
-	s.imports = mergeImports(*s.imports, f.getImports())
-	s.functions = append(s.functions, f)
-}
-
 func (s *Struct) GetStructFields() Fields {
 	return s.fields
 }
 
 func (s *Struct) getImports() imports {
 	return *s.imports
-}
-
-func (s *Struct) GetReceiverName() string {
-	return s.receiver.Name
 }
 
 func (s *Struct) Render() string {

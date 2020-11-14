@@ -17,7 +17,7 @@ func makeDelete(meta methodMeta) *golang.Function {
 
 	method.AddArg(meta.modelArgName, meta.modelType)
 
-	method.AddReturn("", golang.MakeErrorType())
+	method.AddReturn("", golang.MakeTypeError())
 
 	method.SetBodyTemplate(t, struct {
 		DbRef        string

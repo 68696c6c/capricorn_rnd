@@ -47,8 +47,12 @@ func (m *Type) addBaseFields() {
 }
 
 func (m *Type) addUserDefinedField(enums *enum.Enums, f Field) {
-	fieldType := golang.MockTypeFromReference(f.Type)
-	eType, isEnum := enums.GetEnumType(f.Type)
+	fType := f.Type
+	if fType == "email" {
+		fType = "string"
+	}
+	fieldType := golang.MockTypeFromReference(fType)
+	eType, isEnum := enums.GetEnumType(fType)
 	if isEnum {
 		fieldType = eType
 		m.AddImportsApp(eType.GetImport())

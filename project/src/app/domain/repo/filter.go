@@ -32,7 +32,7 @@ func makeFilter(meta methodMeta) *golang.Function {
 	method.AddArg(meta.queryArgName, meta.queryType)
 
 	method.AddReturn("result", golang.MakeSliceType(false, meta.modelType))
-	method.AddReturn("err", golang.MakeErrorType())
+	method.AddReturn("err", golang.MakeTypeError())
 
 	method.SetBodyTemplate(t, struct {
 		PluralName          string

@@ -3,25 +3,18 @@ package golang
 import "github.com/68696c6c/capricorn_rnd/utils"
 
 type Interface struct {
-	Type
-	*imports
-	functions Functions
+	*Type
 }
 
 func NewInterface(typeName string, isPointer, isSlice bool) *Interface {
 	return &Interface{
-		Type:    NewType(typeName, isPointer, isSlice),
-		imports: newImports(),
+		Type: NewType(typeName, isPointer, isSlice),
 	}
 }
 
 func (s *Interface) AddFunction(f *Function) {
 	s.imports = mergeImports(*s.imports, f.getImports())
 	s.functions = append(s.functions, f)
-}
-
-func (s *Interface) getImports() imports {
-	return *s.imports
 }
 
 func (s *Interface) Render() string {

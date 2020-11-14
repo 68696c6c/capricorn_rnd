@@ -24,7 +24,7 @@ func makeGetById(meta methodMeta) *golang.Function {
 	method.AddArg(idArgName, goat.MakeIdType())
 
 	method.AddReturn("", meta.modelType)
-	method.AddReturn("", golang.MakeErrorType())
+	method.AddReturn("", golang.MakeTypeError())
 
 	method.SetBodyTemplate(t, struct {
 		DbRef         string

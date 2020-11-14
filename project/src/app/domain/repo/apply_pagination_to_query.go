@@ -2,9 +2,9 @@ package repo
 
 import (
 	"fmt"
-	"github.com/68696c6c/capricorn_rnd/project/goat"
 
 	"github.com/68696c6c/capricorn_rnd/golang"
+	"github.com/68696c6c/capricorn_rnd/project/goat"
 )
 
 func makeApplyPaginationToQuery(meta methodMeta) *golang.Function {
@@ -19,7 +19,7 @@ func makeApplyPaginationToQuery(meta methodMeta) *golang.Function {
 
 	method.AddArg(meta.queryArgName, meta.queryType)
 
-	method.AddReturn("", golang.MakeErrorType())
+	method.AddReturn("", golang.MakeTypeError())
 
 	method.SetBodyTemplate(t, struct {
 		PluralName        string
