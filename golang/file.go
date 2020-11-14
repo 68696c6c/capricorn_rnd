@@ -31,12 +31,12 @@ func (f *File) Render() string {
 	var lines []string
 
 	for _, i := range f.interfaces {
-		f.imports = mergeImports(*f.imports, i.GetImports())
+		f.imports = mergeImports(*f.imports, i.getImports())
 		lines = append(lines, i.Render())
 	}
 
 	for _, s := range f.structs {
-		f.imports = mergeImports(*f.imports, s.GetImports())
+		f.imports = mergeImports(*f.imports, s.getImports())
 		lines = append(lines, s.Render())
 	}
 

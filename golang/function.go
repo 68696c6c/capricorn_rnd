@@ -27,7 +27,7 @@ func NewFunction(name string) *Function {
 	}
 }
 
-func (f *Function) GetImports() imports {
+func (f *Function) getImports() imports {
 	return *f.imports
 }
 

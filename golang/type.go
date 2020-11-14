@@ -14,7 +14,7 @@ type IType interface {
 	GetIsPointer() bool
 	GetIsSlice() bool
 	GetStructFields() Fields
-	GetImports() imports
+	getImports() imports
 }
 
 type Type struct {
@@ -29,7 +29,7 @@ func (t Type) GetImport() string {
 	return t.Import
 }
 
-func (t Type) GetImports() imports {
+func (t Type) getImports() imports {
 	return imports{}
 }
 

@@ -42,13 +42,13 @@ func (s *Struct) AddField(f *Field) {
 }
 
 func (s *Struct) AddConstructor(f *Function) {
-	s.imports = mergeImports(*s.imports, f.GetImports())
+	s.imports = mergeImports(*s.imports, f.getImports())
 	s.functions = append(s.functions, f)
 }
 
 func (s *Struct) AddFunction(f *Function) {
 	f.SetReceiver(s.receiver)
-	s.imports = mergeImports(*s.imports, f.GetImports())
+	s.imports = mergeImports(*s.imports, f.getImports())
 	s.functions = append(s.functions, f)
 }
 
@@ -56,7 +56,7 @@ func (s *Struct) GetStructFields() Fields {
 	return s.fields
 }
 
-func (s *Struct) GetImports() imports {
+func (s *Struct) getImports() imports {
 	return *s.imports
 }
 

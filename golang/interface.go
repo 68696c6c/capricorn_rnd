@@ -16,11 +16,11 @@ func NewInterface(typeName string, isPointer, isSlice bool) *Interface {
 }
 
 func (s *Interface) AddFunction(f *Function) {
-	s.imports = mergeImports(*s.imports, f.GetImports())
+	s.imports = mergeImports(*s.imports, f.getImports())
 	s.functions = append(s.functions, f)
 }
 
-func (s *Interface) GetImports() imports {
+func (s *Interface) getImports() imports {
 	return *s.imports
 }
 
