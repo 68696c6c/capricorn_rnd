@@ -8,9 +8,9 @@ type Interface struct {
 	functions Functions
 }
 
-func NewInterfaceFromType(t Type) *Interface {
+func NewInterface(typeName string, isPointer, isSlice bool) *Interface {
 	return &Interface{
-		Type:    t,
+		Type:    NewType(typeName, isPointer, isSlice),
 		imports: newImports(),
 	}
 }

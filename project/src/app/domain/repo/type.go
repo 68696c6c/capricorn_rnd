@@ -1,43 +1,25 @@
 package repo
 
 import (
-	"path"
-
 	"github.com/68696c6c/capricorn_rnd/golang"
 	"github.com/68696c6c/capricorn_rnd/project/src/app/domain/model"
 	"github.com/68696c6c/capricorn_rnd/utils"
 )
 
-func newRepo(modelMeta model.Meta, baseImport, pkgName, fileName string) (*golang.Struct, *golang.Interface) {
+func newRepoTypes(fileName string, modelType model.Type, actions []model.Action) (*golang.Struct, *golang.Interface) {
 	baseTypeName := utils.Pascal(fileName)
-	repoStruct := golang.NewStructFromType(golang.Type{
-		Import:    path.Join(baseImport, pkgName),
-		Package:   pkgName,
-		Name:      baseTypeName + "Gorm",
-		IsPointer: false,
-		IsSlice:   false,
-	})
+	repoStruct := golang.NewStruct(baseTypeName+"Gorm", false, false)
+	repoInterface := golang.NewInterface(baseTypeName, false, false)
 
-	repoInterface := golang.NewInterfaceFromType(golang.Type{
-		Import:    path.Join(baseImport, pkgName),
-		Package:   pkgName,
-		Name:      baseTypeName,
-		IsPointer: false,
-		IsSlice:   false,
-	})
+	meta := makeMethodMeta(modelType, repoStruct.GetReceiverName(), repoStruct.Type, repoInterface.Type)
 
-	meta := makeMethodMeta(modelMeta, baseImport, pkgName, repoStruct.GetReceiverName(), repoStruct.Type, repoInterface.Type)
-
-	repoStruct.AddField(golang.Field{
-		Name: meta.dbFieldName,
-		Type: meta.dbType,
-	})
+	repoStruct.AddField(golang.NewField(meta.dbFieldName, meta.dbType, false))
 
 	repoStruct.AddConstructor(makeConstructor(meta))
 
 	var needFilterFuncs bool
 	var saveDone bool
-	for _, a := range modelMeta.Actions {
+	for _, a := range actions {
 		switch a {
 		case model.ActionCreate:
 			fallthrough

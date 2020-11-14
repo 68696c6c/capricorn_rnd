@@ -7,7 +7,7 @@ import (
 )
 
 func makeApplyPaginationToQuery(meta methodMeta) *golang.Function {
-	method := golang.NewFunction(meta.baseImport, meta.pkgName, meta.pageQueryFuncName)
+	method := golang.NewFunction(meta.pageQueryFuncName)
 	t := `
 	err := goat.ApplyPaginationToQuery({{ .QueryArgName }}, {{ .BaseQueryFuncCall }})
 	if err != nil {

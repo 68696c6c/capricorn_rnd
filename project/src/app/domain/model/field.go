@@ -12,31 +12,31 @@ type Field struct {
 }
 
 type fields struct {
-	allFields      []golang.Field `desc:"all fields, including base model fields, relations, and user defined fields"`
-	modelFields    []golang.Field `desc:"fields that are defined on the model struct. includes relations but not base model fields"`
-	databaseFields []golang.Field `desc:"fields that exist in the database.  includes base model fields but not relations"`
+	allFields      golang.Fields `desc:"all fields, including base model fields, relations, and user defined fields"`
+	modelFields    golang.Fields `desc:"fields that are defined on the model struct. includes relations but not base model fields"`
+	databaseFields golang.Fields `desc:"fields that exist in the database.  includes base model fields but not relations"`
 }
 
 func newFields() *fields {
 	return &fields{
-		allFields:      []golang.Field{},
-		modelFields:    []golang.Field{},
-		databaseFields: []golang.Field{},
+		allFields:      golang.Fields{},
+		modelFields:    golang.Fields{},
+		databaseFields: golang.Fields{},
 	}
 }
 
-func (f *fields) AddAllField(field golang.Field) {
+func (f *fields) AddAllField(field *golang.Field) {
 	f.allFields = append(f.allFields, field)
 	f.modelFields = append(f.modelFields, field)
 	f.databaseFields = append(f.databaseFields, field)
 }
 
-func (f *fields) AddModelField(field golang.Field) {
+func (f *fields) AddModelField(field *golang.Field) {
 	f.allFields = append(f.allFields, field)
 	f.modelFields = append(f.modelFields, field)
 }
 
-func (f *fields) AddDbField(field golang.Field) {
+func (f *fields) AddDbField(field *golang.Field) {
 	f.allFields = append(f.allFields, field)
 	f.databaseFields = append(f.databaseFields, field)
 }

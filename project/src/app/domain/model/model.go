@@ -23,7 +23,8 @@ func (m *Model) Build(pkg *golang.Package, enums *enum.Enums, fileName string) T
 	}
 
 	m.File = pkg.AddGoFile(fileName)
-	model := newModel(m.PKG.GetBaseImport(), pkg.GetName(), fileName, m.Delete == "hard")
+	baseImport := m.PKG.GetBaseImport()
+	model := newModel(fileName, m.Delete == "hard")
 
 	// Build the base model fields.
 	model.addBaseFields()
@@ -40,12 +41,14 @@ func (m *Model) Build(pkg *golang.Package, enums *enum.Enums, fileName string) T
 
 	// Build the Belongs-To fields that GORM will hydrate the relation in to.
 	for _, relation := range m.BelongsTo {
-		model.addBelongsToTargetField(relation)
+		relModel := getAssumedDDDModelType(baseImport, relation, true)
+		model.addBelongsToTargetField(relation, relModel)
 	}
 
 	// Build the Has-Many fields.
 	for _, relation := range m.HasMany {
-		model.addHasManyField(relation)
+		relModel := getAssumedDDDModelType(baseImport, relation, true)
+		model.addHasManyField(relation, relModel)
 	}
 
 	// Build the struct using the accumulated fields.

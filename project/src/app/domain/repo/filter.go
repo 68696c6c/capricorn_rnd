@@ -7,7 +7,7 @@ import (
 )
 
 func makeFilter(meta methodMeta) *golang.Function {
-	method := golang.NewFunction(meta.baseImport, meta.pkgName, "Filter")
+	method := golang.NewFunction("Filter")
 	t := `
 	dataQuery, err := {{ .FilterQueryFuncCall }}
 	if err != nil {

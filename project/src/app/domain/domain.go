@@ -16,7 +16,7 @@ type Domain struct {
 	pkg      *golang.Package
 	Model    model.Model
 	Repo     repo.Repo
-	Service  service.Service
+	Service  *service.Service
 	Handlers handlers.Handlers
 }
 
@@ -37,15 +37,22 @@ func newDomain(pkg *golang.Package, resource *model.Model, enums *enum.Enums) Do
 		actions = model.GetAllActions()
 	}
 	meta := model.Meta{
-		PKG:       pkgDomain,
 		ModelType: modelType,
 		Actions:   actions,
+	}
+	domainRepo := repo.NewRepo(pkgDomain, "repo", meta)
+	var domainService *service.Service
+	if len(resource.Custom) > 0 {
+		domainService = service.NewService(pkgDomain, "service", service.Meta{
+			RepoType: domainRepo.GetInterfaceType(),
+			Methods:  resource.Custom,
+		})
 	}
 	return Domain{
 		pkg:      pkgDomain,
 		Model:    *resource,
-		Repo:     repo.NewRepo("repo", meta),
-		Service:  service.NewService("service", meta),
-		Handlers: handlers.NewHandlers("handlers", meta),
+		Repo:     domainRepo,
+		Handlers: handlers.NewHandlers(pkgDomain, "handlers", meta),
+		Service:  domainService,
 	}
 }

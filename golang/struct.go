@@ -14,7 +14,15 @@ type Struct struct {
 	receiver  Value
 }
 
-func NewStructFromType(t Type) *Struct {
+func NewStruct(typeName string, isPointer, isSlice bool) *Struct {
+	return newStructFromType(NewType(typeName, isPointer, isSlice))
+}
+
+func NewStructMock(importPath, typeName string, isPointer, isSlice bool) *Struct {
+	return newStructFromType(NewTypeMock(importPath, typeName, isPointer, isSlice))
+}
+
+func newStructFromType(t Type) *Struct {
 	typeName := t.GetName()
 	return &Struct{
 		Type:    t,
@@ -27,7 +35,7 @@ func NewStructFromType(t Type) *Struct {
 	}
 }
 
-func (s *Struct) AddField(f Field) {
+func (s *Struct) AddField(f *Field) {
 	s.fields = append(s.fields, f)
 }
 
@@ -42,7 +50,7 @@ func (s *Struct) AddFunction(f *Function) {
 	s.functions = append(s.functions, f)
 }
 
-func (s *Struct) GetStructFields() []Field {
+func (s *Struct) GetStructFields() Fields {
 	return s.fields
 }
 
@@ -76,5 +84,19 @@ type {{ .Name }} struct {
 	if err != nil {
 		panic(err)
 	}
+	return result
+}
+
+func MakeHardModelStruct() *Struct {
+	result := newStructFromType(makeBaseModelType())
+	result.AddField(MakeModelField("id", MakeIdType(), true, false, true))
+	result.AddField(MakeModelField("created_at", MakeTimeType(false), true, false, true))
+	result.AddField(MakeModelField("updated_at", MakeTimeType(true), true, false, true))
+	return result
+}
+
+func MakeSoftModelStruct() *Struct {
+	result := MakeHardModelStruct()
+	result.AddField(MakeModelField("deleted_at", MakeTimeType(true), true, false, true))
 	return result
 }

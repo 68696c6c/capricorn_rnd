@@ -3,7 +3,7 @@ package repo
 import "github.com/68696c6c/capricorn_rnd/golang"
 
 func makeSave(meta methodMeta) *golang.Function {
-	method := golang.NewFunction(meta.baseImport, meta.pkgName, "Save")
+	method := golang.NewFunction("Save")
 	t := `
 	var errs []error
 	if {{ .ModelArgName }}.Model.ID.Valid() {

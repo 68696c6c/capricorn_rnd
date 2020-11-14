@@ -13,8 +13,6 @@ type methodMeta struct {
 	modelType           model.Type
 	modelPlural         string
 	modelArgName        string
-	baseImport          string
-	pkgName             string
 	receiverName        string
 	dbFieldRef          string
 	dbFieldName         string
@@ -28,14 +26,12 @@ type methodMeta struct {
 	repoInterfaceType   golang.Type
 }
 
-func makeMethodMeta(meta model.Meta, baseImport, pkgName, recName string, repoStruct, repoInterface golang.Type) methodMeta {
+func makeMethodMeta(modelType model.Type, recName string, repoStruct, repoInterface golang.Type) methodMeta {
 	dbFieldName := "db"
 	return methodMeta{
-		modelType:           determineModelType(pkgName, meta.ModelType),
-		modelPlural:         strings.ToLower(utils.Plural(meta.ModelType.Name)),
+		modelType:           modelType,
+		modelPlural:         strings.ToLower(utils.Plural(modelType.Name)),
 		modelArgName:        "model",
-		baseImport:          baseImport,
-		pkgName:             pkgName,
 		receiverName:        recName,
 		dbFieldRef:          fmt.Sprintf("%s.%s", recName, dbFieldName),
 		dbFieldName:         dbFieldName,

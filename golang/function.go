@@ -2,7 +2,6 @@ package golang
 
 import (
 	"fmt"
-	"path"
 	"strings"
 
 	"github.com/68696c6c/capricorn_rnd/utils"
@@ -20,15 +19,9 @@ type Function struct {
 	bodyData     interface{}
 }
 
-func NewFunction(baseImport, pkgName, name string) *Function {
+func NewFunction(name string) *Function {
 	return &Function{
-		Type: Type{
-			Import:    path.Join(baseImport, pkgName),
-			Package:   pkgName,
-			Name:      name,
-			IsPointer: false,
-			IsSlice:   false,
-		},
+		Type:         NewType(name, false, false),
 		imports:      newImports(),
 		bodyTemplate: "",
 	}

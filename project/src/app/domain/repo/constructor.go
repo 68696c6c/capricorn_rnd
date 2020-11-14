@@ -4,7 +4,7 @@ import "github.com/68696c6c/capricorn_rnd/golang"
 
 func makeConstructor(meta methodMeta) *golang.Function {
 	repoName := meta.repoStructType.Name
-	method := golang.NewFunction(meta.baseImport, meta.pkgName, "New"+repoName)
+	method := golang.NewFunction("New" + repoName)
 	t := `
 	return {{ .StructName }}{
 		{{ .DbFieldName }}: {{ .DbArgName }},

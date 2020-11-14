@@ -51,9 +51,13 @@ func (f *File) Render() string {
 }
 
 func (f *File) AddStruct(s *Struct) {
+	s.Type.Package = f.PKG.GetName()
+	s.Type.Import = f.PKG.GetImport()
 	f.structs = append(f.structs, s)
 }
 
 func (f *File) AddInterface(i *Interface) {
+	i.Type.Package = f.PKG.GetName()
+	i.Type.Import = f.PKG.GetImport()
 	f.interfaces = append(f.interfaces, i)
 }

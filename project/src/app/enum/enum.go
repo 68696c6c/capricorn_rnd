@@ -1,9 +1,10 @@
 package enum
 
 import (
+	"strings"
+
 	"github.com/68696c6c/capricorn_rnd/golang"
 	"github.com/68696c6c/capricorn_rnd/utils"
-	"strings"
 )
 
 const (
@@ -52,13 +53,8 @@ func newEnum(pkg *golang.Package, e Enum) Enum {
 func (e Enums) GetEnumType(input string) (golang.IType, bool) {
 	if strings.HasPrefix(input, specPrefix) {
 		name := strings.TrimPrefix(input, specPrefix)
-		return golang.Type{
-			Import:    e.GetImport(),
-			Package:   pkgNameEnums,
-			Name:      utils.Pascal(name),
-			IsPointer: false,
-			IsSlice:   false,
-		}, true
+		result := golang.NewTypeMock(e.GetImport(), utils.Pascal(name), false, false)
+		return result, true
 	}
 	return nil, false
 }

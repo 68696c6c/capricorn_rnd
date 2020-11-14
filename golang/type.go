@@ -2,6 +2,7 @@ package golang
 
 import (
 	"fmt"
+	"path/filepath"
 	"strings"
 )
 
@@ -12,7 +13,7 @@ type IType interface {
 	GetPackage() string
 	GetIsPointer() bool
 	GetIsSlice() bool
-	GetStructFields() []Field
+	GetStructFields() Fields
 	GetImports() imports
 }
 
@@ -62,10 +63,38 @@ func (t Type) GetIsSlice() bool {
 	return t.IsSlice
 }
 
-func (t Type) GetStructFields() []Field {
-	return []Field{}
+func (t Type) GetStructFields() Fields {
+	return Fields{}
 }
 
+// Use this for generating types.  The import and package will be set when the Type is added to a File and should never be referenced before that happens..
+func NewType(typeName string, isPointer, isSlice bool) Type {
+	return Type{
+		Import:    "add this Type to a golang.File",
+		Package:   "add this Type to a golang.File",
+		Name:      typeName,
+		IsPointer: isPointer,
+		IsSlice:   isSlice,
+	}
+}
+
+// Use this function for mocking built in or vendor types.
+func NewTypeMock(importPath, typeName string, isPointer, isSlice bool) Type {
+	pkgName := ""
+	if importPath != "" {
+		pkgName = filepath.Base(importPath)
+	}
+	return Type{
+		Import:    importPath,
+		Package:   pkgName,
+		Name:      typeName,
+		IsPointer: isPointer,
+		IsSlice:   isSlice,
+	}
+}
+
+// AVOID USING THIS IF POSSIBLE
+// @TODO This is currently only used for generating user-defined model fields; setting the import correctly will require defining a known set of supported types.
 func NewTypeFromReference(reference string) IType {
 	trimmed, isSlice, isPointer := isReferenceSliceOrPointerAndTrim(reference)
 	pkgName, typeName := getPkgAndTypeFromReference(trimmed)
@@ -103,52 +132,26 @@ func getPkgAndTypeFromReference(trimmedReference string) (pkgName, typeName stri
 	return "", trimmedReference
 }
 
+func makeBaseModelType() Type {
+	return NewTypeMock(ImportGoat, "Model", false, false)
+}
+
 func MakeIdType() Type {
-	return Type{
-		Import:    ImportGoat,
-		Package:   "goat",
-		Name:      "ID",
-		IsPointer: false,
-		IsSlice:   false,
-	}
+	return NewTypeMock(ImportGoat, "ID", false, false)
 }
 
 func MakeErrorType() Type {
-	return Type{
-		Import:    "",
-		Package:   "",
-		Name:      "error",
-		IsPointer: false,
-		IsSlice:   false,
-	}
+	return NewTypeMock("", "error", false, false)
 }
 
 func MakeTimeType(isPointer bool) Type {
-	return Type{
-		Import:    "time",
-		Package:   "time",
-		Name:      "Time",
-		IsPointer: isPointer,
-		IsSlice:   false,
-	}
+	return NewTypeMock("time", "Time", isPointer, false)
 }
 
 func MakeQueryType() Type {
-	return Type{
-		Import:    ImportQuery,
-		Package:   "query",
-		Name:      "Query",
-		IsPointer: true,
-		IsSlice:   false,
-	}
+	return NewTypeMock(ImportQuery, "Query", true, false)
 }
 
 func MakeDbConnectionType() Type {
-	return Type{
-		Import:    ImportGorm,
-		Package:   "gorm",
-		Name:      "DB",
-		IsPointer: true,
-		IsSlice:   false,
-	}
+	return NewTypeMock(ImportGorm, "DB", true, false)
 }

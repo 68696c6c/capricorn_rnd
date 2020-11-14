@@ -7,7 +7,7 @@ import (
 )
 
 func makeGetFilteredQuery(meta methodMeta) *golang.Function {
-	method := golang.NewFunction(meta.baseImport, meta.pkgName, meta.filterQueryFuncName)
+	method := golang.NewFunction(meta.filterQueryFuncName)
 	t := `
 	result, err := {{ .QueryArgName }}.ApplyToGorm({{ .BaseQueryFuncCall }})
 	if err != nil {
