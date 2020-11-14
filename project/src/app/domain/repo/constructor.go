@@ -1,6 +1,9 @@
 package repo
 
-import "github.com/68696c6c/capricorn_rnd/golang"
+import (
+	"github.com/68696c6c/capricorn_rnd/golang"
+	"github.com/68696c6c/capricorn_rnd/project/goat"
+)
 
 func makeConstructor(meta methodMeta) *golang.Function {
 	repoName := meta.repoStructType.Name
@@ -27,7 +30,7 @@ func makeConstructor(meta methodMeta) *golang.Function {
 		DbArgName:   dbArgName,
 	})
 
-	method.AddImportsVendor(golang.ImportGorm)
+	method.AddImportsVendor(goat.ImportGorm)
 
 	return method
 }

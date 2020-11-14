@@ -2,6 +2,7 @@ package repo
 
 import (
 	"fmt"
+	"github.com/68696c6c/capricorn_rnd/project/goat"
 	"strings"
 
 	"github.com/68696c6c/capricorn_rnd/golang"
@@ -35,9 +36,9 @@ func makeMethodMeta(modelType model.Type, recName string, repoStruct, repoInterf
 		receiverName:        recName,
 		dbFieldRef:          fmt.Sprintf("%s.%s", recName, dbFieldName),
 		dbFieldName:         dbFieldName,
-		dbType:              golang.MakeDbConnectionType(),
+		dbType:              goat.MakeDbConnectionType(),
 		queryArgName:        "query",
-		queryType:           golang.MakeQueryType(),
+		queryType:           goat.MakeQueryType(),
 		baseQueryFuncName:   "getBaseQuery",
 		filterQueryFuncName: "getFilteredQuery",
 		pageQueryFuncName:   "applyPaginationToQuery",

@@ -1,6 +1,9 @@
 package repo
 
-import "github.com/68696c6c/capricorn_rnd/golang"
+import (
+	"github.com/68696c6c/capricorn_rnd/golang"
+	"github.com/68696c6c/capricorn_rnd/project/goat"
+)
 
 func makeSave(meta methodMeta) *golang.Function {
 	method := golang.NewFunction("Save")
@@ -29,7 +32,7 @@ func makeSave(meta methodMeta) *golang.Function {
 		ModelArgName: meta.modelArgName,
 	})
 
-	method.AddImportsVendor(golang.ImportGoat)
+	method.AddImportsVendor(goat.ImportGoat)
 
 	return method
 }

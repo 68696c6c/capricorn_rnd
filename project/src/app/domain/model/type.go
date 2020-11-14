@@ -2,6 +2,7 @@ package model
 
 import (
 	"github.com/68696c6c/capricorn_rnd/golang"
+	"github.com/68696c6c/capricorn_rnd/project/goat"
 	"github.com/68696c6c/capricorn_rnd/project/src/app/enum"
 	"github.com/68696c6c/capricorn_rnd/utils"
 )
@@ -29,14 +30,14 @@ func (m *Type) buildFields() {
 
 // Determine the base model type, compose it into our type, and register the base model fields.
 func (m *Type) addBaseFields() {
-	modelType := golang.MakeSoftModelStruct()
+	modelType := goat.MakeSoftModelStruct()
 	if m.hardDelete {
-		modelType = golang.MakeHardModelStruct()
+		modelType = goat.MakeHardModelStruct()
 	}
 
 	// This "field" is the composition of the base model struct type into this struct type.
 	m.AddModelField(golang.NewField("", modelType, false))
-	m.AddImportsVendor(golang.ImportGoat)
+	m.AddImportsVendor(goat.ImportGoat)
 
 	// The fields that this struct receives from the base model are not declared on this struct, but they still need
 	// database fields made for them.
@@ -46,26 +47,26 @@ func (m *Type) addBaseFields() {
 }
 
 func (m *Type) addUserDefinedField(enums *enum.Enums, f Field) {
-	fieldType := golang.NewTypeFromReference(f.Type)
+	fieldType := golang.MockTypeFromReference(f.Type)
 	eType, isEnum := enums.GetEnumType(f.Type)
 	if isEnum {
 		fieldType = eType
 		m.AddImportsApp(eType.GetImport())
 	}
-	field := golang.MakeModelField(f.Name, fieldType, true, f.Required, false)
+	field := goat.MakeModelField(f.Name, fieldType, true, f.Required, false)
 	m.AddAllField(field)
 }
 
 func (m *Type) addBelongsToIdField(relation string) {
 	name := utils.Pascal(utils.Singular(relation) + "_id")
-	field := golang.MakeModelField(name, golang.MakeIdType(), true, true, false)
+	field := goat.MakeModelField(name, goat.MakeIdType(), true, true, false)
 	m.AddAllField(field)
 }
 
 // Can't use relModel.GetName() to name the field because in a DDD app the name will always be "Model".
 func (m *Type) addBelongsToTargetField(relName string, relModel golang.IType) {
 	fieldName := utils.Pascal(utils.Singular(relName))
-	field := golang.MakeModelField(fieldName, relModel, true, false, true)
+	field := goat.MakeModelField(fieldName, relModel, true, false, true)
 	m.AddModelField(field)
 	m.AddImportsApp(relModel.GetImport())
 }
@@ -74,7 +75,7 @@ func (m *Type) addBelongsToTargetField(relName string, relModel golang.IType) {
 func (m *Type) addHasManyField(relName string, relModel golang.IType) {
 	fieldName := utils.Pascal(utils.Plural(relName))
 	relSlice := golang.MakeSliceType(false, relModel)
-	field := golang.MakeModelField(fieldName, relSlice, true, false, true)
+	field := goat.MakeModelField(fieldName, relSlice, true, false, true)
 	m.AddModelField(field)
 	m.AddImportsApp(relModel.GetImport())
 }

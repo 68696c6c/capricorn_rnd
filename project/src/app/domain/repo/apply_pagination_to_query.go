@@ -2,6 +2,7 @@ package repo
 
 import (
 	"fmt"
+	"github.com/68696c6c/capricorn_rnd/project/goat"
 
 	"github.com/68696c6c/capricorn_rnd/golang"
 )
@@ -30,7 +31,7 @@ func makeApplyPaginationToQuery(meta methodMeta) *golang.Function {
 		BaseQueryFuncCall: fmt.Sprintf("%s.%s()", meta.receiverName, meta.baseQueryFuncName),
 	})
 
-	method.AddImportsVendor(golang.ImportErrors)
+	method.AddImportsVendor(goat.ImportErrors)
 
 	return method
 }

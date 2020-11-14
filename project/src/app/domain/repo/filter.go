@@ -2,6 +2,7 @@ package repo
 
 import (
 	"fmt"
+	"github.com/68696c6c/capricorn_rnd/project/goat"
 
 	"github.com/68696c6c/capricorn_rnd/golang"
 )
@@ -43,7 +44,7 @@ func makeFilter(meta methodMeta) *golang.Function {
 		PageQueryFuncCall:   fmt.Sprintf("%s.%s(%s)", meta.receiverName, meta.pageQueryFuncName, meta.queryArgName),
 	})
 
-	method.AddImportsVendor(golang.ImportGoat, meta.queryType.Import, golang.ImportErrors)
+	method.AddImportsVendor(goat.ImportGoat, meta.queryType.Import, goat.ImportErrors)
 
 	return method
 }

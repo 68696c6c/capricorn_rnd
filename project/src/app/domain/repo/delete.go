@@ -1,6 +1,9 @@
 package repo
 
-import "github.com/68696c6c/capricorn_rnd/golang"
+import (
+	"github.com/68696c6c/capricorn_rnd/golang"
+	"github.com/68696c6c/capricorn_rnd/project/goat"
+)
 
 func makeDelete(meta methodMeta) *golang.Function {
 	method := golang.NewFunction("Delete")
@@ -24,7 +27,7 @@ func makeDelete(meta methodMeta) *golang.Function {
 		ModelArgName: meta.modelArgName,
 	})
 
-	method.AddImportsVendor(golang.ImportGoat, golang.ImportErrors)
+	method.AddImportsVendor(goat.ImportGoat, goat.ImportErrors)
 
 	return method
 }

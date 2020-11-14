@@ -1,6 +1,9 @@
 package repo
 
-import "github.com/68696c6c/capricorn_rnd/golang"
+import (
+	"github.com/68696c6c/capricorn_rnd/golang"
+	"github.com/68696c6c/capricorn_rnd/project/goat"
+)
 
 func makeGetById(meta methodMeta) *golang.Function {
 	method := golang.NewFunction("GetById")
@@ -18,7 +21,7 @@ func makeGetById(meta methodMeta) *golang.Function {
 `
 
 	idArgName := "id"
-	method.AddArg(idArgName, golang.MakeIdType())
+	method.AddArg(idArgName, goat.MakeIdType())
 
 	method.AddReturn("", meta.modelType)
 	method.AddReturn("", golang.MakeErrorType())
@@ -35,7 +38,7 @@ func makeGetById(meta methodMeta) *golang.Function {
 		ModelTypeName: meta.modelType.Name,
 	})
 
-	method.AddImportsVendor(golang.ImportGoat)
+	method.AddImportsVendor(goat.ImportGoat)
 
 	return method
 }

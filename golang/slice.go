@@ -17,7 +17,7 @@ func (s Slice) GetReference() string {
 
 func MakeSliceType(isPointer bool, valueType IType) Slice {
 	return Slice{
-		Type:      NewTypeMock(valueType.GetImport(), valueType.GetName(), isPointer, true),
+		Type:      MockType(valueType.GetImport(), valueType.GetName(), isPointer, true),
 		valueType: valueType,
 	}
 }

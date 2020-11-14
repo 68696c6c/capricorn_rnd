@@ -16,15 +16,15 @@ type Struct struct {
 
 // Use this for generating structs.
 func NewStruct(typeName string, isPointer, isSlice bool) *Struct {
-	return newStructFromType(NewType(typeName, isPointer, isSlice))
+	return StructFromType(NewType(typeName, isPointer, isSlice))
 }
 
 // Use this for mocking builtin and vendor structs.
-func NewStructMock(importPath, typeName string, isPointer, isSlice bool) *Struct {
-	return newStructFromType(NewTypeMock(importPath, typeName, isPointer, isSlice))
+func MockStruct(importPath, typeName string, isPointer, isSlice bool) *Struct {
+	return StructFromType(MockType(importPath, typeName, isPointer, isSlice))
 }
 
-func newStructFromType(t Type) *Struct {
+func StructFromType(t Type) *Struct {
 	typeName := t.GetName()
 	return &Struct{
 		Type:    t,

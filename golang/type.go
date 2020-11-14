@@ -79,7 +79,7 @@ func NewType(typeName string, isPointer, isSlice bool) Type {
 }
 
 // Use this function for mocking built in or vendor types.
-func NewTypeMock(importPath, typeName string, isPointer, isSlice bool) Type {
+func MockType(importPath, typeName string, isPointer, isSlice bool) Type {
 	pkgName := ""
 	if importPath != "" {
 		pkgName = filepath.Base(importPath)
@@ -95,7 +95,7 @@ func NewTypeMock(importPath, typeName string, isPointer, isSlice bool) Type {
 
 // AVOID USING THIS IF POSSIBLE
 // @TODO This is currently only used for generating user-defined model fields; setting the import correctly will require defining a known set of supported types.
-func NewTypeFromReference(reference string) IType {
+func MockTypeFromReference(reference string) IType {
 	trimmed, isSlice, isPointer := isReferenceSliceOrPointerAndTrim(reference)
 	pkgName, typeName := getPkgAndTypeFromReference(trimmed)
 	return Type{
