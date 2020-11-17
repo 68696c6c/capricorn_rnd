@@ -13,7 +13,7 @@ type File struct {
 	PKG *Package // this is set when a File is passed to package.AddGoFile()
 	// InitFunction Function    `yaml:"init_function,omitempty"`
 	// Consts       []Const     `yaml:"consts,omitempty"`
-	// Vars         []Var       `yaml:"vars,omitempty"`
+	// Vars         Vars
 	// TypeAliases  []Value     `yaml:"type_aliases,omitempty"`
 	iotas      []*Iota
 	structs    []*Struct
@@ -74,13 +74,39 @@ func (f *File) AddIota(i *Iota) {
 }
 
 func (f *File) AddStruct(s *Struct) {
-	s.Type.Package = f.PKG.GetName()
-	s.Type.Import = f.PKG.GetImport()
+	pkg := f.PKG.GetName()
+	imp := f.PKG.GetImport()
+	s.Type.Package = pkg
+	s.Type.Import = imp
+	setFunctionPackages(pkg, imp, s.functions)
 	f.structs = append(f.structs, s)
 }
 
 func (f *File) AddInterface(i *Interface) {
-	i.Type.Package = f.PKG.GetName()
-	i.Type.Import = f.PKG.GetImport()
+	pkg := f.PKG.GetName()
+	imp := f.PKG.GetImport()
+	i.Type.Package = pkg
+	i.Type.Import = imp
+	setFunctionPackages(pkg, imp, i.functions)
 	f.interfaces = append(f.interfaces, i)
+}
+
+func setFunctionPackages(pkgName, importPath string, functions Functions) {
+	for _, function := range functions {
+		function.Type.Package = pkgName
+		function.Type.Import = importPath
+		if function.receiver != nil && function.receiver.GetPackage() == pkgName {
+			function.receiver.Package = ""
+		}
+		for _, r := range function.returns {
+			if r.GetPackage() == pkgName {
+				r.SetPackage("")
+			}
+		}
+		for _, a := range function.arguments {
+			if a.GetPackage() == pkgName {
+				a.SetPackage("")
+			}
+		}
+	}
 }

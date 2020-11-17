@@ -51,6 +51,8 @@ github.com/jcmturner/gofork v1.0.0/go.mod h1:MK8+TM0La+2rjBD4jE12Kj1pCCxK7d2LK/U
 github.com/jcmturner/goidentity/v6 v6.0.1/go.mod h1:X1YW3bgtvwAXju7V3LCIMpY0Gbxyjn/mY9zx4tFonSg=
 github.com/jcmturner/gokrb5/v8 v8.2.0/go.mod h1:T1hnNppQsBtxW0tCHMHTkAt8n/sABdzZgZdoFrZaZNM=
 github.com/jcmturner/rpc/v2 v2.0.2/go.mod h1:VUJYCIDm3PVOEHw8sgt091/20OJjskO/YJki3ELg/Hc=
+github.com/jinzhu/copier v0.0.0-20201025035756-632e723a6687 h1:bWXum+xWafUxxJpcXnystwg5m3iVpPYtrGJFc1rjfLc=
+github.com/jinzhu/copier v0.0.0-20201025035756-632e723a6687/go.mod h1:24xnZezI2Yqac9J61UC6/dG/k76ttpq0DdJI3QmUvro=
 github.com/jinzhu/gorm v0.0.0-20160404144928-5174cc5c242a h1:pfPxlCVlKqBRqHpyCxOIKhhB4ERpz02iadDpRVevLm4=
 github.com/jinzhu/gorm v0.0.0-20160404144928-5174cc5c242a/go.mod h1:Vla75njaFJ8clLU1W44h34PjIkijhjHIYnZxMqCdxqo=
 github.com/jinzhu/inflection v0.0.0-20170102125226-1c35d901db3d/go.mod h1:h+uFLlag+Qp1Va5pdKtLDYj+kHp5pxUVkryuEj+Srlc=

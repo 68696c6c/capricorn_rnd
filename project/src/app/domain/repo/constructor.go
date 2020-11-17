@@ -16,9 +16,7 @@ func makeConstructor(meta methodMeta) *golang.Function {
 	dbArgName := "dbConnection"
 	method.AddArg(dbArgName, meta.dbType)
 
-	scopedInterfaceType := meta.repoInterfaceType
-	scopedInterfaceType.Package = ""
-	method.AddReturn("", scopedInterfaceType)
+	method.AddReturn("", meta.repoInterfaceType)
 
 	method.SetBodyTemplate(t, struct {
 		StructName  string

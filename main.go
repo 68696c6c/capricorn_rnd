@@ -16,5 +16,5 @@ func main() {
 	}
 
 	g := generator.NewGenerator(generator.PanicHandler{})
-	g.Generate(module.Build("examples"))
+	g.Generate(module.Build("_examples"))
 }

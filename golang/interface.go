@@ -12,12 +12,16 @@ func NewInterface(typeName string, isPointer, isSlice bool) *Interface {
 	}
 }
 
-func (s *Interface) AddFunction(f *Function) {
-	s.imports = mergeImports(*s.imports, f.getImports())
-	s.functions = append(s.functions, f)
+func (i *Interface) GetType() *Type {
+	return i.Type
 }
 
-func (s *Interface) Render() string {
+func (i *Interface) AddFunction(f *Function) {
+	i.imports = mergeImports(*i.imports, f.getImports())
+	i.functions = append(i.functions, f)
+}
+
+func (i *Interface) Render() string {
 	var template = `
 type {{ .Name }} interface {
 	{{- range $key, $value := .Functions }}
@@ -28,8 +32,8 @@ type {{ .Name }} interface {
 		Name      string
 		Functions utils.Renderable
 	}{
-		Name:      s.Name,
-		Functions: s.functions,
+		Name:      i.Name,
+		Functions: i.functions,
 	})
 	if err != nil {
 		panic(err)

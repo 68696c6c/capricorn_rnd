@@ -11,8 +11,8 @@ type Functions []*Function
 
 type Function struct {
 	*Type
-	arguments    []Value
-	returns      []Value
+	arguments    []*Value
+	returns      []*Value
 	bodyTemplate string
 	bodyData     interface{}
 }
@@ -21,25 +21,23 @@ func NewFunction(name string) *Function {
 	funcType := NewType(name, false, false)
 	// The Type constructor sets a default receiver because that is usually helpful, but by default a function should not
 	// have a receiver.
-	funcType.SetReceiver(&Value{})
+	funcType.SetReceiver(nil)
 	return &Function{
 		Type:         funcType,
 		bodyTemplate: "",
 	}
 }
 
+func (f *Function) GetType() *Type {
+	return f.Type
+}
+
 func (f *Function) AddArg(name string, t IType) {
-	f.arguments = append(f.arguments, Value{
-		TypeRef: t.GetReference(),
-		Name:    name,
-	})
+	f.arguments = append(f.arguments, ValueFromType(name, t.GetType()))
 }
 
 func (f *Function) AddReturn(name string, t IType) {
-	f.returns = append(f.returns, Value{
-		TypeRef: t.GetReference(),
-		Name:    name,
-	})
+	f.returns = append(f.returns, ValueFromType(name, t.GetType()))
 }
 
 func (f *Function) SetBodyTemplate(t string, data interface{}) {
@@ -68,7 +66,7 @@ func (f *Function) getReceiver() string {
 	if f.receiver == nil {
 		return ""
 	}
-	r := fmt.Sprintf("%s %s", f.receiver.Name, f.receiver.TypeRef)
+	r := fmt.Sprintf("%s %s", f.receiver.Name, f.receiver.GetReference())
 	r = strings.TrimSpace(r)
 	if r != "" {
 		return fmt.Sprintf("(%s) ", r)

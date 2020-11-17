@@ -7,10 +7,12 @@ import (
 )
 
 type IType interface {
+	GetType() *Type
 	GetImport() string
 	GetReference() string
 	GetName() string
 	GetPackage() string
+	SetPackage(pkgName string)
 	GetIsPointer() bool
 	GetIsSlice() bool
 	GetStructFields() Fields
@@ -29,6 +31,10 @@ type Type struct {
 	*imports
 	receiver  *Value
 	functions Functions
+}
+
+func (t *Type) GetType() *Type {
+	return t
 }
 
 func (t *Type) GetImport() string {
@@ -61,6 +67,10 @@ func (t *Type) GetPackage() string {
 	return t.Package
 }
 
+func (t *Type) SetPackage(pkgName string) {
+	t.Package = pkgName
+}
+
 func (t *Type) GetIsPointer() bool {
 	return t.IsPointer
 }
@@ -71,6 +81,10 @@ func (t *Type) GetIsSlice() bool {
 
 func (t *Type) GetStructFields() Fields {
 	return Fields{}
+}
+
+func (t *Type) initReceiver() {
+	t.receiver = ValueFromType(strings.ToLower(t.Name[0:1]), t)
 }
 
 func (t *Type) SetReceiver(v *Value) {
@@ -89,18 +103,16 @@ func (t *Type) AddFunction(f *Function) {
 
 // Use this for generating types.  The import and package will be set when the Type is added to a File and should never be referenced before that happens..
 func NewType(typeName string, isPointer, isSlice bool) *Type {
-	return &Type{
+	result := &Type{
 		Import:    "add this Type to a golang.File",
 		Package:   "add this Type to a golang.File",
 		Name:      typeName,
 		IsPointer: isPointer,
 		IsSlice:   isSlice,
 		imports:   newImports(),
-		receiver: &Value{
-			TypeRef: typeName,
-			Name:    strings.ToLower(typeName[0:1]),
-		},
 	}
+	result.initReceiver()
+	return result
 }
 
 // Use this function for mocking built in or vendor types.
@@ -109,18 +121,16 @@ func MockType(importPath, typeName string, isPointer, isSlice bool) *Type {
 	if importPath != "" {
 		pkgName = filepath.Base(importPath)
 	}
-	return &Type{
+	result := &Type{
 		Import:    importPath,
 		Package:   pkgName,
 		Name:      typeName,
 		IsPointer: isPointer,
 		IsSlice:   isSlice,
 		imports:   newImports(),
-		receiver: &Value{
-			TypeRef: typeName,
-			Name:    strings.ToLower(typeName[0:1]),
-		},
 	}
+	result.initReceiver()
+	return result
 }
 
 // AVOID USING THIS IF POSSIBLE
@@ -128,18 +138,16 @@ func MockType(importPath, typeName string, isPointer, isSlice bool) *Type {
 func MockTypeFromReference(reference string) IType {
 	trimmed, isSlice, isPointer := isReferenceSliceOrPointerAndTrim(reference)
 	pkgName, typeName := getPkgAndTypeFromReference(trimmed)
-	return &Type{
+	result := &Type{
 		Import:    "???",
 		Package:   pkgName,
 		Name:      typeName,
 		IsPointer: isPointer,
 		IsSlice:   isSlice,
 		imports:   newImports(),
-		receiver: &Value{
-			TypeRef: typeName,
-			Name:    strings.ToLower(typeName[0:1]),
-		},
 	}
+	result.initReceiver()
+	return result
 }
 
 // Returns the provided reference string with any pointer or slice prefixes removed.

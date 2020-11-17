@@ -15,14 +15,12 @@ type Iota struct {
 func NewIota(name string, values []string) *Iota {
 	typeName := utils.Pascal(name)
 
-	typeAlias := NewTypeAlias(typeName, MakeTypeInt(false))
+	typeAlias := NewTypeAlias(typeName, MakeTypeInt(false), false)
 
 	// The String() method that stringer generates uses 'i' as the receiver name.
 	// The Scan and Value methods are the only functions we generate and both require a pointer receiver.
-	typeAlias.SetReceiver(&Value{
-		TypeRef: "*" + typeAlias.Name,
-		Name:    "i",
-	})
+	rec := NewTypeAlias(typeName, MakeTypeInt(false), true)
+	typeAlias.SetReceiver(ValueFromType("i", rec.GetType()))
 
 	var iotaValues []string
 	for _, v := range values {
@@ -33,6 +31,10 @@ func NewIota(name string, values []string) *Iota {
 		TypeAlias: typeAlias,
 		values:    iotaValues,
 	}
+}
+
+func (i *Iota) GetType() *Type {
+	return i.Type
 }
 
 func (i *Iota) GetValues() []string {

@@ -17,9 +17,9 @@ type Model struct {
 	modelType    *Type    `yaml:"-"`
 }
 
-func (m *Model) Build(pkg *golang.Package, enums *enum.Enums, fileName string) Type {
+func (m *Model) Build(pkg golang.IPackage, enums *enum.Enums, fileName string) *Model {
 	if m.modelType != nil {
-		return *m.modelType
+		return m
 	}
 
 	m.File = pkg.AddGoFile(fileName)
@@ -57,5 +57,20 @@ func (m *Model) Build(pkg *golang.Package, enums *enum.Enums, fileName string) T
 
 	m.modelType = model
 
-	return *m.modelType
+	return m
+}
+
+func (m *Model) GetType() *Type {
+	return m.modelType
+}
+
+func (m *Model) GetActions() []Action {
+	if len(m.Actions) == 0 {
+		return GetAllActions()
+	}
+	return m.Actions
+}
+
+func (m *Model) GetCustomActions() []string {
+	return m.Custom
 }

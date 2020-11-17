@@ -23,7 +23,7 @@ type handlerFunc struct {
 	Args []string
 }
 
-func NewHandlers(pkg *golang.Package, fileName string, meta model.Meta) Handlers {
+func NewHandlers(pkg golang.IPackage, fileName string, meta model.Meta) Handlers {
 	return Handlers{
 		File: pkg.AddGoFile(fileName),
 	}

@@ -12,21 +12,23 @@ type Meta struct {
 
 type Service struct {
 	*golang.File
-	serviceStruct    *golang.Struct
-	serviceInterface *golang.Interface
+	structType    *golang.Struct
+	interfaceType *golang.Interface
 }
 
-func NewService(pkg *golang.Package, fileName string, meta Meta) *Service {
-	repoType := determineRepoType(pkg.GetName(), meta.RepoType)
+func NewService(pkg golang.IPackage, fileName string, meta Meta) *Service {
+	if len(meta.Methods) == 0 {
+		return nil
+	}
 
 	baseTypeName := utils.Pascal(fileName)
 	serviceStruct := golang.NewStruct(baseTypeName+"Implementation", false, false)
 	serviceInterface := golang.NewInterface(baseTypeName, false, false)
 
 	repoFieldName := "repo"
-	serviceStruct.AddField(golang.NewField(repoFieldName, repoType, false))
+	serviceStruct.AddField(golang.NewField(repoFieldName, meta.RepoType, false))
 
-	serviceStruct.AddConstructor(makeConstructor(serviceStruct, serviceInterface, repoType, repoFieldName))
+	serviceStruct.AddConstructor(makeConstructor(serviceStruct, serviceInterface, meta.RepoType, repoFieldName))
 
 	for _, c := range meta.Methods {
 		m := golang.NewFunction(utils.Pascal(c))
@@ -35,7 +37,9 @@ func NewService(pkg *golang.Package, fileName string, meta Meta) *Service {
 	}
 
 	result := &Service{
-		File: pkg.AddGoFile(fileName),
+		File:          pkg.AddGoFile(fileName),
+		structType:    serviceStruct,
+		interfaceType: serviceInterface,
 	}
 	result.AddStruct(serviceStruct)
 	result.AddInterface(serviceInterface)
@@ -43,14 +47,10 @@ func NewService(pkg *golang.Package, fileName string, meta Meta) *Service {
 	return result
 }
 
-func determineRepoType(servicePkgName string, inputRepoType *golang.Interface) *golang.Interface {
-	result := inputRepoType
+func (s *Service) GetInterfaceType() *golang.Interface {
+	return s.interfaceType
+}
 
-	// If we are generating a DDD app, the model and repo will be in the same package and references to the model in the
-	// repo file should not include the package name.
-	if result.Package == servicePkgName {
-		result.Package = ""
-	}
-
-	return result
+func (s *Service) GetConstructor() *golang.Function {
+	return s.structType.GetConstructor()
 }

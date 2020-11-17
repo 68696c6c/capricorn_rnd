@@ -7,23 +7,28 @@ import (
 
 type Repo struct {
 	*golang.File
+	structType    *golang.Struct
 	interfaceType *golang.Interface
 }
 
-func NewRepo(pkg *golang.Package, fileName string, meta model.Meta) Repo {
-	modelType := determineModelType(pkg.GetName(), meta.ModelType)
-	repoStruct, repoInterface := newRepoTypes(fileName, modelType, meta.Actions)
+func NewRepo(pkg golang.IPackage, fileName string, meta model.Meta) *Repo {
+	repoStruct, repoInterface := newRepoTypes(fileName, meta.ModelType, meta.Actions)
 
 	result := &Repo{
 		File:          pkg.AddGoFile(fileName),
+		structType:    repoStruct,
 		interfaceType: repoInterface,
 	}
 	result.AddStruct(repoStruct)
 	result.AddInterface(repoInterface)
 
-	return *result
+	return result
 }
 
-func (r Repo) GetInterfaceType() *golang.Interface {
+func (r *Repo) GetInterfaceType() *golang.Interface {
 	return r.interfaceType
+}
+
+func (r *Repo) GetConstructor() *golang.Function {
+	return r.structType.GetConstructor()
 }

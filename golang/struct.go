@@ -4,7 +4,8 @@ import "github.com/68696c6c/capricorn_rnd/utils"
 
 type Struct struct {
 	*Type
-	fields Fields
+	fields      Fields
+	constructor *Function
 }
 
 // Use this for generating structs.
@@ -24,13 +25,22 @@ func StructFromType(t *Type) *Struct {
 	}
 }
 
+func (s *Struct) GetType() *Type {
+	return s.Type
+}
+
 func (s *Struct) AddField(f *Field) {
 	s.fields = append(s.fields, f)
 }
 
 func (s *Struct) AddConstructor(f *Function) {
+	s.constructor = f
 	s.imports = mergeImports(*s.imports, f.getImports())
 	s.functions = append(s.functions, f)
+}
+
+func (s *Struct) GetConstructor() *Function {
+	return s.constructor
 }
 
 func (s *Struct) GetStructFields() Fields {

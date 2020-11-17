@@ -35,6 +35,8 @@ type RenderableFile interface {
 }
 
 type Directory interface {
+	GetName() string
+	GetImport() string
 	GetFullPath() string
 	GetBasePath() string
 	GetFiles() []RenderableFile

@@ -15,9 +15,7 @@ func makeConstructor(serviceStruct *golang.Struct, serviceInterface *golang.Inte
 	repoArgName := "repo"
 	method.AddArg(repoArgName, repoFieldType)
 
-	scopedInterfaceType := serviceInterface
-	scopedInterfaceType.Package = ""
-	method.AddReturn("", scopedInterfaceType)
+	method.AddReturn("", serviceInterface)
 
 	method.SetBodyTemplate(t, struct {
 		StructName    string

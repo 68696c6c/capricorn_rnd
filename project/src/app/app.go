@@ -12,7 +12,7 @@ type App struct {
 	*golang.Package
 	Enums     enum.Enums
 	Domains   domain.Map
-	Container container.Container
+	Container *container.Container
 	Config    container.Config
 }
 
@@ -24,7 +24,7 @@ func NewApp(pkg *golang.Package, enums []enum.Enum, resources []*model.Model) Ap
 		Package:   pkgApp,
 		Enums:     appEnums,
 		Domains:   appDomains,
-		Container: container.NewContainer(pkgApp),
+		Container: container.NewContainer(pkgApp, appDomains),
 		Config:    container.NewConfig(pkgApp),
 	}
 }

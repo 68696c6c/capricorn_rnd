@@ -7,6 +7,14 @@ import (
 	"github.com/68696c6c/capricorn_rnd/utils"
 )
 
+type IPackage interface {
+	utils.Directory
+	AddPackage(name string) *Package
+	AddGoFile(name string) *File
+	GetImport() string
+	GetBaseImport() string
+}
+
 // Package represents an internal node in a golang project tree.
 type Package struct {
 	reference   string

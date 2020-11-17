@@ -28,6 +28,14 @@ func MakeDbConnectionType() *golang.Type {
 	return golang.MockType(ImportGorm, "DB", true, false)
 }
 
+func MakeLoggerType() *golang.Type {
+	return golang.MockType(ImportLogrus, "Logger", true, false)
+}
+
+func MakeErrorsType() *golang.Type {
+	return golang.MockType(ImportGoat, "ErrorHandler", false, false)
+}
+
 func MakeHardModelStruct() *golang.Struct {
 	result := golang.StructFromType(golang.MockType(ImportGoat, "Model", false, false))
 	result.AddField(MakeModelField("id", MakeIdType(), true, false, true))

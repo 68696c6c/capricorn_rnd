@@ -7,6 +7,10 @@ type Slice struct {
 	valueType IType
 }
 
+func (s *Slice) GetType() *Type {
+	return s.Type
+}
+
 func (s Slice) GetReference() string {
 	prefix := "[]"
 	if s.IsPointer {
