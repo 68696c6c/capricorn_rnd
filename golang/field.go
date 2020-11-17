@@ -64,7 +64,7 @@ func (f *Field) AddTag(key string, values []string) {
 }
 
 func (f *Field) Render() string {
-	built := fmt.Sprintf(`%s %s %s`, f.Name, f.Type.GetReference(), string(f.Tags.Render()))
+	built := fmt.Sprintf(`%s %s %s`, f.Name, f.Type.GetReference(), f.Tags.Render())
 	result := strings.TrimSpace(built)
 	return result
 }

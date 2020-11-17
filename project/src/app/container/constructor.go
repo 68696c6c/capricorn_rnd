@@ -12,7 +12,7 @@ import (
 func makeConstructor(meta containerMeta) *golang.Function {
 	method := golang.NewFunction("GetApp")
 	t := `
-	if {{ .SingletonName }} != nil {
+	if {{ .SingletonName }} != ({{ .TypeName }}{}) {
 		return {{ .SingletonName }}, nil
 	}
 	{{ .Declarations }}

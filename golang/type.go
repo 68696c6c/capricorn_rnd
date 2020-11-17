@@ -6,6 +6,8 @@ import (
 	"strings"
 )
 
+const DefaultPackageString = "???"
+
 type IType interface {
 	GetType() *Type
 	GetImport() string
@@ -84,7 +86,14 @@ func (t *Type) GetStructFields() Fields {
 }
 
 func (t *Type) initReceiver() {
-	t.receiver = ValueFromType(strings.ToLower(t.Name[0:1]), t)
+	t.receiver = ValueFromType(strings.ToLower(t.Name[0:1]), &Type{
+		Import:    "",
+		Package:   "",
+		Name:      t.GetName(),
+		IsPointer: t.GetIsPointer(),
+		IsSlice:   t.GetIsSlice(),
+		imports:   newImports(),
+	})
 }
 
 func (t *Type) SetReceiver(v *Value) {
@@ -101,11 +110,24 @@ func (t *Type) AddFunction(f *Function) {
 	t.functions = append(t.functions, f)
 }
 
+func copyType(t *Type) *Type {
+	result := &Type{
+		Import:    t.GetImport(),
+		Package:   t.GetPackage(),
+		Name:      t.GetName(),
+		IsPointer: t.GetIsPointer(),
+		IsSlice:   t.GetIsSlice(),
+		imports:   newImports(),
+	}
+	result.initReceiver()
+	return result
+}
+
 // Use this for generating types.  The import and package will be set when the Type is added to a File and should never be referenced before that happens..
 func NewType(typeName string, isPointer, isSlice bool) *Type {
 	result := &Type{
-		Import:    "add this Type to a golang.File",
-		Package:   "add this Type to a golang.File",
+		Import:    DefaultPackageString,
+		Package:   DefaultPackageString,
 		Name:      typeName,
 		IsPointer: isPointer,
 		IsSlice:   isSlice,

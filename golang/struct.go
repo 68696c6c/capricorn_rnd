@@ -1,6 +1,8 @@
 package golang
 
-import "github.com/68696c6c/capricorn_rnd/utils"
+import (
+	"github.com/68696c6c/capricorn_rnd/utils"
+)
 
 type Struct struct {
 	*Type

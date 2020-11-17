@@ -33,11 +33,11 @@ func (f *Function) GetType() *Type {
 }
 
 func (f *Function) AddArg(name string, t IType) {
-	f.arguments = append(f.arguments, ValueFromType(name, t.GetType()))
+	f.arguments = append(f.arguments, ValueFromType(name, copyType(t.GetType())))
 }
 
 func (f *Function) AddReturn(name string, t IType) {
-	f.returns = append(f.returns, ValueFromType(name, t.GetType()))
+	f.returns = append(f.returns, ValueFromType(name, copyType(t.GetType())))
 }
 
 func (f *Function) SetBodyTemplate(t string, data interface{}) {

@@ -29,10 +29,6 @@ func NewContainer(pkg *golang.Package, domains domain.Map) *Container {
 		loggerFieldName: "Logger",
 		errorsFieldName: "Errors",
 	}
-	result := &Container{
-		File: pkg.AddGoFile("app"),
-	}
-	result.AddStruct(containerStruct)
 
 	containerStruct.AddConstructor(makeConstructor(meta))
 
@@ -49,6 +45,12 @@ func NewContainer(pkg *golang.Package, domains domain.Map) *Container {
 			containerStruct.AddField(golang.NewField(d.GetExternalServiceName(), serviceType, true))
 		}
 	}
+
+	result := &Container{
+		File: pkg.AddGoFile("app"),
+	}
+	result.AddVar(golang.NewVar(meta.singletonName, "", containerStruct, false))
+	result.AddStruct(containerStruct)
 
 	return result
 }

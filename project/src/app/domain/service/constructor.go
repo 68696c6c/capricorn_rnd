@@ -5,8 +5,8 @@ import (
 	"github.com/68696c6c/capricorn_rnd/project/goat"
 )
 
-func makeConstructor(serviceStruct *golang.Struct, serviceInterface *golang.Interface, repoFieldType golang.IType, repoFieldName string) *golang.Function {
-	method := golang.NewFunction("New" + serviceStruct.Name)
+func makeConstructor(serviceStruct, serviceInterface, repoFieldType golang.IType, repoFieldName string) *golang.Function {
+	method := golang.NewFunction("New" + serviceInterface.GetName())
 	t := `
 	return {{ .StructName }}{
 		{{ .RepoFieldName }}: {{ .RepoArgName }},
@@ -22,7 +22,7 @@ func makeConstructor(serviceStruct *golang.Struct, serviceInterface *golang.Inte
 		RepoFieldName string
 		RepoArgName   string
 	}{
-		StructName:    serviceStruct.Name,
+		StructName:    serviceStruct.GetName(),
 		RepoFieldName: repoFieldName,
 		RepoArgName:   repoArgName,
 	})

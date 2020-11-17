@@ -13,7 +13,7 @@ type File struct {
 	PKG *Package // this is set when a File is passed to package.AddGoFile()
 	// InitFunction Function    `yaml:"init_function,omitempty"`
 	// Consts       []Const     `yaml:"consts,omitempty"`
-	// Vars         Vars
+	vars []*Var
 	// TypeAliases  []Value     `yaml:"type_aliases,omitempty"`
 	iotas      []*Iota
 	structs    []*Struct
@@ -30,6 +30,10 @@ func NewFile(basePath, name string) *File {
 
 func (f *File) Render() string {
 	var lines []string
+
+	for _, v := range f.vars {
+		lines = append(lines, v.Render())
+	}
 
 	for _, i := range f.iotas {
 		f.imports = mergeImports(*f.imports, i.getImports())
@@ -62,7 +66,15 @@ func (f *File) Render() string {
 	return strings.Join(result, "\n")
 }
 
+func (f *File) AddVar(v *Var) {
+	if v.GetPackage() == f.PKG.GetName() {
+		v.SetPackage("")
+	}
+	f.vars = append(f.vars, v)
+}
+
 func (f *File) AddFunction(function *Function) {
+	setFunctionPackages(f.PKG.GetName(), f.PKG.GetImport(), Functions{function})
 	f.imports = mergeImports(*f.imports, function.getImports())
 	f.functions = append(f.functions, function)
 }
@@ -95,11 +107,9 @@ func setFunctionPackages(pkgName, importPath string, functions Functions) {
 	for _, function := range functions {
 		function.Type.Package = pkgName
 		function.Type.Import = importPath
-		if function.receiver != nil && function.receiver.GetPackage() == pkgName {
-			function.receiver.Package = ""
-		}
 		for _, r := range function.returns {
-			if r.GetPackage() == pkgName {
+			rPkg := r.GetPackage()
+			if rPkg == pkgName || rPkg == DefaultPackageString {
 				r.SetPackage("")
 			}
 		}

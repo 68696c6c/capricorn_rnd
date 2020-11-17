@@ -20,6 +20,7 @@ func NewIota(name string, values []string) *Iota {
 	// The String() method that stringer generates uses 'i' as the receiver name.
 	// The Scan and Value methods are the only functions we generate and both require a pointer receiver.
 	rec := NewTypeAlias(typeName, MakeTypeInt(false), true)
+	rec.SetPackage("")
 	typeAlias.SetReceiver(ValueFromType("i", rec.GetType()))
 
 	var iotaValues []string

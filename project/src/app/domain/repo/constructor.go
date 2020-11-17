@@ -6,8 +6,7 @@ import (
 )
 
 func makeConstructor(meta methodMeta) *golang.Function {
-	repoName := meta.repoStructType.Name
-	method := golang.NewFunction("New" + repoName)
+	method := golang.NewFunction("New" + meta.repoInterfaceType.Name)
 	t := `
 	return {{ .StructName }}{
 		{{ .DbFieldName }}: {{ .DbArgName }},
@@ -23,7 +22,7 @@ func makeConstructor(meta methodMeta) *golang.Function {
 		DbFieldName string
 		DbArgName   string
 	}{
-		StructName:  repoName,
+		StructName:  meta.repoStructType.Name,
 		DbFieldName: meta.dbFieldName,
 		DbArgName:   dbArgName,
 	})

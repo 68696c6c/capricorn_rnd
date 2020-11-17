@@ -8,8 +8,7 @@ import (
 // Represents an argument or return value.
 type Value struct {
 	*Type
-	TypeRef string
-	Name    string
+	Name string
 }
 
 func ValueFromType(name string, t *Type) *Value {

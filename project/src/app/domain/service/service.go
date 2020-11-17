@@ -28,7 +28,7 @@ func NewService(pkg golang.IPackage, fileName string, meta Meta) *Service {
 	repoFieldName := "repo"
 	serviceStruct.AddField(golang.NewField(repoFieldName, meta.RepoType, false))
 
-	serviceStruct.AddConstructor(makeConstructor(serviceStruct, serviceInterface, meta.RepoType, repoFieldName))
+	serviceStruct.AddConstructor(makeConstructor(serviceStruct.Type, serviceInterface.Type, meta.RepoType, repoFieldName))
 
 	for _, c := range meta.Methods {
 		m := golang.NewFunction(utils.Pascal(c))
