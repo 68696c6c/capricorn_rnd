@@ -11,7 +11,7 @@ func newRepoTypes(fileName string, modelType model.Type, actions []model.Action)
 	repoStruct := golang.NewStruct(baseTypeName+"Gorm", false, false)
 	repoInterface := golang.NewInterface(baseTypeName, false, false)
 
-	meta := makeMethodMeta(modelType, repoStruct.GetReceiverName(), repoStruct.Type, repoInterface.Type)
+	meta := makeMethodMeta(modelType, repoStruct.GetReceiverName(), repoStruct.CopyType(), repoInterface.CopyType())
 
 	repoStruct.AddField(golang.NewField(meta.dbFieldName, meta.dbType, false))
 

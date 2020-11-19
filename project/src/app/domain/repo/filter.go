@@ -31,7 +31,9 @@ func makeFilter(meta methodMeta) *golang.Function {
 
 	method.AddArg(meta.queryArgName, meta.queryType)
 
-	method.AddReturn("result", golang.MakeSliceType(false, meta.modelType))
+	returnType := meta.modelType.CopyType()
+	returnType.IsPointer = true
+	method.AddReturn("result", golang.MakeSliceType(false, returnType))
 	method.AddReturn("err", golang.MakeTypeError())
 
 	method.SetBodyTemplate(t, struct {

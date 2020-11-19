@@ -23,7 +23,9 @@ func makeGetById(meta methodMeta) *golang.Function {
 	idArgName := "id"
 	method.AddArg(idArgName, goat.MakeIdType())
 
-	method.AddReturn("", meta.modelType)
+	returnType := meta.modelType.CopyType()
+	returnType.IsPointer = true
+	method.AddReturn("", returnType)
 	method.AddReturn("", golang.MakeTypeError())
 
 	method.SetBodyTemplate(t, struct {

@@ -16,6 +16,10 @@ func (i *Interface) GetType() *Type {
 	return i.Type
 }
 
+func (i *Interface) CopyType() *Type {
+	return copyType(i.Type)
+}
+
 func (i *Interface) AddFunction(f *Function) {
 	i.imports = mergeImports(*i.imports, f.getImports())
 	i.functions = append(i.functions, f)

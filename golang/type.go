@@ -10,6 +10,7 @@ const DefaultPackageString = "???"
 
 type IType interface {
 	GetType() *Type
+	CopyType() *Type
 	GetImport() string
 	GetReference() string
 	GetName() string
@@ -39,6 +40,10 @@ func (t *Type) GetType() *Type {
 	return t
 }
 
+func (t *Type) CopyType() *Type {
+	return copyType(t)
+}
+
 func (t *Type) GetImport() string {
 	return t.Import
 }
@@ -49,11 +54,11 @@ func (t *Type) getImports() imports {
 
 func (t *Type) GetReference() string {
 	prefix := ""
-	if t.IsPointer {
-		prefix += "*"
-	}
 	if t.IsSlice {
 		prefix += "[]"
+	}
+	if t.IsPointer {
+		prefix += "*"
 	}
 	if t.Package == "" {
 		return prefix + t.Name
@@ -85,14 +90,16 @@ func (t *Type) GetStructFields() Fields {
 	return Fields{}
 }
 
+// Sets the receiver to a copy of this type, minus the Import and Package since a receiver will never need those.
 func (t *Type) initReceiver() {
+	imps := t.getImports()
 	t.receiver = ValueFromType(strings.ToLower(t.Name[0:1]), &Type{
 		Import:    "",
 		Package:   "",
 		Name:      t.GetName(),
 		IsPointer: t.GetIsPointer(),
 		IsSlice:   t.GetIsSlice(),
-		imports:   newImports(),
+		imports:   &imps,
 	})
 }
 
@@ -111,13 +118,14 @@ func (t *Type) AddFunction(f *Function) {
 }
 
 func copyType(t *Type) *Type {
+	imps := t.getImports()
 	result := &Type{
 		Import:    t.GetImport(),
 		Package:   t.GetPackage(),
 		Name:      t.GetName(),
 		IsPointer: t.GetIsPointer(),
 		IsSlice:   t.GetIsSlice(),
-		imports:   newImports(),
+		imports:   &imps,
 	}
 	result.initReceiver()
 	return result

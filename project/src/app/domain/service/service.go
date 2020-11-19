@@ -26,15 +26,8 @@ func NewService(pkg golang.IPackage, fileName string, meta Meta) *Service {
 	serviceInterface := golang.NewInterface(baseTypeName, false, false)
 
 	repoFieldName := "repo"
-	serviceStruct.AddField(golang.NewField(repoFieldName, meta.RepoType, false))
-
-	serviceStruct.AddConstructor(makeConstructor(serviceStruct.Type, serviceInterface.Type, meta.RepoType, repoFieldName))
-
-	for _, c := range meta.Methods {
-		m := golang.NewFunction(utils.Pascal(c))
-		serviceStruct.AddFunction(m)
-		serviceInterface.AddFunction(m)
-	}
+	repoType := meta.RepoType.CopyType()
+	serviceStruct.AddConstructor(makeConstructor(serviceStruct.Type, serviceInterface.Type, repoType, repoFieldName))
 
 	result := &Service{
 		File:          pkg.AddGoFile(fileName),
@@ -43,6 +36,14 @@ func NewService(pkg golang.IPackage, fileName string, meta Meta) *Service {
 	}
 	result.AddStruct(serviceStruct)
 	result.AddInterface(serviceInterface)
+
+	serviceStruct.AddField(golang.NewField(repoFieldName, repoType, false))
+
+	for _, c := range meta.Methods {
+		m := golang.NewFunction(utils.Pascal(c))
+		serviceStruct.AddFunction(m)
+		serviceInterface.AddFunction(m)
+	}
 
 	return result
 }

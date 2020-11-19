@@ -15,7 +15,9 @@ func makeConstructor(serviceStruct, serviceInterface, repoFieldType golang.IType
 	repoArgName := "repo"
 	method.AddArg(repoArgName, repoFieldType)
 
-	method.AddReturn("", serviceInterface)
+	returnType := serviceInterface.CopyType()
+	returnType.SetPackage("")
+	method.AddReturn("", returnType)
 
 	method.SetBodyTemplate(t, struct {
 		StructName    string

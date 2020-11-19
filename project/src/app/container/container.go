@@ -49,7 +49,7 @@ func NewContainer(pkg *golang.Package, domains domain.Map) *Container {
 	result := &Container{
 		File: pkg.AddGoFile("app"),
 	}
-	result.AddVar(golang.NewVar(meta.singletonName, "", containerStruct, false))
+	result.AddVar(golang.NewVar(meta.singletonName, "", containerStruct.CopyType(), false))
 	result.AddStruct(containerStruct)
 
 	return result

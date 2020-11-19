@@ -31,7 +31,12 @@ func (s *Struct) GetType() *Type {
 	return s.Type
 }
 
+func (s *Struct) CopyType() *Type {
+	return copyType(s.Type)
+}
+
 func (s *Struct) AddField(f *Field) {
+	removePackageRefIfSamePackage(s.GetPackage(), f.Type)
 	s.fields = append(s.fields, f)
 }
 

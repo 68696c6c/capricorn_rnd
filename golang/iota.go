@@ -38,6 +38,10 @@ func (i *Iota) GetType() *Type {
 	return i.Type
 }
 
+func (i *Iota) CopyType() *Type {
+	return copyType(i.Type)
+}
+
 func (i *Iota) GetValues() []string {
 	return i.values
 }

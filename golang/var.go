@@ -18,6 +18,14 @@ func NewVar(name, value string, t IType, implicit bool) *Var {
 	}
 }
 
+func (v *Var) GetType() *Type {
+	return v.Type
+}
+
+func (v *Var) CopyType() *Type {
+	return copyType(v.Type)
+}
+
 func (v *Var) Render() string {
 	hasValue := v.Value != ""
 	if v.implicit && hasValue {

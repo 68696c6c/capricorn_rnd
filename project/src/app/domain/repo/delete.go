@@ -15,7 +15,9 @@ func makeDelete(meta methodMeta) *golang.Function {
 	return nil
 `
 
-	method.AddArg(meta.modelArgName, meta.modelType)
+	argType := meta.modelType.CopyType()
+	argType.IsPointer = true
+	method.AddArg(meta.modelArgName, argType)
 
 	method.AddReturn("", golang.MakeTypeError())
 

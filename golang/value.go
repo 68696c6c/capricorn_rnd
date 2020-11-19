@@ -18,6 +18,14 @@ func ValueFromType(name string, t *Type) *Value {
 	}
 }
 
+func (v *Value) GetType() *Type {
+	return v.Type
+}
+
+func (v *Value) CopyType() *Type {
+	return copyType(v.Type)
+}
+
 func getJoinedValueString(values []*Value) string {
 	var builtValues []string
 	for _, v := range values {

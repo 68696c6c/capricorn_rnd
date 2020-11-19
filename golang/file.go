@@ -67,9 +67,7 @@ func (f *File) Render() string {
 }
 
 func (f *File) AddVar(v *Var) {
-	if v.GetPackage() == f.PKG.GetName() {
-		v.SetPackage("")
-	}
+	removePackageRefIfSamePackage(f.PKG.GetName(), v)
 	f.vars = append(f.vars, v)
 }
 
@@ -108,15 +106,17 @@ func setFunctionPackages(pkgName, importPath string, functions Functions) {
 		function.Type.Package = pkgName
 		function.Type.Import = importPath
 		for _, r := range function.returns {
-			rPkg := r.GetPackage()
-			if rPkg == pkgName || rPkg == DefaultPackageString {
-				r.SetPackage("")
-			}
+			removePackageRefIfSamePackage(pkgName, r)
 		}
 		for _, a := range function.arguments {
-			if a.GetPackage() == pkgName {
-				a.SetPackage("")
-			}
+			removePackageRefIfSamePackage(pkgName, a)
 		}
+	}
+}
+
+func removePackageRefIfSamePackage(filePkg string, subject IType) {
+	subjectPkg := subject.GetPackage()
+	if subjectPkg == filePkg || subjectPkg == DefaultPackageString {
+		subject.SetPackage("")
 	}
 }

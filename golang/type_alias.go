@@ -18,6 +18,10 @@ func (t *TypeAlias) GetType() *Type {
 	return t.Type
 }
 
+func (t *TypeAlias) CopyType() *Type {
+	return copyType(t.Type)
+}
+
 func (t *TypeAlias) Render() string {
 	aliasRef := t.alias.GetReference()
 	if t.GetPackage() == t.alias.GetPackage() {
