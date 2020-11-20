@@ -93,10 +93,15 @@ func (t *Type) GetStructFields() Fields {
 // Sets the receiver to a copy of this type, minus the Import and Package since a receiver will never need those.
 func (t *Type) initReceiver() {
 	imps := t.getImports()
-	t.receiver = ValueFromType(strings.ToLower(t.Name[0:1]), &Type{
+	name := t.GetName()
+	recName := "r"
+	if len(name) > 0 {
+		recName = strings.ToLower(name[0:1])
+	}
+	t.receiver = ValueFromType(recName, &Type{
 		Import:    "",
 		Package:   "",
-		Name:      t.GetName(),
+		Name:      name,
 		IsPointer: t.GetIsPointer(),
 		IsSlice:   t.GetIsSlice(),
 		imports:   &imps,

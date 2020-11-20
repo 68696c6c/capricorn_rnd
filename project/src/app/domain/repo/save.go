@@ -20,7 +20,9 @@ func makeSave(meta methodMeta) *golang.Function {
 	return nil
 `
 
-	method.AddArg(meta.modelArgName, meta.modelType)
+	modelType := meta.modelType.CopyType()
+	modelType.IsPointer = true
+	method.AddArg(meta.modelArgName, modelType)
 
 	method.AddReturn("", golang.MakeTypeError())
 

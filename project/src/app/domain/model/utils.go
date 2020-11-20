@@ -24,8 +24,10 @@ func GetAllActions() []Action {
 }
 
 type Meta struct {
-	ModelType Type
-	Actions   []Action
+	ModelType  Type
+	SingleName string
+	PluralName string
+	Actions    []Action
 }
 
 func getAssumedDDDModelType(baseImport, inputName string, isPointer bool) golang.IType {

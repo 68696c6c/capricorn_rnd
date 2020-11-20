@@ -16,29 +16,37 @@ const (
 	ImportSqlDriver  = "_ \"github.com/go-sql-driver/mysql\""
 )
 
-func MakeIdType() *golang.Type {
+func MakeTypeId() *golang.Type {
 	return golang.MockType(ImportGoat, "ID", false, false)
 }
 
-func MakeQueryType() *golang.Type {
+func MakeTypeQuery() *golang.Type {
 	return golang.MockType(ImportQuery, "Query", true, false)
 }
 
-func MakeDbConnectionType() *golang.Type {
+func MakeTypeDbConnection() *golang.Type {
 	return golang.MockType(ImportGorm, "DB", true, false)
 }
 
-func MakeLoggerType() *golang.Type {
+func MakeTypeLogger() *golang.Type {
 	return golang.MockType(ImportLogrus, "Logger", true, false)
 }
 
-func MakeErrorsType() *golang.Type {
+func MakeTypeErrorHandler() *golang.Type {
 	return golang.MockType(ImportGoat, "ErrorHandler", false, false)
+}
+
+func MakeTypeHandlerFunc() *golang.Type {
+	return golang.MockType(ImportGin, "HandlerFunc", false, false)
+}
+
+func MakeTypeGinContext() *golang.Type {
+	return golang.MockType(ImportGin, "Context", true, false)
 }
 
 func MakeHardModelStruct() *golang.Struct {
 	result := golang.StructFromType(golang.MockType(ImportGoat, "Model", false, false))
-	result.AddField(MakeModelField("id", MakeIdType(), true, false, true))
+	result.AddField(MakeModelField("id", MakeTypeId(), true, false, true))
 	result.AddField(MakeModelField("created_at", golang.MakeTypeTime(false), true, false, true))
 	result.AddField(MakeModelField("updated_at", golang.MakeTypeTime(true), true, false, true))
 	return result
@@ -55,4 +63,8 @@ func MakeModelField(separatedName string, t golang.IType, isExported, isRequired
 	result.SetRequired(isRequired)
 	result.SetJsonTag(omitEmpty)
 	return result
+}
+
+func MakeFuncBindMiddleware() *golang.Function {
+	return golang.MockFunction(ImportGoat, "BindMiddleware")
 }

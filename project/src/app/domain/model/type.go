@@ -63,7 +63,7 @@ func (m *Type) addUserDefinedField(enums *enum.Enums, f Field) {
 
 func (m *Type) addBelongsToIdField(relation string) {
 	name := utils.Pascal(utils.Singular(relation) + "_id")
-	field := goat.MakeModelField(name, goat.MakeIdType(), true, true, false)
+	field := goat.MakeModelField(name, goat.MakeTypeId(), true, true, false)
 	m.AddAllField(field)
 }
 

@@ -21,7 +21,7 @@ func makeGetById(meta methodMeta) *golang.Function {
 `
 
 	idArgName := "id"
-	method.AddArg(idArgName, goat.MakeIdType())
+	method.AddArg(idArgName, goat.MakeTypeId())
 
 	returnType := meta.modelType.CopyType()
 	returnType.IsPointer = true

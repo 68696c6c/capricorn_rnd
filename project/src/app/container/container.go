@@ -32,9 +32,9 @@ func NewContainer(pkg *golang.Package, domains domain.Map) *Container {
 
 	containerStruct.AddConstructor(makeConstructor(meta))
 
-	containerStruct.AddField(golang.NewField(meta.dbFieldName, goat.MakeDbConnectionType(), true))
-	containerStruct.AddField(golang.NewField(meta.loggerFieldName, goat.MakeLoggerType(), true))
-	containerStruct.AddField(golang.NewField(meta.errorsFieldName, goat.MakeErrorsType(), true))
+	containerStruct.AddField(golang.NewField(meta.dbFieldName, goat.MakeTypeDbConnection(), true))
+	containerStruct.AddField(golang.NewField(meta.loggerFieldName, goat.MakeTypeLogger(), true))
+	containerStruct.AddField(golang.NewField(meta.errorsFieldName, goat.MakeTypeErrorHandler(), true))
 
 	for _, d := range domains {
 		repoType := d.Repo.GetInterfaceType()

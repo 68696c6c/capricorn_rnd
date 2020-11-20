@@ -89,6 +89,9 @@ func (f *File) AddStruct(s *Struct) {
 	s.Type.Package = pkg
 	s.Type.Import = imp
 	setFunctionPackages(pkg, imp, s.functions)
+	for _, field := range s.GetStructFields() {
+		removePackageRefIfSamePackage(pkg, field.Type)
+	}
 	f.structs = append(f.structs, s)
 }
 

@@ -27,10 +27,10 @@ func makeConstructor(meta containerMeta) *golang.Function {
 	return {{ .SingletonName }}, nil
 `
 	dbArgName := "dbConnection"
-	method.AddArg(dbArgName, goat.MakeDbConnectionType())
+	method.AddArg(dbArgName, goat.MakeTypeDbConnection())
 
 	loggerArgName := "logger"
-	method.AddArg(loggerArgName, goat.MakeLoggerType())
+	method.AddArg(loggerArgName, goat.MakeTypeLogger())
 
 	method.AddReturn("", meta.structType)
 

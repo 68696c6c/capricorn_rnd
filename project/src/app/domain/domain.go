@@ -39,8 +39,10 @@ func newDomain(pkgApp *golang.Package, resource *model.Model, enums *enum.Enums)
 	domain.Model = resource.Build(domain, enums, "model")
 
 	meta := model.Meta{
-		ModelType: *domain.Model.GetType(),
-		Actions:   domain.Model.GetActions(),
+		ModelType:  *domain.Model.GetType(),
+		SingleName: utils.Singular(resource.Name),
+		PluralName: utils.Plural(resource.Name),
+		Actions:    domain.Model.GetActions(),
 	}
 
 	repoFileName := "repo"
@@ -54,7 +56,7 @@ func newDomain(pkgApp *golang.Package, resource *model.Model, enums *enum.Enums)
 	})
 	domain.externalServiceName = domain.Package.GetName() + "_" + serviceFileName
 
-	domain.Handlers = handlers.NewHandlers(domain, "handlers", meta)
+	domain.Handlers = handlers.NewHandlers(domain, "handlers", meta, domain.Repo.GetInterfaceType())
 
 	return domain
 }

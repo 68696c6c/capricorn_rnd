@@ -28,6 +28,15 @@ func NewFunction(name string) *Function {
 	}
 }
 
+func MockFunction(importPath, name string) *Function {
+	funcType := MockType(importPath, name, false, false)
+	funcType.SetReceiver(nil)
+	return &Function{
+		Type:         funcType,
+		bodyTemplate: "",
+	}
+}
+
 func (f *Function) GetType() *Type {
 	return f.Type
 }
@@ -38,6 +47,10 @@ func (f *Function) CopyType() *Type {
 
 func (f *Function) AddArg(name string, t IType) {
 	f.arguments = append(f.arguments, ValueFromType(name, t.CopyType()))
+}
+
+func (f *Function) AddArgV(v *Value) {
+	f.arguments = append(f.arguments, v)
 }
 
 func (f *Function) AddReturn(name string, t IType) {
@@ -51,6 +64,10 @@ func (f *Function) GetReturns() []*Value {
 func (f *Function) SetBodyTemplate(t string, data interface{}) {
 	f.bodyTemplate = t
 	f.bodyData = data
+}
+
+func (f *Function) GetBodyTemplate() string {
+	return f.bodyTemplate
 }
 
 func (f *Function) GetSignature() string {
@@ -83,19 +100,19 @@ func (f *Function) getReceiver() string {
 }
 
 func (f *Function) Render() string {
-	result, err := utils.ParseTemplate("template_function", f.bodyTemplate, f.bodyData)
+	body, err := utils.ParseTemplate("template_function", f.bodyTemplate, f.bodyData)
 	if err != nil {
 		panic(err)
 	}
-	return result
+	rec := f.getReceiver()
+	sig := f.GetSignature()
+	return fmt.Sprintf("func %s%s {%s}\n", rec, sig, body)
 }
 
 func (f Functions) Render() string {
 	var builtValues []string
 	for _, function := range f {
-		rec := function.getReceiver()
-		sig := function.GetSignature()
-		builtValues = append(builtValues, fmt.Sprintf("func %s%s {%s}\n", rec, sig, function.Render()))
+		builtValues = append(builtValues, function.Render())
 	}
 	if len(builtValues) == 0 {
 		return ""
