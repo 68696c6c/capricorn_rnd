@@ -15,13 +15,13 @@ func makeConstructor(meta containerMeta) *golang.Function {
 	if {{ .SingletonName }} != ({{ .TypeName }}{}) {
 		return {{ .SingletonName }}, nil
 	}
-	{{ .Declarations }}
+{{ .Declarations }}
 
 	container = {{ .TypeName }}{
 		{{ .DbFieldName }}:     {{ .DbArgName }},
 		{{ .LoggerFieldName }}: {{ .LoggerArgName }},
 		{{ .ErrorsFieldName }}: goat.NewErrorHandler({{ .LoggerArgName }}),
-		{{ .Fields }}
+{{ .Fields }}
 	}
 
 	return {{ .SingletonName }}, nil
@@ -47,14 +47,14 @@ func makeConstructor(meta containerMeta) *golang.Function {
 			varName := utils.Camel(key + "_repo")
 
 			repoDec := fmt.Sprintf("%s := %s(%s)", varName, repoConstructor.GetReference(), dbArgName)
-			declarations = append(declarations, repoDec)
+			declarations = append(declarations, "\t"+repoDec)
 
-			fields = append(fields, fmt.Sprintf("%s: %s,", repoFieldName, varName))
+			fields = append(fields, fmt.Sprintf("\t\t%s: %s,", repoFieldName, varName))
 
 			serviceConstructor := d.Service.GetConstructor()
-			fields = append(fields, fmt.Sprintf("%s: %s(%s),", utils.Pascal(d.GetExternalServiceName()), serviceConstructor.GetReference(), varName))
+			fields = append(fields, fmt.Sprintf("\t\t%s: %s(%s),", utils.Pascal(d.GetExternalServiceName()), serviceConstructor.GetReference(), varName))
 		} else {
-			fields = append(fields, fmt.Sprintf("%s: %s(%s),", repoFieldName, repoConstructor.GetReference(), dbArgName))
+			fields = append(fields, fmt.Sprintf("\t\t%s: %s(%s),", repoFieldName, repoConstructor.GetReference(), dbArgName))
 		}
 	}
 

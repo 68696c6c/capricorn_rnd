@@ -44,6 +44,10 @@ func MakeTypeGinContext() *golang.Type {
 	return golang.MockType(ImportGin, "Context", true, false)
 }
 
+func MakeTypeRouter() *golang.Type {
+	return golang.MockType(ImportGoat, "Router", false, false)
+}
+
 func MakeHardModelStruct() *golang.Struct {
 	result := golang.StructFromType(golang.MockType(ImportGoat, "Model", false, false))
 	result.AddField(MakeModelField("id", MakeTypeId(), true, false, true))
@@ -63,8 +67,4 @@ func MakeModelField(separatedName string, t golang.IType, isExported, isRequired
 	result.SetRequired(isRequired)
 	result.SetJsonTag(omitEmpty)
 	return result
-}
-
-func MakeFuncBindMiddleware() *golang.Function {
-	return golang.MockFunction(ImportGoat, "BindMiddleware")
 }

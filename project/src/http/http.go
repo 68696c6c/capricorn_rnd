@@ -7,10 +7,10 @@ import (
 
 type HTTP struct {
 	*golang.Package
-	Serve Serve
+	Serve Routes
 }
 
 func Build(pkg *golang.Package, a app.App) {
 	pkgHttp := pkg.AddPackage("http")
-	buildServe(pkgHttp, a)
+	buildRoutes(pkgHttp, a)
 }

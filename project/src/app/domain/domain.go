@@ -17,7 +17,7 @@ type Domain struct {
 	Model               *model.Model
 	Repo                *repo.Repo
 	Service             *service.Service
-	Handlers            handlers.Handlers
+	Handlers            *handlers.RouteGroup
 	externalRepoName    string
 	externalServiceName string
 }
@@ -56,7 +56,7 @@ func newDomain(pkgApp *golang.Package, resource *model.Model, enums *enum.Enums)
 	})
 	domain.externalServiceName = domain.Package.GetName() + "_" + serviceFileName
 
-	domain.Handlers = handlers.NewHandlers(domain, "handlers", meta, domain.Repo.GetInterfaceType())
+	domain.Handlers = handlers.NewRouteGroup(domain, "handlers", meta, domain.Repo.GetInterfaceType())
 
 	return domain
 }

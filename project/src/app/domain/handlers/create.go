@@ -8,9 +8,9 @@ import (
 	"github.com/68696c6c/capricorn_rnd/utils"
 )
 
-func makeCreateRequest(meta handlerGroupMeta) *golang.Struct {
-	result := golang.NewStruct(meta.RequestCreateTypeName, false, false)
-	result.AddField(golang.NewField("", meta.ModelType, true))
+func makeCreateRequest(name string, modelType *golang.Struct) *golang.Struct {
+	result := golang.NewStruct(name, false, false)
+	result.AddField(golang.NewField("", modelType, true))
 	return result
 }
 
@@ -46,8 +46,8 @@ func makeCreate(meta handlerGroupMeta) *Handler {
 		RepoRef:                  meta.RepoArg.Name,
 		SingleName:               utils.Space(meta.SingleName),
 		ModelTypeName:            meta.ModelType.Name,
-		RequestCreateTypeName:    meta.RequestCreateTypeName,
-		ResourceResponseTypeName: meta.ResourceResponseTypeName,
+		RequestCreateTypeName:    meta.RequestCreateType.Name,
+		ResourceResponseTypeName: meta.ResourceResponseType.Name,
 	}
 
 	handler := makeHandlerFunc(name, body, data, meta.ContextArg)
@@ -58,9 +58,9 @@ func makeCreate(meta handlerGroupMeta) *Handler {
 	handler.AddImportsVendor(goat.ImportGoat)
 
 	return &Handler{
-		handlerFunc: handler,
-		middlewares: map[string]*golang.Function{
-			MiddlewareKeyBind: goat.MakeFuncBindMiddleware(),
-		},
+		verb:          verbPost,
+		uri:           `""`,
+		handlerFunc:   handler,
+		requestStruct: meta.RequestCreateType,
 	}
 }

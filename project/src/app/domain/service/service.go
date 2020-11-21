@@ -7,7 +7,7 @@ import (
 
 type Meta struct {
 	Methods  []string
-	RepoType *golang.Interface
+	RepoType *golang.Type
 }
 
 type Service struct {
@@ -26,8 +26,7 @@ func NewService(pkg golang.IPackage, fileName string, meta Meta) *Service {
 	serviceInterface := golang.NewInterface(baseTypeName, false, false)
 
 	repoFieldName := "repo"
-	repoType := meta.RepoType.CopyType()
-	serviceStruct.AddConstructor(makeConstructor(serviceStruct.Type, serviceInterface.Type, repoType, repoFieldName))
+	serviceStruct.AddConstructor(makeConstructor(serviceStruct.Type, serviceInterface.Type, meta.RepoType, repoFieldName))
 
 	result := &Service{
 		File:          pkg.AddGoFile(fileName),
@@ -37,7 +36,7 @@ func NewService(pkg golang.IPackage, fileName string, meta Meta) *Service {
 	result.AddStruct(serviceStruct)
 	result.AddInterface(serviceInterface)
 
-	serviceStruct.AddField(golang.NewField(repoFieldName, repoType, false))
+	serviceStruct.AddField(golang.NewField(repoFieldName, meta.RepoType, false))
 
 	for _, c := range meta.Methods {
 		m := golang.NewFunction(utils.Pascal(c))

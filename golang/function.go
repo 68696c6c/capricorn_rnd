@@ -53,6 +53,10 @@ func (f *Function) AddArgV(v *Value) {
 	f.arguments = append(f.arguments, v)
 }
 
+func (f *Function) GetArgs() []*Value {
+	return f.arguments
+}
+
 func (f *Function) AddReturn(name string, t IType) {
 	f.returns = append(f.returns, ValueFromType(name, t.CopyType()))
 }
