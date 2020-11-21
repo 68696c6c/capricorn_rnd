@@ -71,6 +71,6 @@ func makeUpdate(meta handlerGroupMeta) *Handler {
 		verb:          verbPut,
 		uri:           fmt.Sprintf(`"/:%s"`, meta.ParamNameId),
 		handlerFunc:   handler,
-		requestStruct: nil,
+		requestStruct: meta.RequestUpdateType,
 	}
 }
