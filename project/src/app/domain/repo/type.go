@@ -21,9 +21,14 @@ func newRepoTypes(fileName string, modelType model.Type, actions []model.Action)
 	var saveDone bool
 	for _, a := range actions {
 		switch a {
+
 		case model.ActionCreate:
 			fallthrough
+		case model.ActionRepoCreate:
+			fallthrough
 		case model.ActionUpdate:
+			fallthrough
+		case model.ActionRepoUpdate:
 			if !saveDone {
 				m := makeSave(meta)
 				repoStruct.AddFunction(m)
@@ -31,18 +36,27 @@ func newRepoTypes(fileName string, modelType model.Type, actions []model.Action)
 			}
 			saveDone = true
 			break
+
 		case model.ActionView:
+			fallthrough
+		case model.ActionRepoView:
 			m := makeGetById(meta)
 			repoStruct.AddFunction(m)
 			repoInterface.AddFunction(m)
 			break
+
 		case model.ActionList:
+			fallthrough
+		case model.ActionRepoList:
 			m := makeFilter(meta)
 			repoStruct.AddFunction(m)
 			repoInterface.AddFunction(m)
 			needFilterFuncs = true
 			break
+
 		case model.ActionDelete:
+			fallthrough
+		case model.ActionRepoDelete:
 			m := makeDelete(meta)
 			repoStruct.AddFunction(m)
 			repoInterface.AddFunction(m)

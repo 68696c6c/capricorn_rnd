@@ -8,6 +8,7 @@ import (
 	"github.com/68696c6c/capricorn_rnd/project/src/app/domain/service"
 	"github.com/68696c6c/capricorn_rnd/project/src/app/enum"
 	"github.com/68696c6c/capricorn_rnd/utils"
+	"strings"
 )
 
 type Map map[string]*Domain
@@ -20,6 +21,8 @@ type Domain struct {
 	Handlers            *handlers.RouteGroup
 	externalRepoName    string
 	externalServiceName string
+	hasRepo             bool
+	hasHandlers         bool
 }
 
 func NewDomains(pkgApp *golang.Package, resources []*model.Model, enums *enum.Enums) Map {
@@ -37,6 +40,27 @@ func newDomain(pkgApp *golang.Package, resource *model.Model, enums *enum.Enums)
 	}
 
 	domain.Model = resource.Build(domain, enums, "model")
+
+	var hasRepo bool
+	var hasHandlers bool
+	for _, a := range resource.Actions {
+		if a == model.ActionNone {
+			domain.hasRepo = false
+			domain.hasHandlers = false
+			return domain
+		} else {
+			hasRepo = true
+		}
+		if !strings.HasPrefix(string(a), "repo:") {
+			hasHandlers = true
+		}
+	}
+	if len(resource.Actions) == 0 {
+		hasRepo = true
+		hasHandlers = true
+	}
+	domain.hasRepo = hasRepo
+	domain.hasHandlers = hasHandlers
 
 	meta := model.Meta{
 		ModelType:  *domain.Model.GetType(),
@@ -56,9 +80,19 @@ func newDomain(pkgApp *golang.Package, resource *model.Model, enums *enum.Enums)
 	})
 	domain.externalServiceName = domain.Package.GetName() + "_" + serviceFileName
 
-	domain.Handlers = handlers.NewRouteGroup(domain, "handlers", meta, domain.Repo)
+	if domain.hasHandlers {
+		domain.Handlers = handlers.NewRouteGroup(domain, "handlers", meta, domain.Repo)
+	}
 
 	return domain
+}
+
+func (d *Domain) HasRepo() bool {
+	return d.hasRepo
+}
+
+func (d *Domain) HasHandlers() bool {
+	return d.hasHandlers
 }
 
 // Returns the name of the field this repo should live under in the service container.

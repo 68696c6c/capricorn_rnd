@@ -48,6 +48,9 @@ func buildRoutes(pkg *golang.Package, a app.App) Routes {
 	errorsRef := fmt.Sprintf("%s.%s", servicesArgName, a.Container.ErrorHandlerField().Name)
 	var groups handlers.RouteGroups
 	for domainKey, d := range a.Domains {
+		if !d.HasHandlers() {
+			continue
+		}
 		d.Handlers.SetErrorsRef(errorsRef)
 
 		repoField, err := a.Container.GetDomainRepoField(domainKey)

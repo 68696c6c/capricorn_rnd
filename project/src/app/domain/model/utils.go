@@ -12,11 +12,17 @@ const dddModelName = "Model"
 type Action string
 
 const (
-	ActionCreate = "create"
-	ActionView   = "view"
-	ActionList   = "list"
-	ActionUpdate = "update"
-	ActionDelete = "delete"
+	ActionNone       = "none"
+	ActionCreate     = "create"
+	ActionView       = "view"
+	ActionList       = "list"
+	ActionUpdate     = "update"
+	ActionDelete     = "delete"
+	ActionRepoCreate = "repo:create"
+	ActionRepoView   = "repo:view"
+	ActionRepoList   = "repo:list"
+	ActionRepoUpdate = "repo:update"
+	ActionRepoDelete = "repo:delete"
 )
 
 func GetAllActions() []Action {

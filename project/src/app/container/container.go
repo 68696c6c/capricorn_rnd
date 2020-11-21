@@ -55,6 +55,9 @@ func NewContainer(pkg *golang.Package, domains domain.Map) *Container {
 	}
 
 	for domainKey, d := range domains {
+		if !d.HasRepo() {
+			continue
+		}
 		repoType := d.Repo.GetInterfaceType()
 		repoField := golang.NewField(d.GetExternalRepoName(), repoType, true)
 		containerStruct.AddField(repoField)

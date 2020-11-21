@@ -39,6 +39,10 @@ func makeConstructor(meta containerMeta) *golang.Function {
 	var declarations []string
 	var fields []string
 	for key, d := range meta.domains {
+		if !d.HasRepo() {
+			continue
+		}
+
 		method.AddImportsApp(d.GetImport())
 
 		repoConstructor := d.Repo.GetConstructor()

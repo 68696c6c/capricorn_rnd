@@ -130,6 +130,7 @@ func NewRouteGroup(pkg golang.IPackage, fileName string, meta model.Meta, domain
 	var needListResponse bool
 	for _, a := range meta.Actions {
 		switch a {
+
 		case model.ActionCreate:
 			h := makeCreate(handlerMeta)
 			result.AddStruct(createRequest)
@@ -137,6 +138,7 @@ func NewRouteGroup(pkg golang.IPackage, fileName string, meta model.Meta, domain
 			needResourceResponse = true
 			endpoints = append(endpoints, h)
 			break
+
 		case model.ActionUpdate:
 			h := makeUpdate(handlerMeta)
 			result.AddStruct(updateRequest)
@@ -144,12 +146,14 @@ func NewRouteGroup(pkg golang.IPackage, fileName string, meta model.Meta, domain
 			needResourceResponse = true
 			endpoints = append(endpoints, h)
 			break
+
 		case model.ActionView:
 			h := makeView(handlerMeta)
 			result.AddFunction(h.handlerFunc)
 			needResourceResponse = true
 			endpoints = append(endpoints, h)
 			break
+
 		case model.ActionList:
 			h := makeList(handlerMeta)
 			result.AddStruct(createRequest)
@@ -157,6 +161,7 @@ func NewRouteGroup(pkg golang.IPackage, fileName string, meta model.Meta, domain
 			needListResponse = true
 			endpoints = append(endpoints, h)
 			break
+
 		case model.ActionDelete:
 			h := makeDelete(handlerMeta)
 			result.AddStruct(updateRequest)
