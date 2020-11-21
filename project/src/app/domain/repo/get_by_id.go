@@ -15,7 +15,11 @@ func makeGetById(meta methodMeta) *golang.Function {
 	}
 	errs := {{ .DbRef }}.First({{ .ModelVarName }}).GetErrors()
 	if len(errs) > 0 {
-		return {{ .ModelVarName }}, goat.ErrorsToError(errs)
+		if goat.RecordNotFound(errs) {
+			return nil, gorm.ErrRecordNotFound
+		} else {
+			return nil, goat.ErrorsToError(errs)
+		}
 	}
 	return {{ .ModelVarName }}, nil
 `
@@ -40,7 +44,7 @@ func makeGetById(meta methodMeta) *golang.Function {
 		ModelTypeName: meta.modelType.Name,
 	})
 
-	method.AddImportsVendor(goat.ImportGoat)
+	method.AddImportsVendor(goat.ImportGoat, goat.ImportGorm)
 
 	return method
 }

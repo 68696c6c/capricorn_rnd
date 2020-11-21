@@ -22,6 +22,7 @@ type methodMeta struct {
 	queryType           *golang.Type
 	baseQueryFuncName   string
 	filterQueryFuncName string
+	filterFuncName      string
 	pageQueryFuncName   string
 	repoStructType      *golang.Type
 	repoInterfaceType   *golang.Type
@@ -41,7 +42,8 @@ func makeMethodMeta(modelType model.Type, recName string, repoStruct, repoInterf
 		queryType:           goat.MakeTypeQuery(),
 		baseQueryFuncName:   "getBaseQuery",
 		filterQueryFuncName: "getFilteredQuery",
-		pageQueryFuncName:   "applyPaginationToQuery",
+		filterFuncName:      "Filter",
+		pageQueryFuncName:   "ApplyPaginationToQuery",
 		repoStructType:      repoStruct,
 		repoInterfaceType:   repoInterface,
 	}

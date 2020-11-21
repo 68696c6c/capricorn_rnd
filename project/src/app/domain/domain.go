@@ -56,7 +56,7 @@ func newDomain(pkgApp *golang.Package, resource *model.Model, enums *enum.Enums)
 	})
 	domain.externalServiceName = domain.Package.GetName() + "_" + serviceFileName
 
-	domain.Handlers = handlers.NewRouteGroup(domain, "handlers", meta, domain.Repo.GetInterfaceType())
+	domain.Handlers = handlers.NewRouteGroup(domain, "handlers", meta, domain.Repo)
 
 	return domain
 }

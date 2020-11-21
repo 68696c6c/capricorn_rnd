@@ -110,13 +110,13 @@ func (f *Function) Render() string {
 	}
 	rec := f.getReceiver()
 	sig := f.GetSignature()
-	return fmt.Sprintf("func %s%s {%s}\n", rec, sig, body)
+	return fmt.Sprintf("func %s%s {%s}", rec, sig, body)
 }
 
 func (f Functions) Render() string {
 	var builtValues []string
 	for _, function := range f {
-		builtValues = append(builtValues, function.Render())
+		builtValues = append(builtValues, function.Render()+"\n")
 	}
 	if len(builtValues) == 0 {
 		return ""

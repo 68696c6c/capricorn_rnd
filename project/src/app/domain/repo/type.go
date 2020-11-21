@@ -6,7 +6,7 @@ import (
 	"github.com/68696c6c/capricorn_rnd/utils"
 )
 
-func newRepoTypes(fileName string, modelType model.Type, actions []model.Action) (*golang.Struct, *golang.Interface) {
+func newRepoTypes(fileName string, modelType model.Type, actions []model.Action) (*golang.Struct, *golang.Interface, methodMeta) {
 	baseTypeName := utils.Pascal(fileName)
 	repoStruct := golang.NewStruct(baseTypeName+"Gorm", false, false)
 	repoInterface := golang.NewInterface(baseTypeName, false, false)
@@ -55,8 +55,11 @@ func newRepoTypes(fileName string, modelType model.Type, actions []model.Action)
 	if needFilterFuncs {
 		repoStruct.AddFunction(makeGetBaseQuery(meta))
 		repoStruct.AddFunction(makeGetFilteredQuery(meta))
-		repoStruct.AddFunction(makeApplyPaginationToQuery(meta))
+
+		m := makeApplyPaginationToQuery(meta)
+		repoStruct.AddFunction(m)
+		repoInterface.AddFunction(m)
 	}
 
-	return repoStruct, repoInterface
+	return repoStruct, repoInterface, meta
 }

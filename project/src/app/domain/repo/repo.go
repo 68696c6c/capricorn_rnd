@@ -7,15 +7,19 @@ import (
 
 type Repo struct {
 	*golang.File
-	constructor   *golang.Function
-	interfaceType *golang.Type
+	constructor    *golang.Function
+	interfaceType  *golang.Type
+	pageFuncName   string
+	filterFuncName string
 }
 
 func NewRepo(pkg golang.IPackage, fileName string, meta model.Meta) *Repo {
-	repoStruct, repoInterface := newRepoTypes(fileName, meta.ModelType, meta.Actions)
+	repoStruct, repoInterface, c := newRepoTypes(fileName, meta.ModelType, meta.Actions)
 
 	result := &Repo{
-		File: pkg.AddGoFile(fileName),
+		File:           pkg.AddGoFile(fileName),
+		pageFuncName:   c.pageQueryFuncName,
+		filterFuncName: c.filterFuncName,
 	}
 	result.AddStruct(repoStruct)
 	result.constructor = repoStruct.GetConstructor()
@@ -32,4 +36,12 @@ func (r *Repo) GetInterfaceType() *golang.Type {
 
 func (r *Repo) GetConstructor() *golang.Function {
 	return r.constructor
+}
+
+func (r *Repo) GetPaginationFuncName() string {
+	return r.pageFuncName
+}
+
+func (r *Repo) GetFilterFuncName() string {
+	return r.filterFuncName
 }

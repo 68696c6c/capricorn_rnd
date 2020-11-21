@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"fmt"
+	"github.com/68696c6c/capricorn_rnd/project/src/app/domain/repo"
 	"strings"
 
 	"github.com/68696c6c/capricorn_rnd/golang"
@@ -11,7 +12,11 @@ import (
 )
 
 const (
-	verbPost = "POST"
+	verbGet     = "GET"
+	verbPost    = "POST"
+	verbPut     = "PUT"
+	verbDelete  = "DELETE"
+	paramNameId = "id"
 )
 
 type RouteGroups []*RouteGroup
@@ -72,18 +77,22 @@ func (g RouteGroups) Render() string {
 }
 
 type handlerGroupMeta struct {
-	ContextArg            *golang.Value
-	ErrorsArg             *golang.Value
-	RepoArg               *golang.Value
-	SingleName            string
-	ModelType             *golang.Struct
-	RequestCreateType     *golang.Struct
-	RequestUpdateTypeName string
-	ResourceResponseType  *golang.Struct
-	ListResponseTypeName  string
+	ContextArg           *golang.Value
+	ErrorsArg            *golang.Value
+	RepoArg              *golang.Value
+	SingleName           string
+	PluralName           string
+	ModelType            *golang.Struct
+	RequestCreateType    *golang.Struct
+	RequestUpdateType    *golang.Struct
+	ResourceResponseType *golang.Struct
+	ListResponseType     *golang.Struct
+	RepoPageFuncName     string
+	RepoFilterFuncName   string
+	ParamNameId          string
 }
 
-func NewRouteGroup(pkg golang.IPackage, fileName string, meta model.Meta, repoType *golang.Type) *RouteGroup {
+func NewRouteGroup(pkg golang.IPackage, fileName string, meta model.Meta, domainRepo *repo.Repo) *RouteGroup {
 	name := "g"
 	if meta.ModelType.Struct.Name != "" {
 		name = strings.ToLower(meta.ModelType.Struct.Name[0:1])
@@ -95,23 +104,30 @@ func NewRouteGroup(pkg golang.IPackage, fileName string, meta model.Meta, repoTy
 	}
 
 	createRequest := makeCreateRequest("CreateRequest", meta.ModelType.Struct)
+	updateRequest := makeCreateRequest("UpdateRequest", meta.ModelType.Struct)
 	resourceResponse := makeResourceResponse("resourceResponse", meta.ModelType.Struct)
+	listResponse := makeListResponse("listResponse", meta.ModelType.Struct)
 
 	repoArgName := fmt.Sprintf("%sRepo", utils.Camel(meta.PluralName))
 	handlerMeta := handlerGroupMeta{
-		ContextArg:            golang.ValueFromType("c", goat.MakeTypeGinContext()),
-		ErrorsArg:             golang.ValueFromType("errorHandler", goat.MakeTypeErrorHandler()),
-		RepoArg:               golang.ValueFromType(repoArgName, repoType),
-		SingleName:            meta.SingleName,
-		ModelType:             meta.ModelType.Struct,
-		RequestCreateType:     createRequest,
-		RequestUpdateTypeName: fmt.Sprintf("UpdateRequest"),
-		ResourceResponseType:  resourceResponse,
-		ListResponseTypeName:  fmt.Sprintf("listResponse"),
+		ContextArg:           golang.ValueFromType("c", goat.MakeTypeGinContext()),
+		ErrorsArg:            golang.ValueFromType("errorHandler", goat.MakeTypeErrorHandler()),
+		RepoArg:              golang.ValueFromType(repoArgName, domainRepo.GetInterfaceType()),
+		SingleName:           meta.SingleName,
+		PluralName:           meta.PluralName,
+		ModelType:            meta.ModelType.Struct,
+		RequestCreateType:    createRequest,
+		RequestUpdateType:    updateRequest,
+		ResourceResponseType: resourceResponse,
+		ListResponseType:     listResponse,
+		RepoPageFuncName:     domainRepo.GetPaginationFuncName(),
+		RepoFilterFuncName:   domainRepo.GetFilterFuncName(),
+		ParamNameId:          paramNameId,
 	}
 
 	var endpoints []*Handler
 	var needResourceResponse bool
+	var needListResponse bool
 	for _, a := range meta.Actions {
 		switch a {
 		case model.ActionCreate:
@@ -121,28 +137,42 @@ func NewRouteGroup(pkg golang.IPackage, fileName string, meta model.Meta, repoTy
 			needResourceResponse = true
 			endpoints = append(endpoints, h)
 			break
-			// case model.ActionUpdate:
-			// 	m := makeUpdate(meta)
-			// 	result.AddFunction(m)
-			// 	break
-			// case model.ActionView:
-			// 	m := makeGetSingle(handlerMeta)
-			// 	result.AddStruct(make)
-			// 	result.AddFunction(m.handlerFunc)
-			// 	break
-			// case model.ActionList:
-			// 	m := makeGetAll(meta)
-			// 	result.AddFunction(m)
-			// 	break
-			// case model.ActionDelete:
-			// 	m := makeDelete(meta)
-			// 	result.AddFunction(m)
-			// 	break
+		case model.ActionUpdate:
+			h := makeUpdate(handlerMeta)
+			result.AddStruct(updateRequest)
+			result.AddFunction(h.handlerFunc)
+			needResourceResponse = true
+			endpoints = append(endpoints, h)
+			break
+		case model.ActionView:
+			h := makeView(handlerMeta)
+			result.AddFunction(h.handlerFunc)
+			needResourceResponse = true
+			endpoints = append(endpoints, h)
+			break
+		case model.ActionList:
+			h := makeList(handlerMeta)
+			result.AddStruct(createRequest)
+			result.AddFunction(h.handlerFunc)
+			needListResponse = true
+			endpoints = append(endpoints, h)
+			break
+		case model.ActionDelete:
+			h := makeDelete(handlerMeta)
+			result.AddStruct(updateRequest)
+			result.AddFunction(h.handlerFunc)
+			needResourceResponse = true
+			endpoints = append(endpoints, h)
+			break
 		}
 	}
 
 	if needResourceResponse {
 		result.AddStruct(resourceResponse)
+	}
+
+	if needListResponse {
+		result.AddStruct(listResponse)
 	}
 
 	result.endpoints = endpoints
