@@ -7,7 +7,7 @@ import (
 	"github.com/68696c6c/capricorn_rnd/utils"
 )
 
-func makeList(meta handlerGroupMeta) *Handler {
+func makeList(meta handlerMeta) *Handler {
 	name := fmt.Sprintf("List%s", utils.Pascal(meta.PluralName))
 	body := `
 		q := query.NewQueryBuilder({{ .ContextArgName }})
@@ -52,9 +52,9 @@ func makeList(meta handlerGroupMeta) *Handler {
 	handler.AddImportsVendor(goat.ImportGoat)
 
 	return &Handler{
+		Function:      handler,
 		verb:          verbGet,
 		uri:           `""`,
-		handlerFunc:   handler,
 		requestStruct: nil,
 	}
 }

@@ -7,7 +7,7 @@ import (
 	"github.com/68696c6c/capricorn_rnd/utils"
 )
 
-func makeDelete(meta handlerGroupMeta) *Handler {
+func makeDelete(meta handlerMeta) *Handler {
 	name := fmt.Sprintf("Delete%s", utils.Pascal(meta.SingleName))
 	body := `
 		i := c.Param("{{ .IdParamName }}")
@@ -62,9 +62,9 @@ func makeDelete(meta handlerGroupMeta) *Handler {
 	handler.AddImportsVendor(goat.ImportGoat)
 
 	return &Handler{
+		Function:      handler,
 		verb:          verbDelete,
 		uri:           fmt.Sprintf(`"/:%s"`, meta.ParamNameId),
-		handlerFunc:   handler,
 		requestStruct: nil,
 	}
 }

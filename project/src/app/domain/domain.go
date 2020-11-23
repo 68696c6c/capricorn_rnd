@@ -19,11 +19,13 @@ type Domain struct {
 	model               *model.Model
 	repo                *repo.Repo
 	service             *service.Service
-	handlers            *handlers.RouteGroup
+	handlers            *handlers.Group
 	externalRepoName    string
 	externalServiceName string
 	hasRepo             bool
 	hasHandlers         bool
+	namePlural          string
+	nameSingular        string
 }
 
 func NewDomains(pkgApp *golang.Package, resources []*model.Model, enums *enum.Enums) Map {
@@ -69,6 +71,8 @@ func newDomain(pkgApp *golang.Package, resource *model.Model, enums *enum.Enums)
 		PluralName: utils.Plural(resource.Name),
 		Actions:    domain.model.GetActions(),
 	}
+	domain.namePlural = utils.Plural(resource.Name)
+	domain.nameSingular = utils.Singular(resource.Name)
 
 	repoFileName := "repo"
 	domain.repo = repo.NewRepo(domain, repoFileName, meta)
@@ -82,7 +86,7 @@ func newDomain(pkgApp *golang.Package, resource *model.Model, enums *enum.Enums)
 	domain.externalServiceName = domain.Package.GetName() + "_" + serviceFileName
 
 	if domain.hasHandlers {
-		domain.handlers = handlers.NewRouteGroup(domain, "handlers", meta, domain.repo)
+		domain.handlers = handlers.NewGroup(domain, "handlers", meta, domain.repo)
 	}
 
 	return domain
@@ -116,18 +120,8 @@ func (d *Domain) HasHandlers() bool {
 	return d.hasHandlers
 }
 
-func (d *Domain) GetHandlers() *handlers.RouteGroup {
+func (d *Domain) GetHandlers() *handlers.Group {
 	return d.handlers
-}
-
-// TODO: avoid needing to do this somehow
-func (d *Domain) SetHandlersErrorsRef(ref string) {
-	d.handlers.SetErrorsRef(ref)
-}
-
-// TODO: avoid needing to do this somehow
-func (d *Domain) SetHandlersRepoRef(ref string) {
-	d.handlers.SetRepoRef(ref)
 }
 
 // Returns the name of the field this repo should live under in the service container.
@@ -141,4 +135,16 @@ func (d *Domain) GetExternalServiceName() string {
 		return ""
 	}
 	return d.externalServiceName
+}
+
+func (d *Domain) GetNamePlural() string {
+	return d.namePlural
+}
+
+func (d *Domain) GetNameSingular() string {
+	return d.nameSingular
+}
+
+func (d *Domain) GetNameFirstLetter() string {
+	return d.nameSingular[0:1]
 }

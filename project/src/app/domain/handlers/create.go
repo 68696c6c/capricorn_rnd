@@ -14,7 +14,7 @@ func makeCreateRequest(name string, modelType *golang.Struct) *golang.Struct {
 	return result
 }
 
-func makeCreate(meta handlerGroupMeta) *Handler {
+func makeCreate(meta handlerMeta) *Handler {
 	name := fmt.Sprintf("Create%s", utils.Pascal(meta.SingleName))
 	body := `
 	req, ok := goat.GetRequest({{ .ContextArgName }}).(*{{ .RequestCreateTypeName }})
@@ -58,9 +58,9 @@ func makeCreate(meta handlerGroupMeta) *Handler {
 	handler.AddImportsVendor(goat.ImportGoat)
 
 	return &Handler{
+		Function:      handler,
 		verb:          verbPost,
 		uri:           `""`,
-		handlerFunc:   handler,
 		requestStruct: meta.RequestCreateType,
 	}
 }

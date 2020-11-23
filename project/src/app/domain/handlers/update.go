@@ -7,7 +7,7 @@ import (
 	"github.com/68696c6c/capricorn_rnd/utils"
 )
 
-func makeUpdate(meta handlerGroupMeta) *Handler {
+func makeUpdate(meta handlerMeta) *Handler {
 	name := fmt.Sprintf("Update%s", utils.Pascal(meta.SingleName))
 	body := `
 		i := c.Param("{{ .IdParamName }}")
@@ -68,9 +68,9 @@ func makeUpdate(meta handlerGroupMeta) *Handler {
 	handler.AddImportsVendor(goat.ImportGoat)
 
 	return &Handler{
+		Function:      handler,
 		verb:          verbPut,
 		uri:           fmt.Sprintf(`"/:%s"`, meta.ParamNameId),
-		handlerFunc:   handler,
 		requestStruct: meta.RequestUpdateType,
 	}
 }

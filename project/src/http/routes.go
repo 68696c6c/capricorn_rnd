@@ -1,17 +1,15 @@
 package http
 
 import (
-	"fmt"
-
 	"github.com/68696c6c/capricorn_rnd/golang"
 	"github.com/68696c6c/capricorn_rnd/project/goat"
 	"github.com/68696c6c/capricorn_rnd/project/src/app"
-	"github.com/68696c6c/capricorn_rnd/project/src/app/domain/handlers"
-	"github.com/68696c6c/capricorn_rnd/utils"
 )
 
 type Routes struct {
 	*golang.File
+	apiRoutePrefix string
+	apiGroupName   string
 }
 
 func buildRoutes(pkg *golang.Package, a *app.App) Routes {
@@ -19,58 +17,7 @@ func buildRoutes(pkg *golang.Package, a *app.App) Routes {
 		File: pkg.AddGoFile("routes"),
 	}
 
-	initRouterFunc := golang.NewFunction("InitRouter")
-	t := `
-	router := goat.GetRouter()
-	engine := router.GetEngine()
-
-	engine.GET("/health", func(c *gin.Context) {
-		goat.RespondMessage(c, "ok")
-	})
-	engine.GET("/version", func(c *gin.Context) {
-		// TODO: show version.
-		goat.RespondMessage(c, "something helpful here")
-	})
-	api := engine.Group("/api")
-
-{{ .Groups.Render }}
-
-	return router
-`
-
-	servicesArgName := "s"
-	serviceContainerType := a.GetContainerType()
-	initRouterFunc.AddArg(servicesArgName, serviceContainerType)
-
-	initRouterFunc.AddReturn("", goat.MakeTypeRouter())
-
-	result.AddImportsApp(serviceContainerType.GetImport())
-
-	errorsRef := fmt.Sprintf("%s.%s", servicesArgName, a.GetErrorHandlerFieldName())
-	var groups handlers.RouteGroups
-	for domainKey, d := range a.GetDomains() {
-		if !d.HasHandlers() {
-			continue
-		}
-		d.SetHandlersErrorsRef(errorsRef)
-
-		repoFieldName, err := a.GetDomainRepoFieldName(domainKey)
-		if err != nil {
-			panic(err)
-		}
-
-		d.SetHandlersRepoRef(fmt.Sprintf("%s.%s", servicesArgName, repoFieldName))
-		groups = append(groups, d.GetHandlers())
-		result.AddImportsApp(d.GetImport())
-	}
-
-	initRouterFunc.SetBodyTemplate(t, struct {
-		Groups utils.Renderable
-	}{
-		Groups: groups,
-	})
-
-	initRouterFunc.AddImportsVendor(goat.ImportGoat)
+	initRouterFunc := makeInitRouter(a)
 
 	result.AddFunction(initRouterFunc)
 

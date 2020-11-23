@@ -7,7 +7,7 @@ import (
 	"github.com/68696c6c/capricorn_rnd/utils"
 )
 
-func makeView(meta handlerGroupMeta) *Handler {
+func makeView(meta handlerMeta) *Handler {
 	name := fmt.Sprintf("View%s", utils.Pascal(meta.SingleName))
 	body := `
 		i := c.Param("{{ .IdParamName }}")
@@ -54,9 +54,9 @@ func makeView(meta handlerGroupMeta) *Handler {
 	handler.AddImportsVendor(goat.ImportGoat)
 
 	return &Handler{
+		Function:      handler,
 		verb:          verbGet,
 		uri:           `""`,
-		handlerFunc:   handler,
 		requestStruct: nil,
 	}
 }
