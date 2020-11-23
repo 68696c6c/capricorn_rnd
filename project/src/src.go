@@ -19,14 +19,6 @@ type Meta struct {
 	Resources []*model.Model
 }
 
-type SRC struct {
-	Main MainGo
-	App  app.App
-	CMD  cmd.CMD
-	DB   db.DB
-	HTTP http.HTTP
-}
-
 func Build(root *utils.Folder, meta Meta) {
 	pkgSrc := golang.NewPackage("src", root.GetFullPath(), meta.Module)
 	srcApp := app.NewApp(pkgSrc, meta.Enums, meta.Resources)

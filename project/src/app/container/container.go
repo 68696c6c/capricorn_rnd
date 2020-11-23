@@ -4,6 +4,7 @@ import (
 	"github.com/68696c6c/capricorn_rnd/golang"
 	"github.com/68696c6c/capricorn_rnd/project/goat"
 	"github.com/68696c6c/capricorn_rnd/project/src/app/domain"
+
 	"github.com/pkg/errors"
 )
 
@@ -58,7 +59,7 @@ func NewContainer(pkg *golang.Package, domains domain.Map) *Container {
 		if !d.HasRepo() {
 			continue
 		}
-		repoType := d.Repo.GetInterfaceType()
+		repoType := d.GetRepoInterfaceType()
 		repoField := golang.NewField(d.GetExternalRepoName(), repoType, true)
 		containerStruct.AddField(repoField)
 
@@ -66,8 +67,8 @@ func NewContainer(pkg *golang.Package, domains domain.Map) *Container {
 			repo: repoField,
 		}
 
-		if d.Service != nil {
-			serviceType := d.Service.GetInterfaceType()
+		if d.HasService() {
+			serviceType := d.GetServiceInterfaceType()
 			serviceField := golang.NewField(d.GetExternalServiceName(), serviceType, true)
 			containerStruct.AddField(serviceField)
 			services.service = serviceField

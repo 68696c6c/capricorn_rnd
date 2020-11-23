@@ -6,11 +6,7 @@ import (
 	"github.com/68696c6c/capricorn_rnd/project/src/db/migrations"
 )
 
-type DB struct {
-	*golang.Package
-}
-
-func Build(pkg *golang.Package, a app.App) {
+func Build(pkg *golang.Package, a *app.App) {
 	pkgDb := pkg.AddPackage("db")
 	migrations.Build(pkgDb, a)
 }

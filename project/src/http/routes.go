@@ -2,6 +2,7 @@ package http
 
 import (
 	"fmt"
+
 	"github.com/68696c6c/capricorn_rnd/golang"
 	"github.com/68696c6c/capricorn_rnd/project/goat"
 	"github.com/68696c6c/capricorn_rnd/project/src/app"
@@ -13,7 +14,7 @@ type Routes struct {
 	*golang.File
 }
 
-func buildRoutes(pkg *golang.Package, a app.App) Routes {
+func buildRoutes(pkg *golang.Package, a *app.App) Routes {
 	result := Routes{
 		File: pkg.AddGoFile("routes"),
 	}
@@ -38,28 +39,28 @@ func buildRoutes(pkg *golang.Package, a app.App) Routes {
 `
 
 	servicesArgName := "s"
-	serviceContainerType := a.Container.GetContainerType()
+	serviceContainerType := a.GetContainerType()
 	initRouterFunc.AddArg(servicesArgName, serviceContainerType)
 
 	initRouterFunc.AddReturn("", goat.MakeTypeRouter())
 
 	result.AddImportsApp(serviceContainerType.GetImport())
 
-	errorsRef := fmt.Sprintf("%s.%s", servicesArgName, a.Container.ErrorHandlerField().Name)
+	errorsRef := fmt.Sprintf("%s.%s", servicesArgName, a.GetErrorHandlerFieldName())
 	var groups handlers.RouteGroups
-	for domainKey, d := range a.Domains {
+	for domainKey, d := range a.GetDomains() {
 		if !d.HasHandlers() {
 			continue
 		}
-		d.Handlers.SetErrorsRef(errorsRef)
+		d.SetHandlersErrorsRef(errorsRef)
 
-		repoField, err := a.Container.GetDomainRepoField(domainKey)
+		repoFieldName, err := a.GetDomainRepoFieldName(domainKey)
 		if err != nil {
 			panic(err)
 		}
 
-		d.Handlers.SetRepoRef(fmt.Sprintf("%s.%s", servicesArgName, repoField.Name))
-		groups = append(groups, d.Handlers)
+		d.SetHandlersRepoRef(fmt.Sprintf("%s.%s", servicesArgName, repoFieldName))
+		groups = append(groups, d.GetHandlers())
 		result.AddImportsApp(d.GetImport())
 	}
 

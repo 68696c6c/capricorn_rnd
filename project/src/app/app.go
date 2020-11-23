@@ -10,21 +10,41 @@ import (
 
 type App struct {
 	*golang.Package
-	Enums     enum.Enums
-	Domains   domain.Map
-	Container *container.Container
-	Config    container.Config
+	enums     enum.Enums
+	domains   domain.Map
+	container *container.Container
+	config    container.Config
 }
 
-func NewApp(pkg *golang.Package, enums []enum.Enum, resources []*model.Model) App {
+func NewApp(pkg *golang.Package, enums []enum.Enum, resources []*model.Model) *App {
 	pkgApp := pkg.AddPackage("app")
 	appEnums := enum.NewEnums(pkgApp, enums)
 	appDomains := domain.NewDomains(pkgApp, resources, &appEnums)
-	return App{
+	return &App{
 		Package:   pkgApp,
-		Enums:     appEnums,
-		Domains:   appDomains,
-		Container: container.NewContainer(pkgApp, appDomains),
-		Config:    container.NewConfig(pkgApp),
+		enums:     appEnums,
+		domains:   appDomains,
+		container: container.NewContainer(pkgApp, appDomains),
+		config:    container.NewConfig(pkgApp),
 	}
+}
+
+func (a *App) GetDomains() domain.Map {
+	return a.domains
+}
+
+func (a *App) GetContainerType() golang.IType {
+	return a.container.GetContainerType()
+}
+
+func (a *App) GetErrorHandlerFieldName() string {
+	return a.container.ErrorHandlerField().Name
+}
+
+func (a *App) GetDomainRepoFieldName(domainKey string) (string, error) {
+	repoField, err := a.container.GetDomainRepoField(domainKey)
+	if err != nil {
+		return "", err
+	}
+	return repoField.Name, nil
 }

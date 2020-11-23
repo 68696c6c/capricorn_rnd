@@ -5,12 +5,7 @@ import (
 	"github.com/68696c6c/capricorn_rnd/project/src/app"
 )
 
-type HTTP struct {
-	*golang.Package
-	Serve Routes
-}
-
-func Build(pkg *golang.Package, a app.App) {
+func Build(pkg *golang.Package, a *app.App) {
 	pkgHttp := pkg.AddPackage("http")
 	buildRoutes(pkgHttp, a)
 }

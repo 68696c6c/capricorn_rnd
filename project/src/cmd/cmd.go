@@ -1,12 +1,6 @@
 package cmd
 
-import (
-	"github.com/68696c6c/capricorn_rnd/golang"
-)
-
-type CMD struct {
-	*golang.Package
-}
+import "github.com/68696c6c/capricorn_rnd/golang"
 
 type Command struct {
 	*golang.File

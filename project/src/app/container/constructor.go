@@ -45,9 +45,9 @@ func makeConstructor(meta containerMeta) *golang.Function {
 
 		method.AddImportsApp(d.GetImport())
 
-		repoConstructor := d.Repo.GetConstructor()
+		repoConstructor := d.GetRepoConstructor()
 		repoFieldName := utils.Pascal(d.GetExternalRepoName())
-		if d.Service != nil {
+		if d.HasService() {
 			varName := utils.Camel(key + "_repo")
 
 			repoDec := fmt.Sprintf("%s := %s(%s)", varName, repoConstructor.GetReference(), dbArgName)
@@ -55,7 +55,7 @@ func makeConstructor(meta containerMeta) *golang.Function {
 
 			fields = append(fields, fmt.Sprintf("\t\t%s: %s,", repoFieldName, varName))
 
-			serviceConstructor := d.Service.GetConstructor()
+			serviceConstructor := d.GetServiceConstructor()
 			fields = append(fields, fmt.Sprintf("\t\t%s: %s(%s),", utils.Pascal(d.GetExternalServiceName()), serviceConstructor.GetReference(), varName))
 		} else {
 			fields = append(fields, fmt.Sprintf("\t\t%s: %s(%s),", repoFieldName, repoConstructor.GetReference(), dbArgName))

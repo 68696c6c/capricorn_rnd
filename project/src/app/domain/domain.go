@@ -1,6 +1,8 @@
 package domain
 
 import (
+	"strings"
+
 	"github.com/68696c6c/capricorn_rnd/golang"
 	"github.com/68696c6c/capricorn_rnd/project/src/app/domain/handlers"
 	"github.com/68696c6c/capricorn_rnd/project/src/app/domain/model"
@@ -8,17 +10,16 @@ import (
 	"github.com/68696c6c/capricorn_rnd/project/src/app/domain/service"
 	"github.com/68696c6c/capricorn_rnd/project/src/app/enum"
 	"github.com/68696c6c/capricorn_rnd/utils"
-	"strings"
 )
 
 type Map map[string]*Domain
 
 type Domain struct {
 	*golang.Package
-	Model               *model.Model
-	Repo                *repo.Repo
-	Service             *service.Service
-	Handlers            *handlers.RouteGroup
+	model               *model.Model
+	repo                *repo.Repo
+	service             *service.Service
+	handlers            *handlers.RouteGroup
 	externalRepoName    string
 	externalServiceName string
 	hasRepo             bool
@@ -39,7 +40,7 @@ func newDomain(pkgApp *golang.Package, resource *model.Model, enums *enum.Enums)
 		Package: pkgApp.AddPackage(utils.Plural(resource.Name)),
 	}
 
-	domain.Model = resource.Build(domain, enums, "model")
+	domain.model = resource.Build(domain, enums, "model")
 
 	var hasRepo bool
 	var hasHandlers bool
@@ -63,25 +64,25 @@ func newDomain(pkgApp *golang.Package, resource *model.Model, enums *enum.Enums)
 	domain.hasHandlers = hasHandlers
 
 	meta := model.Meta{
-		ModelType:  *domain.Model.GetType(),
+		ModelType:  *domain.model.GetType(),
 		SingleName: utils.Singular(resource.Name),
 		PluralName: utils.Plural(resource.Name),
-		Actions:    domain.Model.GetActions(),
+		Actions:    domain.model.GetActions(),
 	}
 
 	repoFileName := "repo"
-	domain.Repo = repo.NewRepo(domain, repoFileName, meta)
+	domain.repo = repo.NewRepo(domain, repoFileName, meta)
 	domain.externalRepoName = domain.Package.GetName() + "_" + repoFileName
 
 	serviceFileName := "service"
-	domain.Service = service.NewService(domain, serviceFileName, service.Meta{
-		RepoType: domain.Repo.GetInterfaceType(),
+	domain.service = service.NewService(domain, serviceFileName, service.Meta{
+		RepoType: domain.repo.GetInterfaceType(),
 		Methods:  resource.Custom,
 	})
 	domain.externalServiceName = domain.Package.GetName() + "_" + serviceFileName
 
 	if domain.hasHandlers {
-		domain.Handlers = handlers.NewRouteGroup(domain, "handlers", meta, domain.Repo)
+		domain.handlers = handlers.NewRouteGroup(domain, "handlers", meta, domain.repo)
 	}
 
 	return domain
@@ -91,8 +92,42 @@ func (d *Domain) HasRepo() bool {
 	return d.hasRepo
 }
 
+func (d *Domain) GetRepoConstructor() *golang.Function {
+	return d.repo.GetConstructor()
+}
+
+func (d *Domain) GetRepoInterfaceType() golang.IType {
+	return d.repo.GetInterfaceType()
+}
+
+func (d *Domain) HasService() bool {
+	return d.service != nil
+}
+
+func (d *Domain) GetServiceConstructor() *golang.Function {
+	return d.service.GetConstructor()
+}
+
+func (d *Domain) GetServiceInterfaceType() golang.IType {
+	return d.service.GetInterfaceType()
+}
+
 func (d *Domain) HasHandlers() bool {
 	return d.hasHandlers
+}
+
+func (d *Domain) GetHandlers() *handlers.RouteGroup {
+	return d.handlers
+}
+
+// TODO: avoid needing to do this somehow
+func (d *Domain) SetHandlersErrorsRef(ref string) {
+	d.handlers.SetErrorsRef(ref)
+}
+
+// TODO: avoid needing to do this somehow
+func (d *Domain) SetHandlersRepoRef(ref string) {
+	d.handlers.SetRepoRef(ref)
 }
 
 // Returns the name of the field this repo should live under in the service container.
@@ -102,7 +137,7 @@ func (d *Domain) GetExternalRepoName() string {
 }
 
 func (d *Domain) GetExternalServiceName() string {
-	if d.Service == nil {
+	if !d.HasService() {
 		return ""
 	}
 	return d.externalServiceName

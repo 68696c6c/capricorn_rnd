@@ -8,7 +8,6 @@ import (
 )
 
 func main() {
-	var err error
 	exampleName := "complex"
 	module, err := project.NewProjectFromSpec(fmt.Sprintf("%s.yml", exampleName))
 	if err != nil {
