@@ -32,25 +32,21 @@ type ProjectOptions struct {
 	ModelFileName    string
 }
 
-type DomainResource struct {
-	RepoType      golang.IType
-	RepoFieldName string
-
-	// ServiceType      golang.IType
-	// ServiceFieldName string
+type DomainMeta struct {
+	NameSingular string
+	NamePlural   string
 
 	ModelType golang.IType
 	ModelName string
 
-	NameSingular string
-	NamePlural   string
-	// NameFirstLetter string
+	RepoType               golang.IType
+	RepoFieldName          string
+	RepoPaginationFuncName string
+	RepoFilterFuncName     string
+
 	RepoActions    []Action
 	HandlerActions []Action
 	ServiceActions []string
-
-	RepoPaginationFuncName string
-	RepoFilterFuncName     string
 }
 
 func removeDuplicateActions(actions []Action) []Action {
@@ -101,9 +97,9 @@ func getResourceActions(resourceActions []Action) (repoActions, handlerActions [
 	return removeDuplicateActions(repoActions), handlerActions
 }
 
-func NewDomainResource(resourceName string, resourceActions []Action, customActions []string) *DomainResource {
+func NewDomainMeta(resourceName string, resourceActions []Action, customActions []string) *DomainMeta {
 	repoActions, handlerActions := getResourceActions(resourceActions)
-	return &DomainResource{
+	return &DomainMeta{
 		RepoType:               nil,
 		ModelType:              nil,
 		NameSingular:           utils.Singular(resourceName),
@@ -116,34 +112,34 @@ func NewDomainResource(resourceName string, resourceActions []Action, customActi
 	}
 }
 
-func (r *DomainResource) SetModel(modelType golang.IType) {
+func (r *DomainMeta) SetModel(modelType golang.IType) {
 	r.ModelType = modelType
 }
 
-func (r *DomainResource) SetRepo(repoType golang.IType) {
+func (r *DomainMeta) SetRepo(repoType golang.IType) {
 	r.RepoType = repoType
 }
 
-func (r *DomainResource) GetModelType() *golang.Type {
+func (r *DomainMeta) GetModelType() *golang.Type {
 	return r.ModelType.CopyType()
 }
 
-func (r *DomainResource) GetRepoType() *golang.Type {
+func (r *DomainMeta) GetRepoType() *golang.Type {
 	return r.RepoType.CopyType()
 }
 
-func (r *DomainResource) GetModelName() string {
+func (r *DomainMeta) GetModelName() string {
 	return r.ModelName
 }
 
-func (r *DomainResource) GetRepoActions() []Action {
+func (r *DomainMeta) GetRepoActions() []Action {
 	return r.RepoActions
 }
 
-func (r *DomainResource) GetHandlerActions() []Action {
+func (r *DomainMeta) GetHandlerActions() []Action {
 	return r.HandlerActions
 }
 
-func (r *DomainResource) GetServiceActions() []string {
+func (r *DomainMeta) GetServiceActions() []string {
 	return r.ServiceActions
 }

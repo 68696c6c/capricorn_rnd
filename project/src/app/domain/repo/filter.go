@@ -7,7 +7,7 @@ import (
 	"github.com/68696c6c/capricorn_rnd/golang"
 )
 
-func makeFilter(meta methodMeta) *golang.Function {
+func makeFilter(meta *methodMeta) *golang.Function {
 	method := golang.NewFunction(meta.filterFuncName)
 	t := `
 	dataQuery, err := {{ .FilterQueryFuncCall }}

@@ -10,7 +10,7 @@ import (
 type routeGroups []*routeGroup
 
 type routeGroup struct {
-	*handlers.Group
+	*handlers.Handlers
 	name           string
 	errorsRef      string
 	repoRef        string

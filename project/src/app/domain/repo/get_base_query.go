@@ -2,7 +2,7 @@ package repo
 
 import "github.com/68696c6c/capricorn_rnd/golang"
 
-func makeGetBaseQuery(meta methodMeta) *golang.Function {
+func makeGetBaseQuery(meta *methodMeta) *golang.Function {
 	method := golang.NewFunction(meta.baseQueryFuncName)
 	t := `
 	return {{ .DbRef }}.Model(&{{ .ModelTypeName }}{})

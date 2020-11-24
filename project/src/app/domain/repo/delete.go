@@ -5,7 +5,7 @@ import (
 	"github.com/68696c6c/capricorn_rnd/project/goat"
 )
 
-func makeDelete(meta methodMeta) *golang.Function {
+func makeDelete(meta *methodMeta) *golang.Function {
 	method := golang.NewFunction("Delete")
 	t := `
 	errs :=  {{ .DbRef }}.Delete({{ .ModelArgName }}).GetErrors()

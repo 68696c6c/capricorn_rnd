@@ -23,13 +23,15 @@ type methodMeta struct {
 	filterQueryFuncName string
 	filterFuncName      string
 	pageQueryFuncName   string
-	repoStructType      *golang.Type
-	repoInterfaceType   *golang.Type
+	repoStructType      *golang.Struct
+	repoInterfaceType   *golang.Interface
+	constructor         *golang.Function
 }
 
-func makeMethodMeta(domainMeta *config.DomainResource, recName string, repoStruct, repoInterface *golang.Type) methodMeta {
+func makeMethodMeta(domainMeta *config.DomainMeta, repoStruct *golang.Struct, repoInterface *golang.Interface) *methodMeta {
+	recName := repoStruct.GetReceiverName()
 	dbFieldName := "db"
-	return methodMeta{
+	return &methodMeta{
 		modelType:           domainMeta.GetModelType(),
 		modelPlural:         utils.Camel(domainMeta.NamePlural),
 		modelArgName:        "model",
@@ -46,4 +48,8 @@ func makeMethodMeta(domainMeta *config.DomainResource, recName string, repoStruc
 		repoStructType:      repoStruct,
 		repoInterfaceType:   repoInterface,
 	}
+}
+
+func (m *methodMeta) AddConstructor(constructor *golang.Function) {
+	m.constructor = constructor
 }

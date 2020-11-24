@@ -17,7 +17,7 @@ type Service struct {
 	interfaceType *golang.Interface
 }
 
-func NewService(pkg golang.IPackage, fileName string, domainMeta *config.DomainResource) *Service {
+func Build(pkg golang.IPackage, fileName string, domainMeta *config.DomainMeta) *Service {
 	actions := domainMeta.GetServiceActions()
 	if len(actions) == 0 {
 		return nil

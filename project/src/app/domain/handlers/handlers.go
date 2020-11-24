@@ -8,19 +8,42 @@ import (
 	"github.com/68696c6c/capricorn_rnd/utils"
 )
 
-type Group struct {
+type Handlers struct {
 	*golang.File
 	uri       string
 	endpoints []*Handler
 }
 
-func NewGroup(pkg golang.IPackage, fileName string, domainMeta *config.DomainResource) *Group {
+type Handler struct {
+	*golang.Function
+	verb          string
+	uri           string
+	requestStruct *golang.Struct
+}
+
+func (h *Handler) GetVerb() string {
+	return h.verb
+}
+
+func (h *Handler) GetUri() string {
+	return h.uri
+}
+
+func (h *Handler) HasRequest() bool {
+	return h.requestStruct != nil
+}
+
+func (h *Handler) GetRequestStruct() golang.IType {
+	return h.requestStruct
+}
+
+func Build(pkg golang.IPackage, fileName string, domainMeta *config.DomainMeta) *Handlers {
 	actions := domainMeta.GetHandlerActions()
 	if len(actions) == 0 {
 		return nil
 	}
 
-	result := &Group{
+	result := &Handlers{
 		File:      pkg.AddGoFile(fileName),
 		uri:       fmt.Sprintf("/%s", utils.Kebob(domainMeta.NamePlural)),
 		endpoints: []*Handler{},
@@ -78,10 +101,10 @@ func NewGroup(pkg golang.IPackage, fileName string, domainMeta *config.DomainRes
 	return result
 }
 
-func (g *Group) GetEndpoints() []*Handler {
+func (g *Handlers) GetEndpoints() []*Handler {
 	return g.endpoints
 }
 
-func (g *Group) GetUri() string {
+func (g *Handlers) GetUri() string {
 	return g.uri
 }

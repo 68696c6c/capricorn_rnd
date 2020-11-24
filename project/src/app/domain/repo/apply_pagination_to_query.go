@@ -7,7 +7,7 @@ import (
 	"github.com/68696c6c/capricorn_rnd/project/goat"
 )
 
-func makeApplyPaginationToQuery(meta methodMeta) *golang.Function {
+func makeApplyPaginationToQuery(meta *methodMeta) *golang.Function {
 	method := golang.NewFunction(meta.pageQueryFuncName)
 	t := `
 	err := goat.ApplyPaginationToQuery({{ .QueryArgName }}, {{ .BaseQueryFuncCall }})

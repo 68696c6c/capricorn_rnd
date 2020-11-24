@@ -34,7 +34,7 @@ type handlerMeta struct {
 	ParamNameId          string
 }
 
-func makeHandlerMeta(domainMeta *config.DomainResource) handlerMeta {
+func makeHandlerMeta(domainMeta *config.DomainMeta) handlerMeta {
 	modelType := domainMeta.GetModelType()
 	repoArgName := fmt.Sprintf("%sRepo", utils.Camel(domainMeta.NamePlural))
 	return handlerMeta{

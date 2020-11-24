@@ -58,7 +58,7 @@ func makeInitRouter(a *app.App) *golang.Function {
 		repoRef := fmt.Sprintf("%s.%s", servicesArgName, repoFieldName)
 
 		groups = append(groups, &routeGroup{
-			Group:          d.GetHandlers(),
+			Handlers:       d.GetHandlers(),
 			name:           groupVarName,
 			errorsRef:      errorsRef,
 			repoRef:        repoRef,

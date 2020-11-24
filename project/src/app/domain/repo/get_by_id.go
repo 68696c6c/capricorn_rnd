@@ -5,7 +5,7 @@ import (
 	"github.com/68696c6c/capricorn_rnd/project/goat"
 )
 
-func makeGetById(meta methodMeta) *golang.Function {
+func makeGetById(meta *methodMeta) *golang.Function {
 	method := golang.NewFunction("GetById")
 	t := `
 	{{ .ModelVarName }} := &{{ .ModelTypeName }}{

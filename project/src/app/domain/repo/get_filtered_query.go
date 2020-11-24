@@ -5,7 +5,7 @@ import (
 	"github.com/68696c6c/capricorn_rnd/golang"
 )
 
-func makeGetFilteredQuery(meta methodMeta) *golang.Function {
+func makeGetFilteredQuery(meta *methodMeta) *golang.Function {
 	method := golang.NewFunction(meta.filterQueryFuncName)
 	t := `
 	result, err := {{ .QueryArgName }}.ApplyToGorm({{ .BaseQueryFuncCall }})

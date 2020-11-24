@@ -5,8 +5,8 @@ import (
 	"github.com/68696c6c/capricorn_rnd/project/goat"
 )
 
-func makeConstructor(meta methodMeta) *golang.Function {
-	method := golang.NewFunction("New" + meta.repoInterfaceType.Name)
+func makeConstructor(meta *methodMeta) *golang.Function {
+	method := golang.NewFunction("New" + meta.repoInterfaceType.GetName())
 	t := `
 	return {{ .StructName }}{
 		{{ .DbFieldName }}: {{ .DbArgName }},
@@ -22,7 +22,7 @@ func makeConstructor(meta methodMeta) *golang.Function {
 		DbFieldName string
 		DbArgName   string
 	}{
-		StructName:  meta.repoStructType.Name,
+		StructName:  meta.repoStructType.GetName(),
 		DbFieldName: meta.dbFieldName,
 		DbArgName:   dbArgName,
 	})

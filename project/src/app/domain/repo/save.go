@@ -5,7 +5,7 @@ import (
 	"github.com/68696c6c/capricorn_rnd/project/goat"
 )
 
-func makeSave(meta methodMeta) *golang.Function {
+func makeSave(meta *methodMeta) *golang.Function {
 	method := golang.NewFunction("Save")
 	t := `
 	var errs []error

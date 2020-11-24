@@ -18,7 +18,7 @@ type Domain struct {
 	model               *model.Model
 	repo                *repo.Repo
 	service             *service.Service
-	handlers            *handlers.Group
+	handlers            *handlers.Handlers
 	externalRepoName    string
 	externalServiceName string
 	hasRepo             bool
@@ -36,30 +36,36 @@ func NewDomains(pkgApp *golang.Package, resources []*model.Model, enums *enum.En
 
 func newDomain(pkgApp *golang.Package, resource *model.Model, enums *enum.Enums) *Domain {
 	domainPkgName := utils.Plural(resource.Name)
-	domain := &Domain{
-		Package: pkgApp.AddPackage(domainPkgName),
-	}
+	pkgDomain := pkgApp.AddPackage(domainPkgName)
+	meta := config.NewDomainMeta(resource.Name, resource.Actions, resource.Custom)
 
-	domain.model = resource.Build(domain, enums, "model")
-
-	meta := config.NewDomainResource(resource.Name, resource.Actions, resource.Custom)
-	meta.SetModel(domain.model.GetType())
+	domainModel := resource.Build(pkgDomain, enums, "model")
+	meta.SetModel(domainModel.GetType())
 
 	repoFileName := "repo"
-	domainRepo := repo.NewRepo(domain, repoFileName, meta)
+	domainRepo := repo.Build(pkgDomain, repoFileName, meta)
+
+	serviceFileName := "service"
+	var domainService *service.Service
+	var domainHandlers *handlers.Handlers
+
 	if domainRepo != nil {
-		domain.repo = domainRepo
-		domain.externalRepoName = domainPkgName + "_" + repoFileName
-		meta.SetRepo(domain.repo.GetInterfaceType())
+		meta.SetRepo(domainRepo.GetInterfaceType())
 
-		serviceFileName := "service"
-		domain.service = service.NewService(domain, serviceFileName, meta)
-		domain.externalServiceName = domainPkgName + "_" + serviceFileName
+		domainService = service.Build(pkgDomain, serviceFileName, meta)
 
-		domain.handlers = handlers.NewGroup(domain, "handlers", meta)
+		domainHandlers = handlers.Build(pkgDomain, "handlers", meta)
 	}
 
-	return domain
+	return &Domain{
+		Package:             pkgDomain,
+		model:               domainModel,
+		repo:                domainRepo,
+		externalRepoName:    domainPkgName + "_" + repoFileName,
+		service:             domainService,
+		externalServiceName: domainPkgName + "_" + serviceFileName,
+		handlers:            domainHandlers,
+	}
 }
 
 func (d *Domain) HasRepo() bool {
@@ -90,7 +96,7 @@ func (d *Domain) HasHandlers() bool {
 	return d.handlers != nil
 }
 
-func (d *Domain) GetHandlers() *handlers.Group {
+func (d *Domain) GetHandlers() *handlers.Handlers {
 	return d.handlers
 }
 
