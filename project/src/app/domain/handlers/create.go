@@ -8,7 +8,7 @@ import (
 	"github.com/68696c6c/capricorn_rnd/utils"
 )
 
-func makeCreateRequest(name string, modelType *golang.Struct) *golang.Struct {
+func makeCreateRequest(name string, modelType golang.IType) *golang.Struct {
 	result := golang.NewStruct(name, false, false)
 	result.AddField(golang.NewField("", modelType, true))
 	return result
@@ -45,7 +45,7 @@ func makeCreate(meta handlerMeta) *Handler {
 		ErrorsRef:                meta.ErrorsArg.Name,
 		RepoRef:                  meta.RepoArg.Name,
 		SingleName:               utils.Space(meta.SingleName),
-		ModelTypeName:            meta.ModelType.Name,
+		ModelTypeName:            meta.ModelTypeName,
 		RequestCreateTypeName:    meta.RequestCreateType.Name,
 		ResourceResponseTypeName: meta.ResourceResponseType.Name,
 	}

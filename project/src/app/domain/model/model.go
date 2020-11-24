@@ -2,19 +2,20 @@ package model
 
 import (
 	"github.com/68696c6c/capricorn_rnd/golang"
+	"github.com/68696c6c/capricorn_rnd/project/config"
 	"github.com/68696c6c/capricorn_rnd/project/src/app/enum"
 )
 
 type Model struct {
 	*golang.File `yaml:"-"`
-	Name         string   `yaml:"name,omitempty"`
-	Delete       string   `yaml:"delete,omitempty"`
-	BelongsTo    []string `yaml:"belongs_to,omitempty"`
-	HasMany      []string `yaml:"has_many,omitempty"`
-	Fields       []Field  `yaml:"fields,omitempty"`
-	Actions      []Action `yaml:"actions,omitempty"`
-	Custom       []string `yaml:"custom,omitempty"`
-	modelType    *Type    `yaml:"-"`
+	Name         string          `yaml:"name,omitempty"`
+	Delete       string          `yaml:"delete,omitempty"`
+	BelongsTo    []string        `yaml:"belongs_to,omitempty"`
+	HasMany      []string        `yaml:"has_many,omitempty"`
+	Fields       []Field         `yaml:"fields,omitempty"`
+	Actions      []config.Action `yaml:"actions,omitempty"`
+	Custom       []string        `yaml:"custom,omitempty"`
+	modelType    *Type           `yaml:"-"`
 }
 
 func (m *Model) Build(pkg golang.IPackage, enums *enum.Enums, fileName string) *Model {
@@ -62,15 +63,4 @@ func (m *Model) Build(pkg golang.IPackage, enums *enum.Enums, fileName string) *
 
 func (m *Model) GetType() *Type {
 	return m.modelType
-}
-
-func (m *Model) GetActions() []Action {
-	if len(m.Actions) == 0 {
-		return GetAllActions()
-	}
-	return m.Actions
-}
-
-func (m *Model) GetCustomActions() []string {
-	return m.Custom
 }

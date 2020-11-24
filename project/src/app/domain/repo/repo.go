@@ -2,7 +2,7 @@ package repo
 
 import (
 	"github.com/68696c6c/capricorn_rnd/golang"
-	"github.com/68696c6c/capricorn_rnd/project/src/app/domain/model"
+	"github.com/68696c6c/capricorn_rnd/project/config"
 )
 
 type Repo struct {
@@ -13,8 +13,12 @@ type Repo struct {
 	filterFuncName string
 }
 
-func NewRepo(pkg golang.IPackage, fileName string, meta model.Meta) *Repo {
-	repoStruct, repoInterface, c := newRepoTypes(fileName, meta.ModelType, meta.Actions)
+func NewRepo(pkg golang.IPackage, fileName string, domainMeta *config.DomainResource) *Repo {
+	actions := domainMeta.GetRepoActions()
+	if len(actions) == 0 {
+		return nil
+	}
+	repoStruct, repoInterface, c := newRepoTypes(fileName, domainMeta)
 
 	result := &Repo{
 		File:           pkg.AddGoFile(fileName),

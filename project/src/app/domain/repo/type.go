@@ -2,16 +2,16 @@ package repo
 
 import (
 	"github.com/68696c6c/capricorn_rnd/golang"
-	"github.com/68696c6c/capricorn_rnd/project/src/app/domain/model"
+	"github.com/68696c6c/capricorn_rnd/project/config"
 	"github.com/68696c6c/capricorn_rnd/utils"
 )
 
-func newRepoTypes(fileName string, modelType model.Type, actions []model.Action) (*golang.Struct, *golang.Interface, methodMeta) {
+func newRepoTypes(fileName string, domainMeta *config.DomainResource) (*golang.Struct, *golang.Interface, methodMeta) {
 	baseTypeName := utils.Pascal(fileName)
 	repoStruct := golang.NewStruct(baseTypeName+"Gorm", false, false)
 	repoInterface := golang.NewInterface(baseTypeName, false, false)
 
-	meta := makeMethodMeta(modelType, repoStruct.GetReceiverName(), repoStruct.CopyType(), repoInterface.CopyType())
+	meta := makeMethodMeta(domainMeta, repoStruct.GetReceiverName(), repoStruct.CopyType(), repoInterface.CopyType())
 
 	repoStruct.AddField(golang.NewField(meta.dbFieldName, meta.dbType, false))
 
@@ -19,16 +19,12 @@ func newRepoTypes(fileName string, modelType model.Type, actions []model.Action)
 
 	var needFilterFuncs bool
 	var saveDone bool
-	for _, a := range actions {
+	for _, a := range domainMeta.GetRepoActions() {
 		switch a {
 
-		case model.ActionCreate:
+		case config.ActionCreate:
 			fallthrough
-		case model.ActionRepoCreate:
-			fallthrough
-		case model.ActionUpdate:
-			fallthrough
-		case model.ActionRepoUpdate:
+		case config.ActionUpdate:
 			if !saveDone {
 				m := makeSave(meta)
 				repoStruct.AddFunction(m)
@@ -37,26 +33,20 @@ func newRepoTypes(fileName string, modelType model.Type, actions []model.Action)
 			saveDone = true
 			break
 
-		case model.ActionView:
-			fallthrough
-		case model.ActionRepoView:
+		case config.ActionView:
 			m := makeGetById(meta)
 			repoStruct.AddFunction(m)
 			repoInterface.AddFunction(m)
 			break
 
-		case model.ActionList:
-			fallthrough
-		case model.ActionRepoList:
+		case config.ActionList:
 			m := makeFilter(meta)
 			repoStruct.AddFunction(m)
 			repoInterface.AddFunction(m)
 			needFilterFuncs = true
 			break
 
-		case model.ActionDelete:
-			fallthrough
-		case model.ActionRepoDelete:
+		case config.ActionDelete:
 			m := makeDelete(meta)
 			repoStruct.AddFunction(m)
 			repoInterface.AddFunction(m)

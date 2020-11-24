@@ -5,13 +5,13 @@ import (
 	"github.com/68696c6c/capricorn_rnd/project/goat"
 )
 
-func makeResourceResponse(name string, modelType *golang.Struct) *golang.Struct {
+func makeResourceResponse(name string, modelType golang.IType) *golang.Struct {
 	result := golang.NewStruct(name, false, false)
 	result.AddField(golang.NewField("", modelType, true))
 	return result
 }
 
-func makeListResponse(name string, modelType *golang.Struct) *golang.Struct {
+func makeListResponse(name string, modelType golang.IType) *golang.Struct {
 	result := golang.NewStruct(name, false, false)
 
 	mt := modelType.CopyType()

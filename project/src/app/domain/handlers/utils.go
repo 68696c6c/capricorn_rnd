@@ -4,9 +4,8 @@ import (
 	"fmt"
 
 	"github.com/68696c6c/capricorn_rnd/golang"
+	"github.com/68696c6c/capricorn_rnd/project/config"
 	"github.com/68696c6c/capricorn_rnd/project/goat"
-	"github.com/68696c6c/capricorn_rnd/project/src/app/domain/model"
-	"github.com/68696c6c/capricorn_rnd/project/src/app/domain/repo"
 	"github.com/68696c6c/capricorn_rnd/utils"
 )
 
@@ -25,7 +24,7 @@ type handlerMeta struct {
 	RepoArg              *golang.Value
 	SingleName           string
 	PluralName           string
-	ModelType            *golang.Struct
+	ModelTypeName        string
 	RequestCreateType    *golang.Struct
 	RequestUpdateType    *golang.Struct
 	ResourceResponseType *golang.Struct
@@ -35,21 +34,22 @@ type handlerMeta struct {
 	ParamNameId          string
 }
 
-func makeHandlerMeta(modelMeta model.Meta, domainRepo *repo.Repo) handlerMeta {
-	repoArgName := fmt.Sprintf("%sRepo", utils.Camel(modelMeta.PluralName))
+func makeHandlerMeta(domainMeta *config.DomainResource) handlerMeta {
+	modelType := domainMeta.GetModelType()
+	repoArgName := fmt.Sprintf("%sRepo", utils.Camel(domainMeta.NamePlural))
 	return handlerMeta{
 		ContextArg:           golang.ValueFromType("c", goat.MakeTypeGinContext()),
 		ErrorsArg:            golang.ValueFromType("errorHandler", goat.MakeTypeErrorHandler()),
-		RepoArg:              golang.ValueFromType(repoArgName, domainRepo.GetInterfaceType()),
-		SingleName:           modelMeta.SingleName,
-		PluralName:           modelMeta.PluralName,
-		ModelType:            modelMeta.ModelType.Struct,
-		RequestCreateType:    makeCreateRequest("CreateRequest", modelMeta.ModelType.Struct),
-		RequestUpdateType:    makeCreateRequest("UpdateRequest", modelMeta.ModelType.Struct),
-		ResourceResponseType: makeResourceResponse("resourceResponse", modelMeta.ModelType.Struct),
-		ListResponseType:     makeListResponse("listResponse", modelMeta.ModelType.Struct),
-		RepoPageFuncName:     domainRepo.GetPaginationFuncName(),
-		RepoFilterFuncName:   domainRepo.GetFilterFuncName(),
+		RepoArg:              golang.ValueFromType(repoArgName, domainMeta.GetRepoType()),
+		SingleName:           domainMeta.NameSingular,
+		PluralName:           domainMeta.NamePlural,
+		ModelTypeName:        modelType.GetName(),
+		RequestCreateType:    makeCreateRequest("CreateRequest", modelType),
+		RequestUpdateType:    makeCreateRequest("UpdateRequest", modelType),
+		ResourceResponseType: makeResourceResponse("resourceResponse", modelType),
+		ListResponseType:     makeListResponse("listResponse", modelType),
+		RepoPageFuncName:     domainMeta.RepoPaginationFuncName,
+		RepoFilterFuncName:   domainMeta.RepoFilterFuncName,
 		ParamNameId:          paramNameId,
 	}
 }

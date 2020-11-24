@@ -41,7 +41,7 @@ func makeGetById(meta methodMeta) *golang.Function {
 		DbRef:         meta.dbFieldRef,
 		IdArgName:     idArgName,
 		ModelVarName:  meta.modelArgName,
-		ModelTypeName: meta.modelType.Name,
+		ModelTypeName: meta.modelType.GetName(),
 	})
 
 	method.AddImportsVendor(goat.ImportGoat, goat.ImportGorm)

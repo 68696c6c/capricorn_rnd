@@ -2,16 +2,15 @@ package repo
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/68696c6c/capricorn_rnd/golang"
+	"github.com/68696c6c/capricorn_rnd/project/config"
 	"github.com/68696c6c/capricorn_rnd/project/goat"
-	"github.com/68696c6c/capricorn_rnd/project/src/app/domain/model"
 	"github.com/68696c6c/capricorn_rnd/utils"
 )
 
 type methodMeta struct {
-	modelType           model.Type
+	modelType           golang.IType
 	modelPlural         string
 	modelArgName        string
 	receiverName        string
@@ -28,11 +27,11 @@ type methodMeta struct {
 	repoInterfaceType   *golang.Type
 }
 
-func makeMethodMeta(modelType model.Type, recName string, repoStruct, repoInterface *golang.Type) methodMeta {
+func makeMethodMeta(domainMeta *config.DomainResource, recName string, repoStruct, repoInterface *golang.Type) methodMeta {
 	dbFieldName := "db"
 	return methodMeta{
-		modelType:           modelType,
-		modelPlural:         strings.ToLower(utils.Plural(modelType.Name)),
+		modelType:           domainMeta.GetModelType(),
+		modelPlural:         utils.Camel(domainMeta.NamePlural),
 		modelArgName:        "model",
 		receiverName:        recName,
 		dbFieldRef:          fmt.Sprintf("%s.%s", recName, dbFieldName),

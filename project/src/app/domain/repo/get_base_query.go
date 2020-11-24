@@ -15,7 +15,7 @@ func makeGetBaseQuery(meta methodMeta) *golang.Function {
 		ModelTypeName string
 	}{
 		DbRef:         meta.dbFieldRef,
-		ModelTypeName: meta.modelType.Name,
+		ModelTypeName: meta.modelType.GetName(),
 	})
 
 	method.AddImportsVendor(meta.dbType.Import)

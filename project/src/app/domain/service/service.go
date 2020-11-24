@@ -2,6 +2,7 @@ package service
 
 import (
 	"github.com/68696c6c/capricorn_rnd/golang"
+	"github.com/68696c6c/capricorn_rnd/project/config"
 	"github.com/68696c6c/capricorn_rnd/utils"
 )
 
@@ -16,8 +17,9 @@ type Service struct {
 	interfaceType *golang.Interface
 }
 
-func NewService(pkg golang.IPackage, fileName string, meta Meta) *Service {
-	if len(meta.Methods) == 0 {
+func NewService(pkg golang.IPackage, fileName string, domainMeta *config.DomainResource) *Service {
+	actions := domainMeta.GetServiceActions()
+	if len(actions) == 0 {
 		return nil
 	}
 
@@ -26,7 +28,8 @@ func NewService(pkg golang.IPackage, fileName string, meta Meta) *Service {
 	serviceInterface := golang.NewInterface(baseTypeName, false, false)
 
 	repoFieldName := "repo"
-	serviceStruct.AddConstructor(makeConstructor(serviceStruct.Type, serviceInterface.Type, meta.RepoType, repoFieldName))
+	repoType := domainMeta.GetRepoType()
+	serviceStruct.AddConstructor(makeConstructor(serviceStruct.Type, serviceInterface.Type, repoType, repoFieldName))
 
 	result := &Service{
 		File:          pkg.AddGoFile(fileName),
@@ -36,9 +39,9 @@ func NewService(pkg golang.IPackage, fileName string, meta Meta) *Service {
 	result.AddStruct(serviceStruct)
 	result.AddInterface(serviceInterface)
 
-	serviceStruct.AddField(golang.NewField(repoFieldName, meta.RepoType, false))
+	serviceStruct.AddField(golang.NewField(repoFieldName, repoType, false))
 
-	for _, c := range meta.Methods {
+	for _, c := range actions {
 		m := golang.NewFunction(utils.Pascal(c))
 		serviceStruct.AddFunction(m)
 		serviceInterface.AddFunction(m)

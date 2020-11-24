@@ -4,8 +4,7 @@ import (
 	"fmt"
 
 	"github.com/68696c6c/capricorn_rnd/golang"
-	"github.com/68696c6c/capricorn_rnd/project/src/app/domain/model"
-	"github.com/68696c6c/capricorn_rnd/project/src/app/domain/repo"
+	"github.com/68696c6c/capricorn_rnd/project/config"
 	"github.com/68696c6c/capricorn_rnd/utils"
 )
 
@@ -15,20 +14,25 @@ type Group struct {
 	endpoints []*Handler
 }
 
-func NewGroup(pkg golang.IPackage, fileName string, modelMeta model.Meta, domainRepo *repo.Repo) *Group {
+func NewGroup(pkg golang.IPackage, fileName string, domainMeta *config.DomainResource) *Group {
+	actions := domainMeta.GetHandlerActions()
+	if len(actions) == 0 {
+		return nil
+	}
+
 	result := &Group{
 		File:      pkg.AddGoFile(fileName),
-		uri:       fmt.Sprintf("/%s", utils.Kebob(modelMeta.PluralName)),
+		uri:       fmt.Sprintf("/%s", utils.Kebob(domainMeta.NamePlural)),
 		endpoints: []*Handler{},
 	}
 
-	meta := makeHandlerMeta(modelMeta, domainRepo)
+	meta := makeHandlerMeta(domainMeta)
 
 	var needResourceResponse bool
-	for _, a := range modelMeta.Actions {
+	for _, a := range actions {
 		switch a {
 
-		case model.ActionCreate:
+		case config.ActionCreate:
 			h := makeCreate(meta)
 			result.AddStruct(meta.RequestCreateType)
 			result.AddFunction(h.Function)
@@ -36,7 +40,7 @@ func NewGroup(pkg golang.IPackage, fileName string, modelMeta model.Meta, domain
 			result.endpoints = append(result.endpoints, h)
 			break
 
-		case model.ActionUpdate:
+		case config.ActionUpdate:
 			h := makeUpdate(meta)
 			result.AddStruct(meta.RequestUpdateType)
 			result.AddFunction(h.Function)
@@ -44,21 +48,21 @@ func NewGroup(pkg golang.IPackage, fileName string, modelMeta model.Meta, domain
 			result.endpoints = append(result.endpoints, h)
 			break
 
-		case model.ActionView:
+		case config.ActionView:
 			h := makeView(meta)
 			result.AddFunction(h.Function)
 			needResourceResponse = true
 			result.endpoints = append(result.endpoints, h)
 			break
 
-		case model.ActionList:
+		case config.ActionList:
 			h := makeList(meta)
 			result.AddStruct(meta.ListResponseType)
 			result.AddFunction(h.Function)
 			result.endpoints = append(result.endpoints, h)
 			break
 
-		case model.ActionDelete:
+		case config.ActionDelete:
 			h := makeDelete(meta)
 			result.AddFunction(h.Function)
 			needResourceResponse = true
