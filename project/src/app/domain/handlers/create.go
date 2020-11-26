@@ -17,21 +17,21 @@ func makeCreateRequest(name string, modelType golang.IType) *golang.Struct {
 func makeCreate(meta handlerMeta) *Handler {
 	name := fmt.Sprintf("Create%s", utils.Pascal(meta.SingleName))
 	body := `
-	req, ok := goat.GetRequest({{ .ContextArgName }}).(*{{ .RequestCreateTypeName }})
-	if !ok {
-		{{ .ErrorsRef }}.HandleMessage({{ .ContextArgName }}, "failed to get request", goat.RespondBadRequestError)
-		return
-	}
+		req, ok := goat.GetRequest({{ .ContextArgName }}).(*{{ .RequestCreateTypeName }})
+		if !ok {
+			{{ .ErrorsRef }}.HandleMessage({{ .ContextArgName }}, "failed to get request", goat.RespondBadRequestError)
+			return
+		}
 
-	m := req.{{ .ModelTypeName }}
-	err := {{ .RepoRef }}.Save(&m)
-	if err != nil {
-		{{ .ErrorsRef }}.HandleErrorM({{ .ContextArgName }}, err, "failed to save {{ .SingleName }}", goat.RespondServerError)
-		return
-	}
+		m := req.{{ .ModelTypeName }}
+		err := {{ .RepoRef }}.Save(&m)
+		if err != nil {
+			{{ .ErrorsRef }}.HandleErrorM({{ .ContextArgName }}, err, "failed to save {{ .SingleName }}", goat.RespondServerError)
+			return
+		}
 
-	goat.RespondCreated({{ .ContextArgName }}, {{ .ResourceResponseTypeName }}{m})
-`
+		goat.RespondCreated({{ .ContextArgName }}, {{ .ResourceResponseTypeName }}{m})
+	`
 	data := struct {
 		ContextArgName           string
 		ErrorsRef                string

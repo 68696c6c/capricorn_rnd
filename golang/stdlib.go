@@ -23,3 +23,7 @@ func MakeTypeDriverValue() *Type {
 func MakeTypeString(isPointer bool) *Type {
 	return MockType("", "string", isPointer, false)
 }
+
+func MakeTypeStringSlice(isPointer bool) *Slice {
+	return MakeSliceType(isPointer, MockType("", "string", false, false))
+}

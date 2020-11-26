@@ -5,12 +5,13 @@ import (
 	"strings"
 
 	"github.com/68696c6c/capricorn_rnd/golang"
+	"github.com/68696c6c/capricorn_rnd/project/config"
 	"github.com/68696c6c/capricorn_rnd/project/goat"
 	"github.com/68696c6c/capricorn_rnd/utils"
 )
 
 func makeConstructor(meta containerMeta) *golang.Function {
-	method := golang.NewFunction("GetApp")
+	method := golang.NewFunction(config.AppInitFuncName)
 	t := `
 	if {{ .SingletonName }} != ({{ .TypeName }}{}) {
 		return {{ .SingletonName }}, nil

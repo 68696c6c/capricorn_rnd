@@ -41,7 +41,7 @@ func makeUpdate(meta handlerMeta) *Handler {
 		}
 
 		goat.RespondData({{ .ContextArgName }}, {{ .ResourceResponseTypeName }}{m})
-`
+	`
 	data := struct {
 		ContextArgName           string
 		ErrorsRef                string

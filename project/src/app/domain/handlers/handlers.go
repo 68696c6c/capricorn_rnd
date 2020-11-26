@@ -21,22 +21,6 @@ type Handler struct {
 	requestStruct *golang.Struct
 }
 
-func (h *Handler) GetVerb() string {
-	return h.verb
-}
-
-func (h *Handler) GetUri() string {
-	return h.uri
-}
-
-func (h *Handler) HasRequest() bool {
-	return h.requestStruct != nil
-}
-
-func (h *Handler) GetRequestStruct() golang.IType {
-	return h.requestStruct
-}
-
 func Build(pkg golang.IPackage, fileName string, domainMeta *config.DomainMeta) *Handlers {
 	actions := domainMeta.GetHandlerActions()
 	if len(actions) == 0 {
@@ -107,4 +91,20 @@ func (g *Handlers) GetEndpoints() []*Handler {
 
 func (g *Handlers) GetUri() string {
 	return g.uri
+}
+
+func (h *Handler) GetVerb() string {
+	return h.verb
+}
+
+func (h *Handler) GetUri() string {
+	return h.uri
+}
+
+func (h *Handler) HasRequest() bool {
+	return h.requestStruct != nil
+}
+
+func (h *Handler) GetRequestStruct() golang.IType {
+	return h.requestStruct
 }

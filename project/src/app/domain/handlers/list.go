@@ -25,7 +25,7 @@ func makeList(meta handlerMeta) *Handler {
 		}
 
 		goat.RespondData({{ .ContextArgName }}, {{ .ListResponseName }}{result, q.Pagination})
-`
+	`
 	data := struct {
 		ContextArgName   string
 		ErrorsRef        string

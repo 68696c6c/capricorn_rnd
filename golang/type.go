@@ -23,6 +23,7 @@ type IType interface {
 	GetReceiverName() string
 	AddFunction(f *Function)
 	getImports() imports
+	setImports(i *imports)
 }
 
 type Type struct {
@@ -50,6 +51,10 @@ func (t *Type) GetImport() string {
 
 func (t *Type) getImports() imports {
 	return *t.imports
+}
+
+func (t *Type) setImports(i *imports) {
+	t.imports = i
 }
 
 func (t *Type) GetReference() string {

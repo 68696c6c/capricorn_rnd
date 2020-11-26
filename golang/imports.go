@@ -19,6 +19,18 @@ func newImports() *imports {
 	}
 }
 
+// This should almost never be needed.  Generally, the golang package should be the only thing concerned with import
+// logic, which is why the imports type is not exported.  This helper function attempts to provide an escape hatch
+// without exporting the imports type and logic.
+//
+// When generating templated code that defines and calls anonymous functions, the anonymous function will not have a
+// chance to be added to a file, so the file will not be aware of any imports the anonymous function requires.  The
+// solution is to define both functions like normal, and then merge all of their imports into the outer function that
+// will be added to a file, and this requires a MergeImports function to be called from outside the golang package.
+func MergeImports(target, additional IType) {
+	target.setImports(mergeImports(target.getImports(), additional.getImports()))
+}
+
 func (i imports) hasImports() bool {
 	return len(i.standardImports) > 0 || len(i.appImports) > 0 || len(i.vendorImports) > 0
 }
@@ -31,8 +43,12 @@ func (i imports) Render() string {
 	appendSection := func(heap []string, section []string) []string {
 		if len(section) > 0 {
 			var sRes []string
-			for _, i := range section {
-				sRes = append(sRes, fmt.Sprintf(`	"%s"`, i))
+			for _, imp := range section {
+				if strings.Contains(imp, `"`) {
+					sRes = append(sRes, fmt.Sprintf(`	%s`, imp))
+				} else {
+					sRes = append(sRes, fmt.Sprintf(`	"%s"`, imp))
+				}
 			}
 			heap = append(heap, strings.Join(sRes, "\n"))
 		}

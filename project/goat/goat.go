@@ -3,6 +3,7 @@ package goat
 import "github.com/68696c6c/capricorn_rnd/golang"
 
 const (
+	ImportSqlDriver  = `_ "github.com/go-sql-driver/mysql"`
 	ImportGoat       = "github.com/68696c6c/goat"
 	ImportQuery      = "github.com/68696c6c/goat/query"
 	ImportGin        = "github.com/gin-gonic/gin"
@@ -13,7 +14,6 @@ const (
 	ImportGoose      = "github.com/pressly/goose"
 	ImportCobra      = "github.com/spf13/cobra"
 	ImportViper      = "github.com/spf13/viper"
-	ImportSqlDriver  = "_ \"github.com/go-sql-driver/mysql\""
 )
 
 func MakeTypeId() *golang.Type {
@@ -50,6 +50,10 @@ func MakeTypeGinContext() *golang.Type {
 
 func MakeTypeRouter() *golang.Type {
 	return golang.MockType(ImportGoat, "Router", false, false)
+}
+
+func MakeTypeCobraCommand() *golang.Type {
+	return golang.MockType(ImportCobra, "Command", true, false)
 }
 
 func MakeHardModelStruct() *golang.Struct {

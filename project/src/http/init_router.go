@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/68696c6c/capricorn_rnd/golang"
+	"github.com/68696c6c/capricorn_rnd/project/config"
 	"github.com/68696c6c/capricorn_rnd/project/goat"
 	"github.com/68696c6c/capricorn_rnd/project/src/app"
 	"github.com/68696c6c/capricorn_rnd/utils"
@@ -14,7 +15,7 @@ type InitRouter struct {
 }
 
 func makeInitRouter(a *app.App) *golang.Function {
-	result := golang.NewFunction("InitRouter")
+	result := golang.NewFunction(config.RouterInitFuncName)
 	t := `
 	router := goat.GetRouter()
 	engine := router.GetEngine()

@@ -20,16 +20,63 @@ const (
 	ActionRepoList   Action = "repo:list"
 	ActionRepoUpdate Action = "repo:update"
 	ActionRepoDelete Action = "repo:delete"
+
+	// @TODO use project options instead
+	AppInitFuncName    = "InitApp"
+	RouterInitFuncName = "InitRouter"
 )
 
-type ProjectOptions struct {
-	RepoPaginationFuncName string
-	RepoFilterFuncName     string
+type AuthorMeta struct {
+	Name         string `yaml:"name,omitempty"`
+	Email        string `yaml:"email,omitempty"`
+	Organization string `yaml:"organization,omitempty"`
+}
 
-	HandlersFileName string
-	RepoFileName     string
-	ServiceFileName  string
-	ModelFileName    string
+// @TODO: just keeping track of things here, but need to refactor to actually use this struct and pass all configuration down from the top instead of strewing it around everywhere.
+// Project options should be all the internal, non-user-provided configuration.
+// The idea is that you could swap different ProjectOptions to generate different implementations of the same user-
+// provided project spec, i.e. generate a DDD or an MVC variants of the same project.
+type ProjectOptions struct {
+	// RepoPaginationFuncName string
+	// RepoFilterFuncName     string
+	//
+	// HandlersFileName   string
+	// RepoFileName       string
+	// ServiceFileName    string
+	// ModelFileName      string
+	// CmdRootFileName    string
+	// CmdServerFileName  string
+	// CmdMigrateFileName string
+	//
+	// CmdRootVarName string
+	//
+	// AppInitFuncName    string
+	// RouterInitFuncName string
+}
+
+type CmdMeta struct {
+	RootVarName    string
+	RootCommandUse string
+	ProjectName    string
+	License        string
+	Author         AuthorMeta
+
+	RootFileName    string
+	ServerFileName  string
+	MigrateFileName string
+}
+
+func NewCmdMeta(projectName, license string, author AuthorMeta) *CmdMeta {
+	return &CmdMeta{
+		RootVarName:     "Root",
+		RootCommandUse:  "app",
+		ProjectName:     projectName,
+		License:         license,
+		Author:          author,
+		RootFileName:    "root",
+		ServerFileName:  "server",
+		MigrateFileName: "migrate",
+	}
 }
 
 type DomainMeta struct {

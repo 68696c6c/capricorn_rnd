@@ -35,7 +35,7 @@ func makeDelete(meta handlerMeta) *Handler {
 		}
 
 		goat.RespondValid(c)
-`
+	`
 	data := struct {
 		ContextArgName           string
 		ErrorsRef                string
