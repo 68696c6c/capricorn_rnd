@@ -10,7 +10,7 @@ import (
 
 type App struct {
 	*golang.Package
-	domains   domain.Map
+	domains   *domain.Domains
 	container *container.Container
 	config    container.Config
 }
@@ -28,7 +28,11 @@ func NewApp(pkg golang.IPackage, p *config.Project, o config.AppOptions) *App {
 }
 
 func (a *App) GetDomains() domain.Map {
-	return a.domains
+	return a.domains.GetMap()
+}
+
+func (a *App) GetImportHandlers() string {
+	return a.domains.GetImportHandlers()
 }
 
 func (a *App) GetContainerType() golang.IType {

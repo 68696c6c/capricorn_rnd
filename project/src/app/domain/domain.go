@@ -8,13 +8,39 @@ import (
 	"github.com/68696c6c/capricorn_rnd/project/src/app/domain/repo"
 	"github.com/68696c6c/capricorn_rnd/project/src/app/domain/service"
 	"github.com/68696c6c/capricorn_rnd/project/src/app/enum"
-	"github.com/68696c6c/capricorn_rnd/utils"
 )
 
 type Map map[string]*Domain
 
+type Domains struct {
+	domainMap   Map
+	pkgModels   golang.IPackage
+	pkgRepos    golang.IPackage
+	pkgHandlers golang.IPackage
+	pkgServices golang.IPackage
+}
+
+func (d *Domains) GetMap() Map {
+	return d.domainMap
+}
+
+func (d *Domains) GetImportModels() string {
+	return d.pkgModels.GetImport()
+}
+
+func (d *Domains) GetImportRepos() string {
+	return d.pkgRepos.GetImport()
+}
+
+func (d *Domains) GetImportHandlers() string {
+	return d.pkgHandlers.GetImport()
+}
+
+func (d *Domains) GetImportServices() string {
+	return d.pkgServices.GetImport()
+}
+
 type Domain struct {
-	*golang.Package
 	repo                *repo.Repo
 	service             *service.Service
 	handlers            *handlers.Handlers
@@ -24,24 +50,33 @@ type Domain struct {
 	hasHandlers         bool
 }
 
-func NewDomains(pkg golang.IPackage, o config.DomainOptions, resources []config.Model, enums *enum.Enums) Map {
-	result := make(Map)
+func NewDomains(pkg golang.IPackage, o config.DomainOptions, resources []config.Model, enums *enum.Enums) *Domains {
+	pkgModels := pkg.AddPackage(o.Model.PkgName)
+	pkgRepos := pkg.AddPackage(o.Repo.PkgName)
+	pkgHandlers := pkg.AddPackage(o.Handlers.PkgName)
+	pkgServices := pkg.AddPackage(o.Service.PkgName)
+
+	domainMap := make(Map)
 	for _, r := range resources {
-		d := newDomain(pkg, o, r, enums)
-		result[r.Name] = d
+		d := newDomain(pkgModels, pkgRepos, pkgServices, pkgHandlers, o, r, enums)
+		domainMap[r.Name] = d
 	}
-	return result
+	return &Domains{
+		domainMap:   domainMap,
+		pkgModels:   pkgModels,
+		pkgRepos:    pkgRepos,
+		pkgHandlers: pkgHandlers,
+		pkgServices: pkgServices,
+	}
 }
 
-func newDomain(pkg golang.IPackage, o config.DomainOptions, resource config.Model, enums *enum.Enums) *Domain {
-	domainPkgName := utils.Plural(resource.Name)
-	pkgDomain := pkg.AddPackage(domainPkgName)
-	meta := config.NewDomainMeta(resource.Name, resource.Actions, resource.Custom)
+func newDomain(pkgModels, pkgRepos, pkgServices, pkgHandlers golang.IPackage, o config.DomainOptions, resource config.Model, enums *enum.Enums) *Domain {
+	meta := config.NewDomainMeta(resource.Name, resource.Actions, resource.Custom, pkgModels, pkgRepos, pkgServices, pkgHandlers)
 
-	domainModel := model.Build(pkgDomain, o.Model, resource, enums)
+	domainModel := model.Build(pkgModels, o.Model, resource, enums)
 	meta.SetModel(domainModel)
 
-	domainRepo := repo.Build(pkgDomain, o.Repo, meta)
+	domainRepo := repo.Build(pkgRepos, o.Repo, meta)
 
 	var domainService *service.Service
 	var domainHandlers *handlers.Handlers
@@ -52,16 +87,15 @@ func newDomain(pkg golang.IPackage, o config.DomainOptions, resource config.Mode
 		externalRepoName = domainRepo.GetExternalName()
 		meta.SetRepo(domainRepo.GetInterfaceType())
 
-		domainService = service.Build(pkgDomain, o.Service, meta)
+		domainService = service.Build(pkgServices, o.Service, meta)
 		if domainService != nil {
 			externalServiceName = domainService.GetExternalName()
 		}
 
-		domainHandlers = handlers.Build(pkgDomain, o.Handlers, meta)
+		domainHandlers = handlers.Build(pkgHandlers, o.Handlers, meta)
 	}
 
 	return &Domain{
-		Package:             pkgDomain,
 		repo:                domainRepo,
 		externalRepoName:    externalRepoName,
 		service:             domainService,
@@ -102,8 +136,6 @@ func (d *Domain) GetHandlers() *handlers.Handlers {
 	return d.handlers
 }
 
-// Returns the name of the field this repo should live under in the service container.
-// For DDD apps, this will be the package name + the repo name, for MVC apps it is just the repo name.
 func (d *Domain) GetExternalRepoName() string {
 	return d.externalRepoName
 }

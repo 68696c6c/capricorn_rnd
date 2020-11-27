@@ -30,7 +30,6 @@ func Build(pkg golang.IPackage, o config.ServiceOptions, domainMeta *config.Doma
 	impTypeName := utils.Pascal(o.ImplementationNameTemplate.Parse(domainMeta.ResourceName))
 	serviceStruct := golang.NewStruct(impTypeName, false, false)
 
-	// repoFieldName := "repo"
 	repoType := domainMeta.GetRepoType()
 	serviceStruct.AddConstructor(makeConstructor(serviceStruct.Type, serviceInterface.Type, repoType, o.RepoFieldName))
 
@@ -43,6 +42,7 @@ func Build(pkg golang.IPackage, o config.ServiceOptions, domainMeta *config.Doma
 	}
 	result.AddStruct(serviceStruct)
 	result.AddInterface(serviceInterface)
+	result.AddImportsApp(domainMeta.ImportRepos)
 
 	serviceStruct.AddField(golang.NewField(o.RepoFieldName, repoType, false))
 

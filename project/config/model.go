@@ -20,6 +20,7 @@ type Field struct {
 }
 
 type ModelOptions struct {
+	PkgName          string
 	FileNameTemplate NameTemplate
 	TypeNameTemplate NameTemplate
 }

@@ -6,22 +6,24 @@ import (
 )
 
 type DomainMeta struct {
+	ModelType golang.IType
+	RepoType  golang.IType
+
 	ResourceName string
 	NameSingular string
 	NamePlural   string
 
-	ModelType golang.IType
-	ModelName string
-
-	RepoType      golang.IType
-	RepoFieldName string
-
 	RepoActions    []Action
 	HandlerActions []Action
 	ServiceActions []string
+
+	ImportModels   string
+	ImportRepos    string
+	ImportServices string
+	ImportHandlers string
 }
 
-func NewDomainMeta(resourceName string, resourceActions []Action, customActions []string) *DomainMeta {
+func NewDomainMeta(resourceName string, resourceActions []Action, customActions []string, pkgModels, pkgRepos, pkgServices, pkgHandlers golang.IPackage) *DomainMeta {
 	repoActions, handlerActions := getResourceActions(resourceActions)
 	return &DomainMeta{
 		RepoType:       nil,
@@ -32,6 +34,10 @@ func NewDomainMeta(resourceName string, resourceActions []Action, customActions 
 		RepoActions:    repoActions,
 		HandlerActions: handlerActions,
 		ServiceActions: customActions,
+		ImportModels:   pkgModels.GetImport(),
+		ImportRepos:    pkgRepos.GetImport(),
+		ImportServices: pkgServices.GetImport(),
+		ImportHandlers: pkgHandlers.GetImport(),
 	}
 }
 
@@ -49,10 +55,6 @@ func (r *DomainMeta) GetModelType() *golang.Type {
 
 func (r *DomainMeta) GetRepoType() *golang.Type {
 	return r.RepoType.CopyType()
-}
-
-func (r *DomainMeta) GetModelName() string {
-	return r.ModelName
 }
 
 func (r *DomainMeta) GetRepoActions() []Action {

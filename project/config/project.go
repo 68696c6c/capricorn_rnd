@@ -41,7 +41,7 @@ func NewProjectFromSpec(specPath string) (*Project, error) {
 
 // Project options should be all the internal, non-user-provided configuration.
 // The idea is that you could swap different ProjectOptions to generate different implementations of the same user-
-// provided project spec, i.e. generate a DDD or an MVC variants of the same project.
+// provided project spec.
 type ProjectOptions struct {
 	BasePath string
 	Src      SrcOptions
@@ -76,10 +76,12 @@ func NewProjectOptions(basePath string) ProjectOptions {
 
 				Domain: DomainOptions{
 					Model: ModelOptions{
+						PkgName:          "models",
 						FileNameTemplate: nameTemplateResourceSingular,
 						TypeNameTemplate: nameTemplateResourceSingular,
 					},
 					Repo: RepoOptions{
+						PkgName:                    "repos",
 						FileNameTemplate:           NameTemplateF("%s_repo", nameTemplateResourcePlural),
 						ExternalNameTemplate:       NameTemplateF("%s_repo", nameTemplateResourcePlural),
 						InterfaceNameTemplate:      NameTemplateF("%s_repo", nameTemplateResourcePlural),
@@ -101,6 +103,7 @@ func NewProjectOptions(basePath string) ProjectOptions {
 						SaveFuncName:        repoSaveFuncName,
 					},
 					Service: ServiceOptions{
+						PkgName:                    "services",
 						FileNameTemplate:           NameTemplateF("%s_service", nameTemplateResourcePlural),
 						ExternalNameTemplate:       NameTemplateF("%s_service", nameTemplateResourcePlural),
 						InterfaceNameTemplate:      NameTemplateF("%s_service", nameTemplateResourcePlural),
@@ -108,6 +111,7 @@ func NewProjectOptions(basePath string) ProjectOptions {
 						RepoFieldName:              "repo",
 					},
 					Handlers: HandlersOptions{
+						PkgName:          "handlers",
 						FileNameTemplate: NameTemplateF("%s", nameTemplateResourcePlural),
 						UriTemplate:      NameTemplateF("%s", nameTemplateResourcePlural),
 

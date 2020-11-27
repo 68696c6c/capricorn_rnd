@@ -27,6 +27,7 @@ func Build(pkg golang.IPackage, o config.RepoOptions, domainMeta *config.DomainM
 	repoFile := pkg.AddGoFile(fileName)
 	repoFile.AddStruct(meta.repoStructType)
 	repoFile.AddInterface(meta.repoInterfaceType)
+	repoFile.AddImportsApp(domainMeta.ImportModels)
 
 	return &Repo{
 		File:           repoFile,

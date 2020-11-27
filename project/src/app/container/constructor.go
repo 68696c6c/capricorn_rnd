@@ -11,7 +11,7 @@ import (
 	"github.com/68696c6c/capricorn_rnd/utils"
 )
 
-func makeConstructor(o config.ServiceContainerOptions, containerType *golang.Struct, domains domain.Map) *golang.Function {
+func makeConstructor(o config.ServiceContainerOptions, containerType *golang.Struct, domains *domain.Domains) *golang.Function {
 	method := golang.NewFunction(o.AppInitFuncName)
 	t := `
 	if {{ .SingletonName }} != ({{ .TypeName }}{}) {
@@ -38,16 +38,18 @@ func makeConstructor(o config.ServiceContainerOptions, containerType *golang.Str
 
 	var declarations []string
 	var fields []string
-	for resourceName, d := range domains {
+	for resourceName, d := range domains.GetMap() {
 		if !d.HasRepo() {
 			continue
 		}
 
-		method.AddImportsApp(d.GetImport())
+		method.AddImportsApp(domains.GetImportRepos())
 
 		repoConstructor := d.GetRepoConstructor()
 		repoFieldName := utils.Pascal(d.GetExternalRepoName())
 		if d.HasService() {
+			method.AddImportsApp(domains.GetImportServices())
+
 			varName := utils.Camel(o.RepoVarNameTemplate.Parse(resourceName))
 
 			repoDec := fmt.Sprintf("%s := %s(%s)", varName, repoConstructor.GetReference(), o.DbArgName)

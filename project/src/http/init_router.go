@@ -35,7 +35,7 @@ func makeInitRouter(o config.RoutesOptions, a *app.App) *golang.Function {
 
 	result.AddReturn("", goat.MakeTypeRouter())
 
-	result.AddImportsApp(serviceContainerType.GetImport())
+	result.AddImportsApp(serviceContainerType.GetImport(), a.GetImportHandlers())
 
 	errorsRef := fmt.Sprintf("%s.%s", o.ServicesArgName, a.GetErrorHandlerFieldName())
 	var groups routeGroups
@@ -57,7 +57,6 @@ func makeInitRouter(o config.RoutesOptions, a *app.App) *golang.Function {
 			repoRef:        repoRef,
 			parentGroupRef: o.ApiGroupName,
 		})
-		result.AddImportsApp(d.GetImport())
 	}
 
 	result.SetBodyTemplate(t, struct {

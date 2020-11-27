@@ -21,7 +21,7 @@ type Container struct {
 	fields        map[string]domainServices
 }
 
-func NewContainer(pkg golang.IPackage, o config.ServiceContainerOptions, domains domain.Map) *Container {
+func NewContainer(pkg golang.IPackage, o config.ServiceContainerOptions, domains *domain.Domains) *Container {
 	containerStruct := golang.NewStruct(o.TypeName, false, false)
 
 	containerStruct.AddConstructor(makeConstructor(o, containerStruct, domains))
@@ -39,7 +39,7 @@ func NewContainer(pkg golang.IPackage, o config.ServiceContainerOptions, domains
 		fields:        make(map[string]domainServices),
 	}
 
-	for resourceName, d := range domains {
+	for resourceName, d := range domains.GetMap() {
 		if !d.HasRepo() {
 			continue
 		}

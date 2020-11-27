@@ -1,6 +1,7 @@
 package config
 
 type HandlersOptions struct {
+	PkgName          string
 	FileNameTemplate NameTemplate
 	UriTemplate      NameTemplate
 

@@ -1,8 +1,6 @@
 package model
 
 import (
-	"path"
-
 	"github.com/68696c6c/capricorn_rnd/golang"
 	"github.com/68696c6c/capricorn_rnd/project/config"
 	"github.com/68696c6c/capricorn_rnd/project/goat"
@@ -19,7 +17,7 @@ type Model struct {
 func Build(pkg golang.IPackage, o config.ModelOptions, resource config.Model, enums *enum.Enums) *Model {
 	fileName := o.FileNameTemplate.Parse(resource.Name)
 	file := pkg.AddGoFile(fileName)
-	baseImport := pkg.GetBaseImport()
+	pkgImport := pkg.GetImport()
 
 	name := o.TypeNameTemplate.Parse(resource.Name)
 	model := newModel(name, resource.Delete == "hard")
@@ -40,13 +38,13 @@ func Build(pkg golang.IPackage, o config.ModelOptions, resource config.Model, en
 
 	// Build the Belongs-To fields that GORM will hydrate the relation in to.
 	for _, relation := range resource.BelongsTo {
-		relModel := getAssumedModelType(baseImport, relation, true)
+		relModel := getAssumedModelType(pkgImport, relation, true)
 		model.addBelongsToTargetField(relation, relModel)
 	}
 
 	// Build the Has-Many fields.
 	for _, relation := range resource.HasMany {
-		relModel := getAssumedModelType(baseImport, relation, true)
+		relModel := getAssumedModelType(pkgImport, relation, true)
 		model.addHasManyField(relation, relModel)
 	}
 
@@ -110,26 +108,19 @@ func (m *Model) addBelongsToIdField(relation string) {
 	m.AddAllField(field)
 }
 
-// Can't use relModel.GetName() to name the field because in a DDD app the name will always be "Model".
 func (m *Model) addBelongsToTargetField(relName string, relModel golang.IType) {
 	fieldName := utils.Pascal(utils.Singular(relName))
 	field := goat.MakeModelField(fieldName, relModel, true, false, true)
 	m.AddModelField(field)
-	m.AddImportsApp(relModel.GetImport())
 }
 
-// Can't use relModel.GetName() to name the field because in a DDD app the name will always be "Model".
 func (m *Model) addHasManyField(relName string, relModel golang.IType) {
 	fieldName := utils.Pascal(utils.Plural(relName))
 	relSlice := golang.MakeSliceType(false, relModel)
 	field := goat.MakeModelField(fieldName, relSlice, true, false, true)
 	m.AddModelField(field)
-	m.AddImportsApp(relModel.GetImport())
 }
 
-func getAssumedModelType(baseImport, inputName string, isPointer bool) golang.IType {
-	pkgName := utils.Plural(inputName)
-	imp := path.Join(baseImport, pkgName)
-	result := golang.MockStruct(imp, utils.Pascal(utils.Singular(inputName)), isPointer, false)
-	return result
+func getAssumedModelType(imp, inputName string, isPointer bool) golang.IType {
+	return golang.MockStruct(imp, utils.Pascal(utils.Singular(inputName)), isPointer, false)
 }

@@ -49,7 +49,7 @@ func makeList(o config.HandlersOptions, meta handlerMeta) *Handler {
 	handler.AddArgV(meta.errorsArg)
 	handler.AddArgV(meta.repoArg)
 
-	handler.AddImportsVendor(goat.ImportGoat)
+	handler.AddImportsVendor(goat.ImportGoat, goat.ImportQuery)
 
 	return &Handler{
 		Function:      handler,

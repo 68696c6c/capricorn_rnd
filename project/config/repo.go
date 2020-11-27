@@ -1,6 +1,7 @@
 package config
 
 type RepoOptions struct {
+	PkgName                    string
 	FileNameTemplate           NameTemplate
 	ExternalNameTemplate       NameTemplate
 	InterfaceNameTemplate      NameTemplate

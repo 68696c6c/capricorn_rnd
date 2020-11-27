@@ -84,6 +84,8 @@ func Build(pkg golang.IPackage, o config.HandlersOptions, domainMeta *config.Dom
 		result.AddStruct(meta.resourceResponseType)
 	}
 
+	result.AddImportsApp(domainMeta.ImportRepos, domainMeta.ImportModels)
+
 	return result
 }
 
