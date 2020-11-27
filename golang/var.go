@@ -8,19 +8,19 @@ import (
 
 type Var struct {
 	*Type
-	Name          string
-	Value         string
+	value         string
+	valueType     *Type
 	implicit      bool
 	valueTemplate string
 	valueData     interface{}
 }
 
-func NewVar(name, value string, t IType, implicit bool) *Var {
+func NewVar(name, value string, valueType IType, implicit bool) *Var {
 	return &Var{
-		Type:     t.GetType(),
-		Name:     name,
-		Value:    value,
-		implicit: implicit,
+		Type:      NewType(name, false, false),
+		value:     value,
+		valueType: valueType.GetType(),
+		implicit:  implicit,
 	}
 }
 
@@ -46,19 +46,19 @@ func (v *Var) Render() string {
 			panic(err)
 		}
 		if v.implicit {
-			return fmt.Sprintf("%s := %s", v.Name, val)
+			return fmt.Sprintf("\n%s := %s", v.Name, val)
 		}
-		return fmt.Sprintf("var %s = %s", v.Name, val)
+		return fmt.Sprintf("\nvar %s = %s", v.Name, val)
 	}
 
 	// Var declaration with assignment to a simple value.
-	if v.Value != "" {
+	if v.value != "" {
 		if v.implicit {
-			return fmt.Sprintf("%s := %s", v.Name, v.Value)
+			return fmt.Sprintf("\n%s := %s", v.Name, v.value)
 		}
-		return fmt.Sprintf("var %s = %s", v.Name, v.Value)
+		return fmt.Sprintf("\nvar %s = %s", v.Name, v.value)
 	}
 
 	// Var declaration without any assignment.
-	return fmt.Sprintf("var %s %s", v.Name, v.Type.GetReference())
+	return fmt.Sprintf("\nvar %s %s", v.Name, v.valueType.GetReference())
 }

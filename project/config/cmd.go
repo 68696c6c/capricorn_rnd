@@ -14,8 +14,6 @@ type CmdOptions struct {
 	CmdArgName  string
 	ArgsArgName string
 
-	RootFileName   string
-	RootVarName    string
 	RootCommandUse string
 
 	ServerFileName   string

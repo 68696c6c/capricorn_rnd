@@ -32,6 +32,7 @@ func (f *File) Render() string {
 	var lines []string
 
 	for _, v := range f.vars {
+		f.imports = mergeImports(*f.imports, v.getImports())
 		lines = append(lines, v.Render())
 	}
 
@@ -67,7 +68,11 @@ func (f *File) Render() string {
 }
 
 func (f *File) AddVar(v *Var) {
-	removePackageRefIfSamePackage(f.PKG.GetName(), v)
+	pkg := f.PKG.GetName()
+	removePackageRefIfSamePackage(pkg, v)
+	removePackageRefIfSamePackage(pkg, v.valueType)
+	v.Type.Package = pkg
+	v.Type.Import = f.PKG.GetImport()
 	f.vars = append(f.vars, v)
 }
 

@@ -162,8 +162,6 @@ func NewProjectOptions(basePath string) ProjectOptions {
 				CmdArgName:  "cmd",
 				ArgsArgName: "args",
 
-				RootFileName:   "root",
-				RootVarName:    "Root",
 				RootCommandUse: "app",
 
 				ServerFileName:   "server",

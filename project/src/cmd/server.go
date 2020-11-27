@@ -11,41 +11,43 @@ import (
 	"github.com/68696c6c/capricorn_rnd/utils"
 )
 
-func buildServer(pkg golang.IPackage, o config.CmdOptions, projectName string, a *app.App, h *http.Http) {
+func buildServer(pkg golang.IPackage, o config.CmdOptions, projectName string, a *app.App, h *http.Http) *golang.Var {
 	file := pkg.AddGoFile(o.ServerFileName)
-	file.AddFunction(makeServerFunc(o, projectName, a, h))
+	result := makeServerVar(o, projectName, a, h)
+	file.AddVar(result)
+	return result
 }
 
-func makeServerFunc(o config.CmdOptions, projectName string, a *app.App, h *http.Http) *golang.Function {
-	return makeCommandFunc(commandFuncMeta{
-		rootVarName: o.RootVarName,
-		use:         utils.Kebob(o.ServerFileName),
-		short:       fmt.Sprintf("Runs the %s web server", projectName),
-		long:        "",
-		example:     "",
-		runFunc:     makeServerRunFunc(o, a, h),
+func makeServerVar(o config.CmdOptions, projectName string, a *app.App, h *http.Http) *golang.Var {
+	return makeCommandVar(commandFuncMeta{
+		name:    utils.Pascal(o.ServerFileName),
+		use:     utils.Kebob(o.ServerFileName),
+		short:   fmt.Sprintf("Runs the %s web server", projectName),
+		long:    "",
+		example: "",
+		runFunc: makeServerRunFunc(o, a, h),
 	})
 }
 
 func makeServerRunFunc(o config.CmdOptions, a *app.App, h *http.Http) *golang.Function {
 	result := golang.NewFunction("")
 	t := `
-			goat.Init()
+		goat.Init()
 
-			logger := goat.GetLogger()
+		logger := goat.GetLogger()
 
-			db, err := goat.GetMainDB()
-			if err != nil {
-				goat.ExitError(errors.Wrap(err, "failed to initialize database connection"))
-			}
+		db, err := goat.GetMainDB()
+		if err != nil {
+			goat.ExitError(errors.Wrap(err, "failed to initialize database connection"))
+		}
 
-			services, err := {{ .AppInitFuncRef }}(db, logger)
-			if err != nil {
-				goat.ExitError(errors.Wrap(err, "failed to initialize application services"))
-			}
+		services, err := {{ .AppInitFuncRef }}(db, logger)
+		if err != nil {
+			goat.ExitError(errors.Wrap(err, "failed to initialize application services"))
+		}
 
-			{{ .RouterInitFuncRef }}(services)
-		`
+		{{ .RouterInitFuncRef }}(services)
+	`
 	result.AddArg(o.CmdArgName, goat.MakeTypeCobraCommand())
 	result.AddArg(o.ArgsArgName, golang.MakeTypeStringSlice(false))
 
@@ -58,7 +60,7 @@ func makeServerRunFunc(o config.CmdOptions, a *app.App, h *http.Http) *golang.Fu
 	})
 
 	result.AddImportsApp(a.GetImport(), h.GetImport())
-	result.AddImportsVendor(goat.ImportGoat, goat.ImportErrors)
+	result.AddImportsVendor(goat.ImportGoat, goat.ImportErrors, goat.ImportCobra)
 
 	return result
 }
