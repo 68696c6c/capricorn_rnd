@@ -1,14 +1,13 @@
 package handlers
 
 import (
-	"fmt"
-
+	"github.com/68696c6c/capricorn_rnd/project/config"
 	"github.com/68696c6c/capricorn_rnd/project/goat"
 	"github.com/68696c6c/capricorn_rnd/utils"
 )
 
-func makeView(meta handlerMeta) *Handler {
-	name := fmt.Sprintf("View%s", utils.Pascal(meta.SingleName))
+func makeView(o config.HandlersOptions, meta handlerMeta) *Handler {
+	name := utils.Pascal(o.ViewNameTemplate.Parse(meta.resourceName))
 	body := `
 		i := c.Param("{{ .IdParamName }}")
 		id, err := goat.ParseID(i)
@@ -17,7 +16,7 @@ func makeView(meta handlerMeta) *Handler {
 			return
 		}
 
-		m, err := {{ .RepoRef }}.GetByID(id)
+		m, err := {{ .RepoRef }}.{{ .RepoGetByIdFuncName }}(id)
 		if err != nil {
 			if goat.IsNotFoundError(err) {
 				{{ .ErrorsRef }}.HandleMessage({{ .ContextArgName }}, "{{ .SingleName }} not found", goat.RespondNotFoundError)
@@ -28,28 +27,30 @@ func makeView(meta handlerMeta) *Handler {
 			}
 		}
 
-		goat.RespondData({{ .ContextArgName }}, {{ .ResourceResponseTypeName }}{m})
+		goat.RespondData({{ .ContextArgName }}, {{ .ResourceResponseTypeName }}{*m})
 	`
 	data := struct {
 		ContextArgName           string
 		ErrorsRef                string
 		RepoRef                  string
+		RepoGetByIdFuncName      string
 		IdParamName              string
 		SingleName               string
 		ResourceResponseTypeName string
 	}{
-		ContextArgName:           meta.ContextArg.Name,
-		ErrorsRef:                meta.ErrorsArg.Name,
-		RepoRef:                  meta.RepoArg.Name,
-		IdParamName:              meta.ParamNameId,
-		SingleName:               meta.SingleName,
-		ResourceResponseTypeName: meta.ResourceResponseType.Name,
+		ContextArgName:           meta.contextArg.Name,
+		ErrorsRef:                meta.errorsArg.Name,
+		RepoRef:                  meta.repoArg.Name,
+		RepoGetByIdFuncName:      o.RepoGetByIdFuncName,
+		IdParamName:              o.ParamNameId,
+		SingleName:               meta.nameSingular,
+		ResourceResponseTypeName: meta.resourceResponseType.Name,
 	}
 
-	handler := makeHandlerFunc(name, body, data, meta.ContextArg)
+	handler := makeHandlerFunc(name, body, data, meta.contextArg)
 
-	handler.AddArgV(meta.ErrorsArg)
-	handler.AddArgV(meta.RepoArg)
+	handler.AddArgV(meta.errorsArg)
+	handler.AddArgV(meta.repoArg)
 
 	handler.AddImportsVendor(goat.ImportGoat)
 

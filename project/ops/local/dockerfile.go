@@ -1,6 +1,9 @@
 package local
 
-import "github.com/68696c6c/capricorn_rnd/utils"
+import (
+	"github.com/68696c6c/capricorn_rnd/project/config"
+	"github.com/68696c6c/capricorn_rnd/utils"
+)
 
 // @TODO use a hosted base image
 const dockerfileTemplate = `FROM golang:1.15-alpine as env
@@ -45,10 +48,10 @@ RUN go build -i -o app
 
 type Dockerfile struct {
 	*utils.File
-	data Config
+	data config.Ops
 }
 
-func NewDockerfile(basePath string, c Config) Dockerfile {
+func NewDockerfile(basePath string, c config.Ops) Dockerfile {
 	file := utils.NewFile(basePath, "Dockerfile", "")
 	return Dockerfile{
 		File: file,

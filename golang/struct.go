@@ -1,6 +1,8 @@
 package golang
 
 import (
+	"strings"
+
 	"github.com/68696c6c/capricorn_rnd/utils"
 )
 
@@ -80,5 +82,5 @@ type {{ .Name }} struct {
 	if err != nil {
 		panic(err)
 	}
-	return result
+	return strings.TrimRight(result, "\n")
 }

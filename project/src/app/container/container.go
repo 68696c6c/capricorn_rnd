@@ -2,20 +2,12 @@ package container
 
 import (
 	"github.com/68696c6c/capricorn_rnd/golang"
+	"github.com/68696c6c/capricorn_rnd/project/config"
 	"github.com/68696c6c/capricorn_rnd/project/goat"
 	"github.com/68696c6c/capricorn_rnd/project/src/app/domain"
 
 	"github.com/pkg/errors"
 )
-
-type containerMeta struct {
-	domains         domain.Map
-	structType      *golang.Struct
-	singletonName   string
-	dbFieldName     string
-	loggerFieldName string
-	errorsFieldName string
-}
 
 type domainServices struct {
 	repo    *golang.Field
@@ -29,33 +21,25 @@ type Container struct {
 	fields        map[string]domainServices
 }
 
-func NewContainer(pkg *golang.Package, domains domain.Map) *Container {
-	containerStruct := golang.NewStruct("ServiceContainer", false, false)
-	meta := containerMeta{
-		structType:      containerStruct,
-		singletonName:   "container",
-		domains:         domains,
-		dbFieldName:     "DB",
-		loggerFieldName: "Logger",
-		errorsFieldName: "Errors",
-	}
+func NewContainer(pkg golang.IPackage, o config.ServiceContainerOptions, domains domain.Map) *Container {
+	containerStruct := golang.NewStruct(o.TypeName, false, false)
 
-	containerStruct.AddConstructor(makeConstructor(meta))
+	containerStruct.AddConstructor(makeConstructor(o, containerStruct, domains))
 
-	containerStruct.AddField(golang.NewField(meta.dbFieldName, goat.MakeTypeDbConnection(), true))
-	containerStruct.AddField(golang.NewField(meta.loggerFieldName, goat.MakeTypeLogger(), true))
+	containerStruct.AddField(golang.NewField(o.DbFieldName, goat.MakeTypeDbConnection(), true))
+	containerStruct.AddField(golang.NewField(o.LoggerFieldName, goat.MakeTypeLogger(), true))
 
-	errorsField := golang.NewField(meta.errorsFieldName, goat.MakeTypeErrorHandler(), true)
+	errorsField := golang.NewField(o.ErrorsFieldName, goat.MakeTypeErrorHandler(), true)
 	containerStruct.AddField(errorsField)
 
 	result := &Container{
-		File:          pkg.AddGoFile("app"),
+		File:          pkg.AddGoFile(o.FileName),
 		containerType: containerStruct,
 		errorsField:   errorsField,
 		fields:        make(map[string]domainServices),
 	}
 
-	for domainKey, d := range domains {
+	for resourceName, d := range domains {
 		if !d.HasRepo() {
 			continue
 		}
@@ -74,9 +58,9 @@ func NewContainer(pkg *golang.Package, domains domain.Map) *Container {
 			services.service = serviceField
 		}
 
-		result.fields[domainKey] = services
+		result.fields[resourceName] = services
 	}
-	result.AddVar(golang.NewVar(meta.singletonName, "", containerStruct.CopyType(), false))
+	result.AddVar(golang.NewVar(o.SingletonName, "", containerStruct.CopyType(), false))
 	result.AddStruct(containerStruct)
 
 	return result
@@ -84,6 +68,10 @@ func NewContainer(pkg *golang.Package, domains domain.Map) *Container {
 
 func (c *Container) GetContainerType() *golang.Struct {
 	return c.containerType
+}
+
+func (c *Container) GetConstructor() *golang.Function {
+	return c.containerType.GetConstructor()
 }
 
 func (c *Container) ErrorHandlerField() *golang.Field {

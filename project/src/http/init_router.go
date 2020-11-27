@@ -10,12 +10,8 @@ import (
 	"github.com/68696c6c/capricorn_rnd/utils"
 )
 
-type InitRouter struct {
-	*golang.Function
-}
-
-func makeInitRouter(a *app.App) *golang.Function {
-	result := golang.NewFunction(config.RouterInitFuncName)
+func makeInitRouter(o config.RoutesOptions, a *app.App) *golang.Function {
+	result := golang.NewFunction(o.RouterInitFuncName)
 	t := `
 	router := goat.GetRouter()
 	engine := router.GetEngine()
@@ -33,19 +29,15 @@ func makeInitRouter(a *app.App) *golang.Function {
 
 	return router
 `
-
-	apiRoutesGroupName := "api"
-	groupVarName := "g"
-	servicesArgName := "s"
 	serviceContainerType := a.GetContainerType()
 
-	result.AddArg(servicesArgName, serviceContainerType)
+	result.AddArg(o.ServicesArgName, serviceContainerType)
 
 	result.AddReturn("", goat.MakeTypeRouter())
 
 	result.AddImportsApp(serviceContainerType.GetImport())
 
-	errorsRef := fmt.Sprintf("%s.%s", servicesArgName, a.GetErrorHandlerFieldName())
+	errorsRef := fmt.Sprintf("%s.%s", o.ServicesArgName, a.GetErrorHandlerFieldName())
 	var groups routeGroups
 	for domainKey, d := range a.GetDomains() {
 		if !d.HasHandlers() {
@@ -56,14 +48,14 @@ func makeInitRouter(a *app.App) *golang.Function {
 		if err != nil {
 			panic(err)
 		}
-		repoRef := fmt.Sprintf("%s.%s", servicesArgName, repoFieldName)
+		repoRef := fmt.Sprintf("%s.%s", o.ServicesArgName, repoFieldName)
 
 		groups = append(groups, &routeGroup{
 			Handlers:       d.GetHandlers(),
-			name:           groupVarName,
+			name:           o.GroupVarName,
 			errorsRef:      errorsRef,
 			repoRef:        repoRef,
-			parentGroupRef: apiRoutesGroupName,
+			parentGroupRef: o.ApiGroupName,
 		})
 		result.AddImportsApp(d.GetImport())
 	}
@@ -72,7 +64,7 @@ func makeInitRouter(a *app.App) *golang.Function {
 		ApiRoutesGroupName string
 		Groups             utils.Renderable
 	}{
-		ApiRoutesGroupName: apiRoutesGroupName,
+		ApiRoutesGroupName: o.ApiGroupName,
 		Groups:             groups,
 	})
 

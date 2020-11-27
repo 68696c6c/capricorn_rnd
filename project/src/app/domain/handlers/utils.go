@@ -1,8 +1,6 @@
 package handlers
 
 import (
-	"fmt"
-
 	"github.com/68696c6c/capricorn_rnd/golang"
 	"github.com/68696c6c/capricorn_rnd/project/config"
 	"github.com/68696c6c/capricorn_rnd/project/goat"
@@ -14,43 +12,46 @@ const (
 	verbPost   = "POST"
 	verbPut    = "PUT"
 	verbDelete = "DELETE"
-
-	paramNameId = "id"
 )
 
 type handlerMeta struct {
-	ContextArg           *golang.Value
-	ErrorsArg            *golang.Value
-	RepoArg              *golang.Value
-	SingleName           string
-	PluralName           string
-	ModelTypeName        string
-	RequestCreateType    *golang.Struct
-	RequestUpdateType    *golang.Struct
-	ResourceResponseType *golang.Struct
-	ListResponseType     *golang.Struct
-	RepoPageFuncName     string
-	RepoFilterFuncName   string
-	ParamNameId          string
+	contextArg           *golang.Value
+	errorsArg            *golang.Value
+	repoArg              *golang.Value
+	resourceName         string
+	nameSingular         string
+	namePlural           string
+	modelTypeName        string
+	requestCreateType    *golang.Struct
+	requestUpdateType    *golang.Struct
+	resourceResponseType *golang.Struct
+	listResponseType     *golang.Struct
 }
 
-func makeHandlerMeta(domainMeta *config.DomainMeta) handlerMeta {
+func makeHandlerMeta(o config.HandlersOptions, domainMeta *config.DomainMeta) handlerMeta {
 	modelType := domainMeta.GetModelType()
-	repoArgName := fmt.Sprintf("%sRepo", utils.Camel(domainMeta.NamePlural))
+	repoArgName := utils.Camel(o.RepoArgNameTemplate.Parse(domainMeta.ResourceName))
+
+	createRequestName := utils.Pascal(o.CreateRequestNameTemplate.Parse(domainMeta.ResourceName))
+	updateRequestName := utils.Pascal(o.UpdateRequestNameTemplate.Parse(domainMeta.ResourceName))
+
+	resourceResponseName := utils.Camel(o.ResourceResponseNameTemplate.Parse(domainMeta.ResourceName))
+	listResponseName := utils.Camel(o.ListResponseNameTemplate.Parse(domainMeta.ResourceName))
+
+	domainRepo := domainMeta.GetRepoType()
+
 	return handlerMeta{
-		ContextArg:           golang.ValueFromType("c", goat.MakeTypeGinContext()),
-		ErrorsArg:            golang.ValueFromType("errorHandler", goat.MakeTypeErrorHandler()),
-		RepoArg:              golang.ValueFromType(repoArgName, domainMeta.GetRepoType()),
-		SingleName:           domainMeta.NameSingular,
-		PluralName:           domainMeta.NamePlural,
-		ModelTypeName:        modelType.GetName(),
-		RequestCreateType:    makeCreateRequest("CreateRequest", modelType),
-		RequestUpdateType:    makeCreateRequest("UpdateRequest", modelType),
-		ResourceResponseType: makeResourceResponse("resourceResponse", modelType),
-		ListResponseType:     makeListResponse("listResponse", modelType),
-		RepoPageFuncName:     domainMeta.RepoPaginationFuncName,
-		RepoFilterFuncName:   domainMeta.RepoFilterFuncName,
-		ParamNameId:          paramNameId,
+		contextArg:           golang.ValueFromType(o.ContextArgName, goat.MakeTypeGinContext()),
+		errorsArg:            golang.ValueFromType(o.ErrorsArgName, goat.MakeTypeErrorHandler()),
+		repoArg:              golang.ValueFromType(repoArgName, domainRepo),
+		resourceName:         domainMeta.ResourceName,
+		nameSingular:         domainMeta.NameSingular,
+		namePlural:           domainMeta.NamePlural,
+		modelTypeName:        modelType.GetName(),
+		requestCreateType:    makeCreateRequest(createRequestName, modelType),
+		requestUpdateType:    makeCreateRequest(updateRequestName, modelType),
+		resourceResponseType: makeResourceResponse(resourceResponseName, modelType),
+		listResponseType:     makeListResponse(listResponseName, modelType),
 	}
 }
 

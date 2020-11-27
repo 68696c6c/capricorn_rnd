@@ -6,17 +6,17 @@ import (
 	"github.com/68696c6c/capricorn_rnd/project/goat"
 )
 
-func buildRoot(pkg golang.IPackage, meta *config.CmdMeta) {
-	file := pkg.AddGoFile(meta.RootFileName)
+func buildRoot(pkg golang.IPackage, o config.CmdOptions, p *config.Project) {
+	file := pkg.AddGoFile(o.RootFileName)
 
-	rootVar := makeRootVar(meta)
+	rootVar := makeRootVar(o.RootVarName, o.RootCommandUse, p.Name)
 	file.AddVar(rootVar)
 
-	rootFunc := makeRootFunc(meta)
+	rootFunc := makeRootFunc(p.Author, p.License)
 	file.AddFunction(rootFunc)
 }
 
-func makeRootFunc(meta *config.CmdMeta) *golang.Function {
+func makeRootFunc(author config.AuthorMeta, license string) *golang.Function {
 	result := golang.NewFunction("init")
 	t := `
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
@@ -29,9 +29,9 @@ func makeRootFunc(meta *config.CmdMeta) *golang.Function {
 		AuthorEmail string
 		License     string
 	}{
-		AuthorName:  meta.Author.Name,
-		AuthorEmail: meta.Author.Email,
-		License:     meta.License,
+		AuthorName:  author.Name,
+		AuthorEmail: author.Email,
+		License:     license,
 	})
 
 	result.AddImportsStandard("strings")
@@ -42,8 +42,8 @@ func makeRootFunc(meta *config.CmdMeta) *golang.Function {
 	return result
 }
 
-func makeRootVar(meta *config.CmdMeta) *golang.Var {
-	result := golang.NewVar(meta.RootVarName, "", goat.MakeTypeCobraCommand(), false)
+func makeRootVar(rootVarName, commandUse, projectName string) *golang.Var {
+	result := golang.NewVar(rootVarName, "", goat.MakeTypeCobraCommand(), false)
 	t := `&cobra.Command{
 	Use:   "{{ .CommandUsage }}",
 	Short: "Root command for {{ .ProjectName }}",
@@ -52,8 +52,8 @@ func makeRootVar(meta *config.CmdMeta) *golang.Var {
 		CommandUsage string
 		ProjectName  string
 	}{
-		CommandUsage: meta.RootCommandUse,
-		ProjectName:  meta.ProjectName,
+		CommandUsage: commandUse,
+		ProjectName:  projectName,
 	})
 	return result
 }

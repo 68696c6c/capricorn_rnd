@@ -2,30 +2,28 @@ package app
 
 import (
 	"github.com/68696c6c/capricorn_rnd/golang"
+	"github.com/68696c6c/capricorn_rnd/project/config"
 	"github.com/68696c6c/capricorn_rnd/project/src/app/container"
 	"github.com/68696c6c/capricorn_rnd/project/src/app/domain"
-	"github.com/68696c6c/capricorn_rnd/project/src/app/domain/model"
 	"github.com/68696c6c/capricorn_rnd/project/src/app/enum"
 )
 
 type App struct {
 	*golang.Package
-	enums     enum.Enums
 	domains   domain.Map
 	container *container.Container
 	config    container.Config
 }
 
-func NewApp(pkg *golang.Package, enums []enum.Enum, resources []*model.Model) *App {
-	pkgApp := pkg.AddPackage("app")
-	appEnums := enum.NewEnums(pkgApp, enums)
-	appDomains := domain.NewDomains(pkgApp, resources, &appEnums)
+func NewApp(pkg golang.IPackage, p *config.Project, o config.AppOptions) *App {
+	pkgApp := pkg.AddPackage(o.PkgName)
+	appEnums := enum.NewEnums(pkgApp, o.Enums, p.Enums)
+	appDomains := domain.NewDomains(pkgApp, o.Domain, p.Resources, &appEnums)
 	return &App{
 		Package:   pkgApp,
-		enums:     appEnums,
 		domains:   appDomains,
-		container: container.NewContainer(pkgApp, appDomains),
-		config:    container.NewConfig(pkgApp),
+		container: container.NewContainer(pkgApp, o.ServiceContainer, appDomains),
+		config:    container.NewConfig(pkgApp, o.ServiceContainerConfig),
 	}
 }
 
@@ -35,6 +33,10 @@ func (a *App) GetDomains() domain.Map {
 
 func (a *App) GetContainerType() golang.IType {
 	return a.container.GetContainerType()
+}
+
+func (a *App) GetContainerConstructor() golang.IType {
+	return a.container.GetConstructor()
 }
 
 func (a *App) GetErrorHandlerFieldName() string {

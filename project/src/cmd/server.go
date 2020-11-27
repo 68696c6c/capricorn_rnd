@@ -6,26 +6,28 @@ import (
 	"github.com/68696c6c/capricorn_rnd/golang"
 	"github.com/68696c6c/capricorn_rnd/project/config"
 	"github.com/68696c6c/capricorn_rnd/project/goat"
+	"github.com/68696c6c/capricorn_rnd/project/src/app"
+	"github.com/68696c6c/capricorn_rnd/project/src/http"
 	"github.com/68696c6c/capricorn_rnd/utils"
 )
 
-func buildServer(pkg golang.IPackage, meta *config.CmdMeta) {
-	file := pkg.AddGoFile(meta.ServerFileName)
-	file.AddFunction(makeServerFunc(meta))
+func buildServer(pkg golang.IPackage, o config.CmdOptions, projectName string, a *app.App, h *http.Http) {
+	file := pkg.AddGoFile(o.ServerFileName)
+	file.AddFunction(makeServerFunc(o, projectName, a, h))
 }
 
-func makeServerFunc(meta *config.CmdMeta) *golang.Function {
+func makeServerFunc(o config.CmdOptions, projectName string, a *app.App, h *http.Http) *golang.Function {
 	return makeCommandFunc(commandFuncMeta{
-		rootVarName: meta.RootVarName,
-		use:         utils.Kebob(meta.ServerFileName),
-		short:       fmt.Sprintf("Runs the %s web server", meta.ProjectName),
+		rootVarName: o.RootVarName,
+		use:         utils.Kebob(o.ServerFileName),
+		short:       fmt.Sprintf("Runs the %s web server", projectName),
 		long:        "",
 		example:     "",
-		runFunc:     makeServerRunFunc(config.AppInitFuncName, config.RouterInitFuncName),
+		runFunc:     makeServerRunFunc(o, a, h),
 	})
 }
 
-func makeServerRunFunc(appInitFuncName, routerInitFuncName string) *golang.Function {
+func makeServerRunFunc(o config.CmdOptions, a *app.App, h *http.Http) *golang.Function {
 	result := golang.NewFunction("")
 	t := `
 			goat.Init()
@@ -37,22 +39,26 @@ func makeServerRunFunc(appInitFuncName, routerInitFuncName string) *golang.Funct
 				goat.ExitError(errors.Wrap(err, "failed to initialize database connection"))
 			}
 
-			services, err := {{ .AppInitFuncName }}(db, logger)
+			services, err := {{ .AppInitFuncRef }}(db, logger)
 			if err != nil {
 				goat.ExitError(errors.Wrap(err, "failed to initialize application services"))
 			}
 
-			{{ .RouterInitFuncName }}(services)
+			{{ .RouterInitFuncRef }}(services)
 		`
-	result.AddArg("cmd", goat.MakeTypeCobraCommand())
-	result.AddArg("args", golang.MakeTypeStringSlice(false))
+	result.AddArg(o.CmdArgName, goat.MakeTypeCobraCommand())
+	result.AddArg(o.ArgsArgName, golang.MakeTypeStringSlice(false))
+
 	result.SetBodyTemplate(t, struct {
-		AppInitFuncName    string
-		RouterInitFuncName string
+		AppInitFuncRef    string
+		RouterInitFuncRef string
 	}{
-		AppInitFuncName:    appInitFuncName,
-		RouterInitFuncName: routerInitFuncName,
+		AppInitFuncRef:    a.GetContainerConstructor().GetReference(),
+		RouterInitFuncRef: h.GetInitRouter().GetReference(),
 	})
+
+	result.AddImportsApp(a.GetImport(), h.GetImport())
 	result.AddImportsVendor(goat.ImportGoat, goat.ImportErrors)
+
 	return result
 }

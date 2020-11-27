@@ -2,15 +2,6 @@ package model
 
 import "github.com/68696c6c/capricorn_rnd/golang"
 
-type Field struct {
-	Name     string `yaml:"name,omitempty"`
-	Type     string `yaml:"type,omitempty"`
-	Enum     string `yaml:"enum,omitempty"`
-	Required bool   `yaml:"required,omitempty"`
-	Unique   bool   `yaml:"unique,omitempty"`
-	Indexed  bool   `yaml:"indexed,omitempty"`
-}
-
 type fields struct {
 	allFields      golang.Fields `desc:"all fields, including base model fields, relations, and user defined fields"`
 	modelFields    golang.Fields `desc:"fields that are defined on the model struct. includes relations but not base model fields"`

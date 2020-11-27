@@ -2,11 +2,12 @@ package repo
 
 import (
 	"github.com/68696c6c/capricorn_rnd/golang"
+	"github.com/68696c6c/capricorn_rnd/project/config"
 	"github.com/68696c6c/capricorn_rnd/project/goat"
 )
 
-func makeSave(meta *methodMeta) *golang.Function {
-	method := golang.NewFunction("Save")
+func makeSave(o config.RepoOptions, meta *methodMeta) *golang.Function {
+	method := golang.NewFunction(o.SaveFuncName)
 	t := `
 	var errs []error
 	if {{ .ModelArgName }}.Model.ID.Valid() {
@@ -22,7 +23,7 @@ func makeSave(meta *methodMeta) *golang.Function {
 
 	modelType := meta.modelType.CopyType()
 	modelType.IsPointer = true
-	method.AddArg(meta.modelArgName, modelType)
+	method.AddArg(o.ModelArgName, modelType)
 
 	method.AddReturn("", golang.MakeTypeError())
 
@@ -31,7 +32,7 @@ func makeSave(meta *methodMeta) *golang.Function {
 		ModelArgName string
 	}{
 		DbRef:        meta.dbFieldRef,
-		ModelArgName: meta.modelArgName,
+		ModelArgName: o.ModelArgName,
 	})
 
 	method.AddImportsVendor(goat.ImportGoat)

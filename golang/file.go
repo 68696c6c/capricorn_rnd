@@ -63,7 +63,7 @@ func (f *File) Render() string {
 		f.imports.Render(),
 	}
 	result = append(result, lines...)
-	return strings.Join(result, "\n")
+	return strings.Join(result, "\n") + "\n"
 }
 
 func (f *File) AddVar(v *Var) {

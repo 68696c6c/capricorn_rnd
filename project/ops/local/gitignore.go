@@ -1,9 +1,11 @@
 package local
 
-import "github.com/68696c6c/capricorn_rnd/utils"
+import (
+	"github.com/68696c6c/capricorn_rnd/project/config"
+	"github.com/68696c6c/capricorn_rnd/utils"
+)
 
-const gitignoreTemplate = `
-.DS_Store
+const gitignoreTemplate = `.DS_Store
 .idea
 vendor
 .app.env
@@ -11,10 +13,10 @@ vendor
 
 type GitIgnore struct {
 	*utils.File
-	data Config
+	data config.Ops
 }
 
-func NewGitIgnore(basePath string, c Config) GitIgnore {
+func NewGitIgnore(basePath string, c config.Ops) GitIgnore {
 	file := utils.NewFile(basePath, ".gitignore", "")
 	return GitIgnore{
 		File: file,

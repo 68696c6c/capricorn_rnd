@@ -1,6 +1,9 @@
 package local
 
-import "github.com/68696c6c/capricorn_rnd/utils"
+import (
+	"github.com/68696c6c/capricorn_rnd/project/config"
+	"github.com/68696c6c/capricorn_rnd/utils"
+)
 
 const dockerComposeTemplate = `version: "3.6"
 
@@ -51,10 +54,10 @@ services:
 
 type DockerCompose struct {
 	*utils.File
-	data Config
+	data config.Ops
 }
 
-func NewDockerCompose(basePath string, c Config) DockerCompose {
+func NewDockerCompose(basePath string, c config.Ops) DockerCompose {
 	file := utils.NewFile(basePath, "docker-compose", "yml")
 	return DockerCompose{
 		File: file,

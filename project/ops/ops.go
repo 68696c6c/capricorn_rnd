@@ -1,6 +1,7 @@
 package ops
 
 import (
+	"github.com/68696c6c/capricorn_rnd/project/config"
 	"github.com/68696c6c/capricorn_rnd/project/ops/local"
 	"github.com/68696c6c/capricorn_rnd/utils"
 )
@@ -15,7 +16,7 @@ type Ops struct {
 	rootPath      string
 }
 
-func Build(root *utils.Folder, c local.Config) {
+func Build(root utils.Directory, c config.Ops) {
 	rootPath := root.GetFullPath()
 	root.AddRenderableFile(local.NewAppEnv(rootPath, c, false))
 	root.AddRenderableFile(local.NewAppEnv(rootPath, c, true))

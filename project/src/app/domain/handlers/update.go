@@ -3,12 +3,13 @@ package handlers
 import (
 	"fmt"
 
+	"github.com/68696c6c/capricorn_rnd/project/config"
 	"github.com/68696c6c/capricorn_rnd/project/goat"
 	"github.com/68696c6c/capricorn_rnd/utils"
 )
 
-func makeUpdate(meta handlerMeta) *Handler {
-	name := fmt.Sprintf("Update%s", utils.Pascal(meta.SingleName))
+func makeUpdate(o config.HandlersOptions, meta handlerMeta) *Handler {
+	name := utils.Pascal(o.UpdateNameTemplate.Parse(meta.resourceName))
 	body := `
 		i := c.Param("{{ .IdParamName }}")
 		id, err := goat.ParseID(i)
@@ -17,7 +18,7 @@ func makeUpdate(meta handlerMeta) *Handler {
 			return
 		}
 
-		_, err = {{ .RepoRef }}.GetByID(id)
+		_, err = {{ .RepoRef }}.{{ .RepoGetByIdFuncName }}(id)
 		if err != nil {
 			if goat.IsNotFoundError(err) {
 				{{ .ErrorsRef }}.HandleMessage({{ .ContextArgName }}, "{{ .SingleName }} not found", goat.RespondNotFoundError)
@@ -34,43 +35,49 @@ func makeUpdate(meta handlerMeta) *Handler {
 			return
 		}
 
-		err = sitesRepo.Save(&req.Site)
+		err = {{ .RepoRef }}.{{ .RepoSaveFuncName }}(&req.{{ .ModelTypeName }})
 		if err != nil {
 			errorHandler.HandleErrorM(c, err, "failed to save {{ .SingleName }}", goat.RespondServerError)
 			return
 		}
 
-		goat.RespondData({{ .ContextArgName }}, {{ .ResourceResponseTypeName }}{m})
+		goat.RespondData({{ .ContextArgName }}, {{ .ResourceResponseTypeName }}{req.{{ .ModelTypeName }}})
 	`
 	data := struct {
 		ContextArgName           string
 		ErrorsRef                string
 		RepoRef                  string
+		RepoGetByIdFuncName      string
+		RepoSaveFuncName         string
 		IdParamName              string
 		SingleName               string
 		ResourceResponseTypeName string
 		UpdateRequestTypeName    string
+		ModelTypeName            string
 	}{
-		ContextArgName:           meta.ContextArg.Name,
-		ErrorsRef:                meta.ErrorsArg.Name,
-		RepoRef:                  meta.RepoArg.Name,
-		IdParamName:              meta.ParamNameId,
-		SingleName:               meta.SingleName,
-		ResourceResponseTypeName: meta.ResourceResponseType.Name,
-		UpdateRequestTypeName:    meta.RequestUpdateType.Name,
+		ContextArgName:           meta.contextArg.Name,
+		ErrorsRef:                meta.errorsArg.Name,
+		RepoRef:                  meta.repoArg.Name,
+		RepoGetByIdFuncName:      o.RepoGetByIdFuncName,
+		RepoSaveFuncName:         o.RepoSaveFuncName,
+		IdParamName:              o.ParamNameId,
+		SingleName:               meta.nameSingular,
+		ResourceResponseTypeName: meta.resourceResponseType.Name,
+		UpdateRequestTypeName:    meta.requestUpdateType.Name,
+		ModelTypeName:            meta.modelTypeName,
 	}
 
-	handler := makeHandlerFunc(name, body, data, meta.ContextArg)
+	handler := makeHandlerFunc(name, body, data, meta.contextArg)
 
-	handler.AddArgV(meta.ErrorsArg)
-	handler.AddArgV(meta.RepoArg)
+	handler.AddArgV(meta.errorsArg)
+	handler.AddArgV(meta.repoArg)
 
 	handler.AddImportsVendor(goat.ImportGoat)
 
 	return &Handler{
 		Function:      handler,
 		verb:          verbPut,
-		uri:           fmt.Sprintf(`"/:%s"`, meta.ParamNameId),
-		requestStruct: meta.RequestUpdateType,
+		uri:           fmt.Sprintf(`"/:%s"`, o.ParamNameId),
+		requestStruct: meta.requestUpdateType,
 	}
 }

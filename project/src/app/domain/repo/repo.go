@@ -10,18 +10,20 @@ type Repo struct {
 	*golang.File
 	constructor    *golang.Function
 	interfaceType  golang.IType
+	externalName   string
 	pageFuncName   string
 	filterFuncName string
 }
 
-func Build(pkg golang.IPackage, fileName string, domainMeta *config.DomainMeta) *Repo {
+func Build(pkg golang.IPackage, o config.RepoOptions, domainMeta *config.DomainMeta) *Repo {
 	actions := domainMeta.GetRepoActions()
 	if len(actions) == 0 {
 		return nil
 	}
 
-	meta := buildTypeMeta(fileName, domainMeta)
+	meta := buildTypeMeta(o, domainMeta)
 
+	fileName := o.FileNameTemplate.Parse(domainMeta.ResourceName)
 	repoFile := pkg.AddGoFile(fileName)
 	repoFile.AddStruct(meta.repoStructType)
 	repoFile.AddInterface(meta.repoInterfaceType)
@@ -30,8 +32,9 @@ func Build(pkg golang.IPackage, fileName string, domainMeta *config.DomainMeta) 
 		File:           repoFile,
 		constructor:    meta.constructor,
 		interfaceType:  meta.repoInterfaceType,
-		pageFuncName:   meta.pageQueryFuncName,
-		filterFuncName: meta.filterFuncName,
+		externalName:   o.ExternalNameTemplate.Parse(domainMeta.ResourceName),
+		pageFuncName:   o.PaginationFuncName,
+		filterFuncName: o.FilterFuncName,
 	}
 }
 
@@ -51,16 +54,22 @@ func (r *Repo) GetFilterFuncName() string {
 	return r.filterFuncName
 }
 
-func buildTypeMeta(fileName string, domainMeta *config.DomainMeta) *methodMeta {
-	baseTypeName := utils.Pascal(fileName)
-	repoStruct := golang.NewStruct(baseTypeName+"Gorm", false, false)
-	repoInterface := golang.NewInterface(baseTypeName, false, false)
+func (r *Repo) GetExternalName() string {
+	return r.externalName
+}
 
-	meta := makeMethodMeta(domainMeta, repoStruct, repoInterface)
+func buildTypeMeta(o config.RepoOptions, domainMeta *config.DomainMeta) *methodMeta {
+	intTypeName := utils.Pascal(o.InterfaceNameTemplate.Parse(domainMeta.ResourceName))
+	repoInterface := golang.NewInterface(intTypeName, false, false)
 
-	repoStruct.AddField(golang.NewField(meta.dbFieldName, meta.dbType, false))
+	impTypeName := utils.Pascal(o.ImplementationNameTemplate.Parse(domainMeta.ResourceName))
+	repoStruct := golang.NewStruct(impTypeName, false, false)
 
-	constructor := makeConstructor(meta)
+	meta := makeMethodMeta(o, domainMeta, repoStruct, repoInterface)
+
+	repoStruct.AddField(golang.NewField(o.DbFieldName, meta.dbType, false))
+
+	constructor := makeConstructor(o, meta)
 	repoStruct.AddConstructor(constructor)
 	meta.AddConstructor(constructor)
 
@@ -73,7 +82,7 @@ func buildTypeMeta(fileName string, domainMeta *config.DomainMeta) *methodMeta {
 			fallthrough
 		case config.ActionUpdate:
 			if !saveDone {
-				m := makeSave(meta)
+				m := makeSave(o, meta)
 				repoStruct.AddFunction(m)
 				repoInterface.AddFunction(m)
 			}
@@ -81,20 +90,20 @@ func buildTypeMeta(fileName string, domainMeta *config.DomainMeta) *methodMeta {
 			break
 
 		case config.ActionView:
-			m := makeGetById(meta)
+			m := makeGetById(o, meta)
 			repoStruct.AddFunction(m)
 			repoInterface.AddFunction(m)
 			break
 
 		case config.ActionList:
-			m := makeFilter(meta)
+			m := makeFilter(o, meta)
 			repoStruct.AddFunction(m)
 			repoInterface.AddFunction(m)
 			needFilterFuncs = true
 			break
 
 		case config.ActionDelete:
-			m := makeDelete(meta)
+			m := makeDelete(o, meta)
 			repoStruct.AddFunction(m)
 			repoInterface.AddFunction(m)
 			break
@@ -104,12 +113,12 @@ func buildTypeMeta(fileName string, domainMeta *config.DomainMeta) *methodMeta {
 	// Add the unexported filter helper methods last so that they appear at the bottom of the file, keeping exported the
 	// interface methods at the top.
 	if needFilterFuncs {
-		m := makeApplyPaginationToQuery(meta)
+		m := makeApplyPaginationToQuery(o, meta)
 		repoStruct.AddFunction(m)
 		repoInterface.AddFunction(m)
 
-		repoStruct.AddFunction(makeGetBaseQuery(meta))
-		repoStruct.AddFunction(makeGetFilteredQuery(meta))
+		repoStruct.AddFunction(makeGetBaseQuery(o, meta))
+		repoStruct.AddFunction(makeGetFilteredQuery(o, meta))
 	}
 
 	return meta

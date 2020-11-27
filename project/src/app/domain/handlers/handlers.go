@@ -21,56 +21,58 @@ type Handler struct {
 	requestStruct *golang.Struct
 }
 
-func Build(pkg golang.IPackage, fileName string, domainMeta *config.DomainMeta) *Handlers {
+func Build(pkg golang.IPackage, o config.HandlersOptions, domainMeta *config.DomainMeta) *Handlers {
 	actions := domainMeta.GetHandlerActions()
 	if len(actions) == 0 {
 		return nil
 	}
 
+	fileName := o.FileNameTemplate.Parse(domainMeta.ResourceName)
+	uri := o.UriTemplate.Parse(domainMeta.ResourceName)
 	result := &Handlers{
 		File:      pkg.AddGoFile(fileName),
-		uri:       fmt.Sprintf("/%s", utils.Kebob(domainMeta.NamePlural)),
+		uri:       fmt.Sprintf("/%s", utils.Kebob(uri)),
 		endpoints: []*Handler{},
 	}
 
-	meta := makeHandlerMeta(domainMeta)
+	meta := makeHandlerMeta(o, domainMeta)
 
 	var needResourceResponse bool
 	for _, a := range actions {
 		switch a {
 
 		case config.ActionCreate:
-			h := makeCreate(meta)
-			result.AddStruct(meta.RequestCreateType)
+			h := makeCreate(o, meta)
+			result.AddStruct(meta.requestCreateType)
 			result.AddFunction(h.Function)
 			needResourceResponse = true
 			result.endpoints = append(result.endpoints, h)
 			break
 
 		case config.ActionUpdate:
-			h := makeUpdate(meta)
-			result.AddStruct(meta.RequestUpdateType)
+			h := makeUpdate(o, meta)
+			result.AddStruct(meta.requestUpdateType)
 			result.AddFunction(h.Function)
 			needResourceResponse = true
 			result.endpoints = append(result.endpoints, h)
 			break
 
 		case config.ActionView:
-			h := makeView(meta)
+			h := makeView(o, meta)
 			result.AddFunction(h.Function)
 			needResourceResponse = true
 			result.endpoints = append(result.endpoints, h)
 			break
 
 		case config.ActionList:
-			h := makeList(meta)
-			result.AddStruct(meta.ListResponseType)
+			h := makeList(o, meta)
+			result.AddStruct(meta.listResponseType)
 			result.AddFunction(h.Function)
 			result.endpoints = append(result.endpoints, h)
 			break
 
 		case config.ActionDelete:
-			h := makeDelete(meta)
+			h := makeDelete(o, meta)
 			result.AddFunction(h.Function)
 			needResourceResponse = true
 			result.endpoints = append(result.endpoints, h)
@@ -79,7 +81,7 @@ func Build(pkg golang.IPackage, fileName string, domainMeta *config.DomainMeta) 
 	}
 
 	if needResourceResponse {
-		result.AddStruct(meta.ResourceResponseType)
+		result.AddStruct(meta.resourceResponseType)
 	}
 
 	return result

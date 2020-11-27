@@ -15,31 +15,36 @@ type Service struct {
 	*golang.File
 	structType    *golang.Struct
 	interfaceType *golang.Interface
+	externalName  string
 }
 
-func Build(pkg golang.IPackage, fileName string, domainMeta *config.DomainMeta) *Service {
+func Build(pkg golang.IPackage, o config.ServiceOptions, domainMeta *config.DomainMeta) *Service {
 	actions := domainMeta.GetServiceActions()
 	if len(actions) == 0 {
 		return nil
 	}
 
-	baseTypeName := utils.Pascal(fileName)
-	serviceStruct := golang.NewStruct(baseTypeName+"Implementation", false, false)
-	serviceInterface := golang.NewInterface(baseTypeName, false, false)
+	intTypeName := utils.Pascal(o.InterfaceNameTemplate.Parse(domainMeta.ResourceName))
+	serviceInterface := golang.NewInterface(intTypeName, false, false)
 
-	repoFieldName := "repo"
+	impTypeName := utils.Pascal(o.ImplementationNameTemplate.Parse(domainMeta.ResourceName))
+	serviceStruct := golang.NewStruct(impTypeName, false, false)
+
+	// repoFieldName := "repo"
 	repoType := domainMeta.GetRepoType()
-	serviceStruct.AddConstructor(makeConstructor(serviceStruct.Type, serviceInterface.Type, repoType, repoFieldName))
+	serviceStruct.AddConstructor(makeConstructor(serviceStruct.Type, serviceInterface.Type, repoType, o.RepoFieldName))
 
+	fileName := o.FileNameTemplate.Parse(domainMeta.ResourceName)
 	result := &Service{
 		File:          pkg.AddGoFile(fileName),
 		structType:    serviceStruct,
 		interfaceType: serviceInterface,
+		externalName:  o.ExternalNameTemplate.Parse(domainMeta.ResourceName),
 	}
 	result.AddStruct(serviceStruct)
 	result.AddInterface(serviceInterface)
 
-	serviceStruct.AddField(golang.NewField(repoFieldName, repoType, false))
+	serviceStruct.AddField(golang.NewField(o.RepoFieldName, repoType, false))
 
 	for _, c := range actions {
 		m := golang.NewFunction(utils.Pascal(c))
@@ -56,4 +61,8 @@ func (s *Service) GetInterfaceType() *golang.Interface {
 
 func (s *Service) GetConstructor() *golang.Function {
 	return s.structType.GetConstructor()
+}
+
+func (s *Service) GetExternalName() string {
+	return s.externalName
 }

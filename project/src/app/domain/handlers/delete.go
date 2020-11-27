@@ -3,12 +3,13 @@ package handlers
 import (
 	"fmt"
 
+	"github.com/68696c6c/capricorn_rnd/project/config"
 	"github.com/68696c6c/capricorn_rnd/project/goat"
 	"github.com/68696c6c/capricorn_rnd/utils"
 )
 
-func makeDelete(meta handlerMeta) *Handler {
-	name := fmt.Sprintf("Delete%s", utils.Pascal(meta.SingleName))
+func makeDelete(o config.HandlersOptions, meta handlerMeta) *Handler {
+	name := utils.Pascal(o.DeleteNameTemplate.Parse(meta.resourceName))
 	body := `
 		i := c.Param("{{ .IdParamName }}")
 		id, err := goat.ParseID(i)
@@ -17,7 +18,7 @@ func makeDelete(meta handlerMeta) *Handler {
 			return
 		}
 
-		m, err := {{ .RepoRef }}.GetByID(id)
+		m, err := {{ .RepoRef }}.{{ .RepoGetByIdFuncName }}(id)
 		if err != nil {
 			if goat.IsNotFoundError(err) {
 				{{ .ErrorsRef }}.HandleMessage({{ .ContextArgName }}, "{{ .SingleName }} not found", goat.RespondNotFoundError)
@@ -28,7 +29,7 @@ func makeDelete(meta handlerMeta) *Handler {
 			}
 		}
 
-		err = {{ .RepoRef }}.Delete(&m)
+		err = {{ .RepoRef }}.{{ .RepoDeleteFuncName }}(m)
 		if err != nil{
 			{{ .ErrorsRef }}.HandleErrorM({{ .ContextArgName }}, err, "failed to delete { .SingleName }}", goat.RespondServerError)
 			return
@@ -40,31 +41,35 @@ func makeDelete(meta handlerMeta) *Handler {
 		ContextArgName           string
 		ErrorsRef                string
 		RepoRef                  string
+		RepoGetByIdFuncName      string
+		RepoDeleteFuncName       string
 		IdParamName              string
 		SingleName               string
 		ResourceResponseTypeName string
 		UpdateRequestTypeName    string
 	}{
-		ContextArgName:           meta.ContextArg.Name,
-		ErrorsRef:                meta.ErrorsArg.Name,
-		RepoRef:                  meta.RepoArg.Name,
-		IdParamName:              meta.ParamNameId,
-		SingleName:               meta.SingleName,
-		ResourceResponseTypeName: meta.ResourceResponseType.Name,
-		UpdateRequestTypeName:    meta.RequestUpdateType.Name,
+		ContextArgName:           meta.contextArg.Name,
+		ErrorsRef:                meta.errorsArg.Name,
+		RepoRef:                  meta.repoArg.Name,
+		RepoGetByIdFuncName:      o.RepoGetByIdFuncName,
+		RepoDeleteFuncName:       o.RepoDeleteFuncName,
+		IdParamName:              o.ParamNameId,
+		SingleName:               meta.nameSingular,
+		ResourceResponseTypeName: meta.resourceResponseType.Name,
+		UpdateRequestTypeName:    meta.requestUpdateType.Name,
 	}
 
-	handler := makeHandlerFunc(name, body, data, meta.ContextArg)
+	handler := makeHandlerFunc(name, body, data, meta.contextArg)
 
-	handler.AddArgV(meta.ErrorsArg)
-	handler.AddArgV(meta.RepoArg)
+	handler.AddArgV(meta.errorsArg)
+	handler.AddArgV(meta.repoArg)
 
 	handler.AddImportsVendor(goat.ImportGoat)
 
 	return &Handler{
 		Function:      handler,
 		verb:          verbDelete,
-		uri:           fmt.Sprintf(`"/:%s"`, meta.ParamNameId),
+		uri:           fmt.Sprintf(`"/:%s"`, o.ParamNameId),
 		requestStruct: nil,
 	}
 }

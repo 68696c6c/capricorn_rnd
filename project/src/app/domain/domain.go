@@ -15,7 +15,6 @@ type Map map[string]*Domain
 
 type Domain struct {
 	*golang.Package
-	model               *model.Model
 	repo                *repo.Repo
 	service             *service.Service
 	handlers            *handlers.Handlers
@@ -25,45 +24,48 @@ type Domain struct {
 	hasHandlers         bool
 }
 
-func NewDomains(pkgApp *golang.Package, resources []*model.Model, enums *enum.Enums) Map {
+func NewDomains(pkg golang.IPackage, o config.DomainOptions, resources []config.Model, enums *enum.Enums) Map {
 	result := make(Map)
 	for _, r := range resources {
-		d := newDomain(pkgApp, r, enums)
-		result[d.Package.GetName()] = d
+		d := newDomain(pkg, o, r, enums)
+		result[r.Name] = d
 	}
 	return result
 }
 
-func newDomain(pkgApp *golang.Package, resource *model.Model, enums *enum.Enums) *Domain {
+func newDomain(pkg golang.IPackage, o config.DomainOptions, resource config.Model, enums *enum.Enums) *Domain {
 	domainPkgName := utils.Plural(resource.Name)
-	pkgDomain := pkgApp.AddPackage(domainPkgName)
+	pkgDomain := pkg.AddPackage(domainPkgName)
 	meta := config.NewDomainMeta(resource.Name, resource.Actions, resource.Custom)
 
-	domainModel := resource.Build(pkgDomain, enums, "model")
-	meta.SetModel(domainModel.GetType())
+	domainModel := model.Build(pkgDomain, o.Model, resource, enums)
+	meta.SetModel(domainModel)
 
-	repoFileName := "repo"
-	domainRepo := repo.Build(pkgDomain, repoFileName, meta)
+	domainRepo := repo.Build(pkgDomain, o.Repo, meta)
 
-	serviceFileName := "service"
 	var domainService *service.Service
 	var domainHandlers *handlers.Handlers
 
+	var externalRepoName string
+	var externalServiceName string
 	if domainRepo != nil {
+		externalRepoName = domainRepo.GetExternalName()
 		meta.SetRepo(domainRepo.GetInterfaceType())
 
-		domainService = service.Build(pkgDomain, serviceFileName, meta)
+		domainService = service.Build(pkgDomain, o.Service, meta)
+		if domainService != nil {
+			externalServiceName = domainService.GetExternalName()
+		}
 
-		domainHandlers = handlers.Build(pkgDomain, "handlers", meta)
+		domainHandlers = handlers.Build(pkgDomain, o.Handlers, meta)
 	}
 
 	return &Domain{
 		Package:             pkgDomain,
-		model:               domainModel,
 		repo:                domainRepo,
-		externalRepoName:    domainPkgName + "_" + repoFileName,
+		externalRepoName:    externalRepoName,
 		service:             domainService,
-		externalServiceName: domainPkgName + "_" + serviceFileName,
+		externalServiceName: externalServiceName,
 		handlers:            domainHandlers,
 	}
 }

@@ -1,76 +1,73 @@
 package enum
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/68696c6c/capricorn_rnd/golang"
+	"github.com/68696c6c/capricorn_rnd/project/config"
 	"github.com/68696c6c/capricorn_rnd/utils"
 )
 
-const (
-	pkgNameEnums = "enums"
-	specPrefix   = "enum:"
-)
-
-type Map map[string]Enum
+type Map map[string]*golang.Iota
 
 type Enums struct {
 	*golang.Package
-	enums Map
+	enums   Map
+	options config.EnumOptions
 }
 
-type Enum struct {
-	*golang.File `yaml:"-"`
-	Name         string       `yaml:"name,omitempty"`
-	Description  string       `yaml:"description,omitempty"`
-	Type         string       `yaml:"type,omitempty"`
-	Values       []string     `yaml:"values,omitempty"`
-	enumType     *golang.Iota `yaml:"-"`
-}
-
-func NewEnums(pkg *golang.Package, enums []Enum) Enums {
+func NewEnums(pkg *golang.Package, o config.EnumOptions, enums []config.Enum) Enums {
 	enumMap := make(Map)
-	pkgEnums := pkg.AddPackage(pkgNameEnums)
+	pkgEnums := pkg.AddPackage(o.PkgName)
 	for _, e := range enums {
 		key := utils.Snake(e.Name)
-		enumMap[key] = newEnum(pkgEnums, e)
+		enumMap[key] = newEnum(pkgEnums, o, e)
 	}
 	return Enums{
 		Package: pkgEnums,
 		enums:   enumMap,
+		options: o,
 	}
 }
 
-func newEnum(pkg *golang.Package, e Enum) Enum {
+func newEnum(pkg *golang.Package, o config.EnumOptions, e config.Enum) *golang.Iota {
 	fileName := utils.Snake(e.Name)
 	typeName := utils.Pascal(e.Name)
-	result := Enum{
-		File:        pkg.AddGoFile(fileName),
-		Name:        typeName,
-		Description: e.Description,
-		Type:        e.Type,
-		Values:      e.Values,
-		enumType:    golang.NewIota(typeName, e.Values),
+
+	file := pkg.AddGoFile(fileName)
+
+	enumType := golang.NewIota(typeName, e.Values)
+
+	meta := enumMeta{
+		name:               e.Name,
+		fromStringFuncName: fmt.Sprintf("%s%s", typeName, o.FromStringFuncNameSuffix),
+		enumType:           enumType,
 	}
 
-	fromStringFuncName := typeName + "FromString"
-	result.AddFunction(makeFromString(fromStringFuncName, result.enumType))
-	result.enumType.AddFunction(makeScan(fromStringFuncName))
-	result.enumType.AddFunction(makeValue(result.enumType.GetReceiverName()))
+	file.AddFunction(makeFromString(o, meta))
+	enumType.AddFunction(makeScan(o, meta))
+	enumType.AddFunction(makeValue(o, meta))
 
-	result.File.AddIota(result.enumType)
+	file.AddIota(enumType)
 
-	return result
+	return enumType
 }
 
 func (e Enums) GetEnumType(input string) (golang.IType, bool) {
 	key := input
-	if strings.HasPrefix(key, specPrefix) {
-		key = strings.TrimPrefix(key, specPrefix)
+	if strings.HasPrefix(key, e.options.SpecPrefix) {
+		key = strings.TrimPrefix(key, e.options.SpecPrefix)
 	}
 	result, ok := e.enums[key]
 	if !ok {
 		return nil, false
 	}
-	return result.enumType, true
+	return result, true
+}
+
+type enumMeta struct {
+	name               string
+	fromStringFuncName string
+	enumType           *golang.Iota
 }

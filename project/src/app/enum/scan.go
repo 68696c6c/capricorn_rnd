@@ -1,10 +1,12 @@
 package enum
 
-import "github.com/68696c6c/capricorn_rnd/golang"
+import (
+	"github.com/68696c6c/capricorn_rnd/golang"
+	"github.com/68696c6c/capricorn_rnd/project/config"
+)
 
-func makeScan(fromStringFuncName string) *golang.Function {
-	argName := "input"
-	method := golang.NewFunction("Scan")
+func makeScan(o config.EnumOptions, meta enumMeta) *golang.Function {
+	method := golang.NewFunction(o.ScanFuncName)
 	t := `
 	stringValue := fmt.Sprintf("%v", {{ .ArgName }})
 	result, err := {{ .FromStringFuncName }}(stringValue)
@@ -14,8 +16,7 @@ func makeScan(fromStringFuncName string) *golang.Function {
 	*i = result
 	return nil
 `
-
-	method.AddArg(argName, golang.MakeTypeInterfaceLiteral())
+	method.AddArg(o.InputArgName, golang.MakeTypeInterfaceLiteral())
 
 	method.AddReturn("", golang.MakeTypeError())
 
@@ -24,9 +25,11 @@ func makeScan(fromStringFuncName string) *golang.Function {
 		FromStringFuncName string
 		BaseQueryFuncCall  string
 	}{
-		ArgName:            argName,
-		FromStringFuncName: fromStringFuncName,
+		ArgName:            o.InputArgName,
+		FromStringFuncName: meta.fromStringFuncName,
 	})
+
+	method.AddImportsStandard("fmt")
 
 	return method
 }

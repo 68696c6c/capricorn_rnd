@@ -1,6 +1,7 @@
 package local
 
 import (
+	"github.com/68696c6c/capricorn_rnd/project/config"
 	"github.com/68696c6c/capricorn_rnd/utils"
 )
 
@@ -90,10 +91,10 @@ lint-fix:
 
 type Makefile struct {
 	*utils.File
-	data Config
+	data config.Ops
 }
 
-func NewMakefile(basePath string, c Config) Makefile {
+func NewMakefile(basePath string, c config.Ops) Makefile {
 	file := utils.NewFile(basePath, "Makefile", "")
 	return Makefile{
 		File: file,

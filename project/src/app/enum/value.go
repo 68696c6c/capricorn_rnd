@@ -1,9 +1,12 @@
 package enum
 
-import "github.com/68696c6c/capricorn_rnd/golang"
+import (
+	"github.com/68696c6c/capricorn_rnd/golang"
+	"github.com/68696c6c/capricorn_rnd/project/config"
+)
 
-func makeValue(receiverName string) *golang.Function {
-	method := golang.NewFunction("Value")
+func makeValue(o config.EnumOptions, meta enumMeta) *golang.Function {
+	method := golang.NewFunction(o.ValueFuncName)
 	t := `
 	return {{ .ReceiverName }}.String(), nil
 `
@@ -14,7 +17,7 @@ func makeValue(receiverName string) *golang.Function {
 	method.SetBodyTemplate(t, struct {
 		ReceiverName string
 	}{
-		ReceiverName: receiverName,
+		ReceiverName: meta.enumType.GetReceiverName(),
 	})
 
 	return method

@@ -2,18 +2,18 @@ package repo
 
 import (
 	"github.com/68696c6c/capricorn_rnd/golang"
+	"github.com/68696c6c/capricorn_rnd/project/config"
 	"github.com/68696c6c/capricorn_rnd/project/goat"
 )
 
-func makeConstructor(meta *methodMeta) *golang.Function {
+func makeConstructor(o config.RepoOptions, meta *methodMeta) *golang.Function {
 	method := golang.NewFunction("New" + meta.repoInterfaceType.GetName())
 	t := `
 	return {{ .StructName }}{
 		{{ .DbFieldName }}: {{ .DbArgName }},
 	}
 `
-	dbArgName := "dbConnection"
-	method.AddArg(dbArgName, meta.dbType)
+	method.AddArg(o.DbArgName, meta.dbType)
 
 	method.AddReturn("", meta.repoInterfaceType)
 
@@ -23,8 +23,8 @@ func makeConstructor(meta *methodMeta) *golang.Function {
 		DbArgName   string
 	}{
 		StructName:  meta.repoStructType.GetName(),
-		DbFieldName: meta.dbFieldName,
-		DbArgName:   dbArgName,
+		DbFieldName: o.DbFieldName,
+		DbArgName:   o.DbArgName,
 	})
 
 	method.AddImportsVendor(goat.ImportGorm)

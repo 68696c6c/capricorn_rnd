@@ -1,14 +1,14 @@
 package handlers
 
 import (
-	"fmt"
+	"github.com/68696c6c/capricorn_rnd/project/config"
 
 	"github.com/68696c6c/capricorn_rnd/project/goat"
 	"github.com/68696c6c/capricorn_rnd/utils"
 )
 
-func makeList(meta handlerMeta) *Handler {
-	name := fmt.Sprintf("List%s", utils.Pascal(meta.PluralName))
+func makeList(o config.HandlersOptions, meta handlerMeta) *Handler {
+	name := utils.Pascal(o.ListNameTemplate.Parse(meta.resourceName))
 	body := `
 		q := query.NewQueryBuilder({{ .ContextArgName }})
 
@@ -35,19 +35,19 @@ func makeList(meta handlerMeta) *Handler {
 		PluralName       string
 		ListResponseName string
 	}{
-		ContextArgName:   meta.ContextArg.Name,
-		ErrorsRef:        meta.ErrorsArg.Name,
-		RepoRef:          meta.RepoArg.Name,
-		FilterFuncName:   meta.RepoFilterFuncName,
-		PageFuncName:     meta.RepoPageFuncName,
-		PluralName:       meta.PluralName,
-		ListResponseName: meta.ListResponseType.Name,
+		ContextArgName:   meta.contextArg.Name,
+		ErrorsRef:        meta.errorsArg.Name,
+		RepoRef:          meta.repoArg.Name,
+		FilterFuncName:   o.RepoFilterFuncName,
+		PageFuncName:     o.RepoPaginationFuncName,
+		PluralName:       meta.namePlural,
+		ListResponseName: meta.listResponseType.Name,
 	}
 
-	handler := makeHandlerFunc(name, body, data, meta.ContextArg)
+	handler := makeHandlerFunc(name, body, data, meta.contextArg)
 
-	handler.AddArgV(meta.ErrorsArg)
-	handler.AddArgV(meta.RepoArg)
+	handler.AddArgV(meta.errorsArg)
+	handler.AddArgV(meta.repoArg)
 
 	handler.AddImportsVendor(goat.ImportGoat)
 

@@ -2,11 +2,12 @@ package repo
 
 import (
 	"github.com/68696c6c/capricorn_rnd/golang"
+	"github.com/68696c6c/capricorn_rnd/project/config"
 	"github.com/68696c6c/capricorn_rnd/project/goat"
 )
 
-func makeGetById(meta *methodMeta) *golang.Function {
-	method := golang.NewFunction("GetById")
+func makeGetById(o config.RepoOptions, meta *methodMeta) *golang.Function {
+	method := golang.NewFunction(o.GetByIdFuncName)
 	t := `
 	{{ .ModelVarName }} := &{{ .ModelTypeName }}{
 		Model: goat.Model{
@@ -24,8 +25,7 @@ func makeGetById(meta *methodMeta) *golang.Function {
 	return {{ .ModelVarName }}, nil
 `
 
-	idArgName := "id"
-	method.AddArg(idArgName, goat.MakeTypeId())
+	method.AddArg(o.IdArgName, goat.MakeTypeId())
 
 	returnType := meta.modelType.CopyType()
 	returnType.IsPointer = true
@@ -39,8 +39,8 @@ func makeGetById(meta *methodMeta) *golang.Function {
 		ModelTypeName string
 	}{
 		DbRef:         meta.dbFieldRef,
-		IdArgName:     idArgName,
-		ModelVarName:  meta.modelArgName,
+		IdArgName:     o.IdArgName,
+		ModelVarName:  o.ModelArgName,
 		ModelTypeName: meta.modelType.GetName(),
 	})
 

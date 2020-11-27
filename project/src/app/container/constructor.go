@@ -7,11 +7,12 @@ import (
 	"github.com/68696c6c/capricorn_rnd/golang"
 	"github.com/68696c6c/capricorn_rnd/project/config"
 	"github.com/68696c6c/capricorn_rnd/project/goat"
+	"github.com/68696c6c/capricorn_rnd/project/src/app/domain"
 	"github.com/68696c6c/capricorn_rnd/utils"
 )
 
-func makeConstructor(meta containerMeta) *golang.Function {
-	method := golang.NewFunction(config.AppInitFuncName)
+func makeConstructor(o config.ServiceContainerOptions, containerType *golang.Struct, domains domain.Map) *golang.Function {
+	method := golang.NewFunction(o.AppInitFuncName)
 	t := `
 	if {{ .SingletonName }} != ({{ .TypeName }}{}) {
 		return {{ .SingletonName }}, nil
@@ -27,19 +28,17 @@ func makeConstructor(meta containerMeta) *golang.Function {
 
 	return {{ .SingletonName }}, nil
 `
-	dbArgName := "dbConnection"
-	method.AddArg(dbArgName, goat.MakeTypeDbConnection())
+	method.AddArg(o.DbArgName, goat.MakeTypeDbConnection())
 
-	loggerArgName := "logger"
-	method.AddArg(loggerArgName, goat.MakeTypeLogger())
+	method.AddArg(o.LoggerArgName, goat.MakeTypeLogger())
 
-	method.AddReturn("", meta.structType)
+	method.AddReturn("", containerType)
 
 	method.AddReturn("", golang.MakeTypeError())
 
 	var declarations []string
 	var fields []string
-	for key, d := range meta.domains {
+	for resourceName, d := range domains {
 		if !d.HasRepo() {
 			continue
 		}
@@ -49,9 +48,9 @@ func makeConstructor(meta containerMeta) *golang.Function {
 		repoConstructor := d.GetRepoConstructor()
 		repoFieldName := utils.Pascal(d.GetExternalRepoName())
 		if d.HasService() {
-			varName := utils.Camel(key + "_repo")
+			varName := utils.Camel(o.RepoVarNameTemplate.Parse(resourceName))
 
-			repoDec := fmt.Sprintf("%s := %s(%s)", varName, repoConstructor.GetReference(), dbArgName)
+			repoDec := fmt.Sprintf("%s := %s(%s)", varName, repoConstructor.GetReference(), o.DbArgName)
 			declarations = append(declarations, "\t"+repoDec)
 
 			fields = append(fields, fmt.Sprintf("\t\t%s: %s,", repoFieldName, varName))
@@ -59,7 +58,7 @@ func makeConstructor(meta containerMeta) *golang.Function {
 			serviceConstructor := d.GetServiceConstructor()
 			fields = append(fields, fmt.Sprintf("\t\t%s: %s(%s),", utils.Pascal(d.GetExternalServiceName()), serviceConstructor.GetReference(), varName))
 		} else {
-			fields = append(fields, fmt.Sprintf("\t\t%s: %s(%s),", repoFieldName, repoConstructor.GetReference(), dbArgName))
+			fields = append(fields, fmt.Sprintf("\t\t%s: %s(%s),", repoFieldName, repoConstructor.GetReference(), o.DbArgName))
 		}
 	}
 
@@ -74,13 +73,13 @@ func makeConstructor(meta containerMeta) *golang.Function {
 		Declarations    string
 		Fields          string
 	}{
-		SingletonName:   meta.singletonName,
-		TypeName:        meta.structType.GetName(),
-		DbFieldName:     meta.dbFieldName,
-		DbArgName:       dbArgName,
-		LoggerFieldName: meta.loggerFieldName,
-		LoggerArgName:   loggerArgName,
-		ErrorsFieldName: meta.errorsFieldName,
+		SingletonName:   o.SingletonName,
+		TypeName:        containerType.GetName(),
+		DbFieldName:     o.DbFieldName,
+		DbArgName:       o.DbArgName,
+		LoggerFieldName: o.LoggerFieldName,
+		LoggerArgName:   o.LoggerArgName,
+		ErrorsFieldName: o.ErrorsFieldName,
 		Declarations:    strings.Join(declarations, "\n"),
 		Fields:          strings.Join(fields, "\n"),
 	})

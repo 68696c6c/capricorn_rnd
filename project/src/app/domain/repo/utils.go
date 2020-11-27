@@ -10,43 +10,28 @@ import (
 )
 
 type methodMeta struct {
-	modelType           golang.IType
-	modelPlural         string
-	modelArgName        string
-	receiverName        string
-	dbFieldRef          string
-	dbFieldName         string
-	dbType              *golang.Type
-	queryArgName        string
-	queryType           *golang.Type
-	baseQueryFuncName   string
-	filterQueryFuncName string
-	filterFuncName      string
-	pageQueryFuncName   string
-	repoStructType      *golang.Struct
-	repoInterfaceType   *golang.Interface
-	constructor         *golang.Function
+	modelType         golang.IType
+	modelPlural       string
+	receiverName      string
+	dbFieldRef        string
+	dbType            *golang.Type
+	queryType         *golang.Type
+	repoStructType    *golang.Struct
+	repoInterfaceType *golang.Interface
+	constructor       *golang.Function
 }
 
-func makeMethodMeta(domainMeta *config.DomainMeta, repoStruct *golang.Struct, repoInterface *golang.Interface) *methodMeta {
+func makeMethodMeta(o config.RepoOptions, domainMeta *config.DomainMeta, repoStruct *golang.Struct, repoInterface *golang.Interface) *methodMeta {
 	recName := repoStruct.GetReceiverName()
-	dbFieldName := "db"
 	return &methodMeta{
-		modelType:           domainMeta.GetModelType(),
-		modelPlural:         utils.Camel(domainMeta.NamePlural),
-		modelArgName:        "model",
-		receiverName:        recName,
-		dbFieldRef:          fmt.Sprintf("%s.%s", recName, dbFieldName),
-		dbFieldName:         dbFieldName,
-		dbType:              goat.MakeTypeDbConnection(),
-		queryArgName:        "query",
-		queryType:           goat.MakeTypeQuery(),
-		baseQueryFuncName:   "getBaseQuery",
-		filterQueryFuncName: "getFilteredQuery",
-		filterFuncName:      "Filter",
-		pageQueryFuncName:   "ApplyPaginationToQuery",
-		repoStructType:      repoStruct,
-		repoInterfaceType:   repoInterface,
+		modelType:         domainMeta.GetModelType(),
+		modelPlural:       utils.Camel(domainMeta.NamePlural),
+		receiverName:      recName,
+		dbFieldRef:        fmt.Sprintf("%s.%s", recName, o.DbFieldName),
+		dbType:            goat.MakeTypeDbConnection(),
+		queryType:         goat.MakeTypeQuery(),
+		repoStructType:    repoStruct,
+		repoInterfaceType: repoInterface,
 	}
 }
 

@@ -2,11 +2,13 @@ package repo
 
 import (
 	"fmt"
+
 	"github.com/68696c6c/capricorn_rnd/golang"
+	"github.com/68696c6c/capricorn_rnd/project/config"
 )
 
-func makeGetFilteredQuery(meta *methodMeta) *golang.Function {
-	method := golang.NewFunction(meta.filterQueryFuncName)
+func makeGetFilteredQuery(o config.RepoOptions, meta *methodMeta) *golang.Function {
+	method := golang.NewFunction(o.FilterQueryFuncName)
 	t := `
 	result, err := {{ .QueryArgName }}.ApplyToGorm({{ .BaseQueryFuncCall }})
 	if err != nil {
@@ -15,7 +17,7 @@ func makeGetFilteredQuery(meta *methodMeta) *golang.Function {
 	return result, nil
 `
 
-	method.AddArg(meta.queryArgName, meta.queryType)
+	method.AddArg(o.QueryArgName, meta.queryType)
 
 	method.AddReturn("", meta.dbType)
 	method.AddReturn("", golang.MakeTypeError())
@@ -24,8 +26,8 @@ func makeGetFilteredQuery(meta *methodMeta) *golang.Function {
 		BaseQueryFuncCall string
 		QueryArgName      string
 	}{
-		BaseQueryFuncCall: fmt.Sprintf("%s.%s()", meta.receiverName, meta.baseQueryFuncName),
-		QueryArgName:      meta.queryArgName,
+		BaseQueryFuncCall: fmt.Sprintf("%s.%s()", meta.receiverName, o.BaseQueryFuncName),
+		QueryArgName:      o.QueryArgName,
 	})
 
 	method.AddImportsVendor(meta.dbType.Import)

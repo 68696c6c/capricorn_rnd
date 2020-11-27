@@ -1,9 +1,8 @@
 package handlers
 
 import (
-	"fmt"
-
 	"github.com/68696c6c/capricorn_rnd/golang"
+	"github.com/68696c6c/capricorn_rnd/project/config"
 	"github.com/68696c6c/capricorn_rnd/project/goat"
 	"github.com/68696c6c/capricorn_rnd/utils"
 )
@@ -14,8 +13,8 @@ func makeCreateRequest(name string, modelType golang.IType) *golang.Struct {
 	return result
 }
 
-func makeCreate(meta handlerMeta) *Handler {
-	name := fmt.Sprintf("Create%s", utils.Pascal(meta.SingleName))
+func makeCreate(o config.HandlersOptions, meta handlerMeta) *Handler {
+	name := utils.Pascal(o.CreateNameTemplate.Parse(meta.resourceName))
 	body := `
 		req, ok := goat.GetRequest({{ .ContextArgName }}).(*{{ .RequestCreateTypeName }})
 		if !ok {
@@ -23,37 +22,38 @@ func makeCreate(meta handlerMeta) *Handler {
 			return
 		}
 
-		m := req.{{ .ModelTypeName }}
-		err := {{ .RepoRef }}.Save(&m)
+		err := {{ .RepoRef }}.{{ .RepoSaveFuncName }}(&req.{{ .ModelTypeName }})
 		if err != nil {
 			{{ .ErrorsRef }}.HandleErrorM({{ .ContextArgName }}, err, "failed to save {{ .SingleName }}", goat.RespondServerError)
 			return
 		}
 
-		goat.RespondCreated({{ .ContextArgName }}, {{ .ResourceResponseTypeName }}{m})
+		goat.RespondCreated({{ .ContextArgName }}, {{ .ResourceResponseTypeName }}{req.{{ .ModelTypeName }}})
 	`
 	data := struct {
 		ContextArgName           string
 		ErrorsRef                string
 		RepoRef                  string
+		RepoSaveFuncName         string
 		SingleName               string
 		ModelTypeName            string
 		RequestCreateTypeName    string
 		ResourceResponseTypeName string
 	}{
-		ContextArgName:           meta.ContextArg.Name,
-		ErrorsRef:                meta.ErrorsArg.Name,
-		RepoRef:                  meta.RepoArg.Name,
-		SingleName:               utils.Space(meta.SingleName),
-		ModelTypeName:            meta.ModelTypeName,
-		RequestCreateTypeName:    meta.RequestCreateType.Name,
-		ResourceResponseTypeName: meta.ResourceResponseType.Name,
+		ContextArgName:           meta.contextArg.Name,
+		ErrorsRef:                meta.errorsArg.Name,
+		RepoRef:                  meta.repoArg.Name,
+		RepoSaveFuncName:         o.RepoSaveFuncName,
+		SingleName:               utils.Space(meta.nameSingular),
+		ModelTypeName:            meta.modelTypeName,
+		RequestCreateTypeName:    meta.requestCreateType.Name,
+		ResourceResponseTypeName: meta.resourceResponseType.Name,
 	}
 
-	handler := makeHandlerFunc(name, body, data, meta.ContextArg)
+	handler := makeHandlerFunc(name, body, data, meta.contextArg)
 
-	handler.AddArgV(meta.ErrorsArg)
-	handler.AddArgV(meta.RepoArg)
+	handler.AddArgV(meta.errorsArg)
+	handler.AddArgV(meta.repoArg)
 
 	handler.AddImportsVendor(goat.ImportGoat)
 
@@ -61,6 +61,6 @@ func makeCreate(meta handlerMeta) *Handler {
 		Function:      handler,
 		verb:          verbPost,
 		uri:           `""`,
-		requestStruct: meta.RequestCreateType,
+		requestStruct: meta.requestCreateType,
 	}
 }

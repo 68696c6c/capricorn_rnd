@@ -2,26 +2,17 @@ package http
 
 import (
 	"github.com/68696c6c/capricorn_rnd/golang"
+	"github.com/68696c6c/capricorn_rnd/project/config"
 	"github.com/68696c6c/capricorn_rnd/project/goat"
 	"github.com/68696c6c/capricorn_rnd/project/src/app"
 )
 
-type Routes struct {
-	*golang.File
-	apiRoutePrefix string
-	apiGroupName   string
-}
+func buildRoutes(pkg golang.IPackage, o config.RoutesOptions, a *app.App) *golang.Function {
+	initRouterFunc := makeInitRouter(o, a)
 
-func buildRoutes(pkg *golang.Package, a *app.App) Routes {
-	result := Routes{
-		File: pkg.AddGoFile("routes"),
-	}
+	file := pkg.AddGoFile(o.FileName)
+	file.AddFunction(initRouterFunc)
+	file.AddImportsVendor(goat.ImportGin)
 
-	initRouterFunc := makeInitRouter(a)
-
-	result.AddFunction(initRouterFunc)
-
-	result.AddImportsVendor(goat.ImportGin)
-
-	return result
+	return initRouterFunc
 }

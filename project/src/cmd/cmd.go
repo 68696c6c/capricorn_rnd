@@ -4,29 +4,25 @@ import (
 	"github.com/68696c6c/capricorn_rnd/golang"
 	"github.com/68696c6c/capricorn_rnd/project/config"
 	"github.com/68696c6c/capricorn_rnd/project/goat"
+	"github.com/68696c6c/capricorn_rnd/project/src/app"
+	"github.com/68696c6c/capricorn_rnd/project/src/http"
 	"github.com/68696c6c/capricorn_rnd/utils"
 )
 
-type Command struct {
-	*golang.File
-	Name string   `yaml:"name"`
-	Args []string `yaml:"args"`
-}
+func Build(pkg golang.IPackage, p *config.Project, o config.CmdOptions, a *app.App, h *http.Http) {
+	pkgCmd := pkg.AddPackage(o.PkgName)
 
-func Build(pkg golang.IPackage, commands []Command, meta *config.CmdMeta) {
-	pkgCmd := pkg.AddPackage("cmd")
+	buildRoot(pkgCmd, o, p)
+	buildServer(pkgCmd, o, p.Name, a, h)
+	buildMigrate(pkgCmd, o)
 
-	buildRoot(pkgCmd, meta)
-	buildServer(pkgCmd, meta)
-	buildMigrate(pkgCmd, meta)
-
-	for _, c := range commands {
+	for _, c := range p.Commands {
 		cmdFile := pkgCmd.AddGoFile(c.Name)
 		cmdFunc := golang.NewFunction("")
-		cmdFunc.AddArg("cmd", goat.MakeTypeCobraCommand())
-		cmdFunc.AddArg("args", golang.MakeTypeStringSlice(false))
+		cmdFunc.AddArg(o.CmdArgName, goat.MakeTypeCobraCommand())
+		cmdFunc.AddArg(o.ArgsArgName, golang.MakeTypeStringSlice(false))
 		cmdFile.AddFunction(makeCommandFunc(commandFuncMeta{
-			rootVarName: meta.RootVarName,
+			rootVarName: o.RootVarName,
 			use:         c.Name,
 			runFunc:     cmdFunc,
 		}))

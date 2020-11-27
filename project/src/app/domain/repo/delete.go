@@ -2,11 +2,12 @@ package repo
 
 import (
 	"github.com/68696c6c/capricorn_rnd/golang"
+	"github.com/68696c6c/capricorn_rnd/project/config"
 	"github.com/68696c6c/capricorn_rnd/project/goat"
 )
 
-func makeDelete(meta *methodMeta) *golang.Function {
-	method := golang.NewFunction("Delete")
+func makeDelete(o config.RepoOptions, meta *methodMeta) *golang.Function {
+	method := golang.NewFunction(o.DeleteFuncName)
 	t := `
 	errs :=  {{ .DbRef }}.Delete({{ .ModelArgName }}).GetErrors()
 	if len(errs) > 0 {
@@ -17,7 +18,7 @@ func makeDelete(meta *methodMeta) *golang.Function {
 
 	argType := meta.modelType.CopyType()
 	argType.IsPointer = true
-	method.AddArg(meta.modelArgName, argType)
+	method.AddArg(o.ModelArgName, argType)
 
 	method.AddReturn("", golang.MakeTypeError())
 
@@ -26,7 +27,7 @@ func makeDelete(meta *methodMeta) *golang.Function {
 		ModelArgName string
 	}{
 		DbRef:        meta.dbFieldRef,
-		ModelArgName: meta.modelArgName,
+		ModelArgName: o.ModelArgName,
 	})
 
 	method.AddImportsVendor(goat.ImportGoat, goat.ImportErrors)

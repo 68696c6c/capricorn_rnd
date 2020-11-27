@@ -2,13 +2,14 @@ package repo
 
 import (
 	"fmt"
-	"github.com/68696c6c/capricorn_rnd/project/goat"
 
 	"github.com/68696c6c/capricorn_rnd/golang"
+	"github.com/68696c6c/capricorn_rnd/project/config"
+	"github.com/68696c6c/capricorn_rnd/project/goat"
 )
 
-func makeFilter(meta *methodMeta) *golang.Function {
-	method := golang.NewFunction(meta.filterFuncName)
+func makeFilter(o config.RepoOptions, meta *methodMeta) *golang.Function {
+	method := golang.NewFunction(o.FilterFuncName)
 	t := `
 	dataQuery, err := {{ .FilterQueryFuncCall }}
 	if err != nil {
@@ -29,7 +30,7 @@ func makeFilter(meta *methodMeta) *golang.Function {
 	return result, nil
 `
 
-	method.AddArg(meta.queryArgName, meta.queryType)
+	method.AddArg(o.QueryArgName, meta.queryType)
 
 	returnType := meta.modelType.CopyType()
 	returnType.IsPointer = true
@@ -42,8 +43,8 @@ func makeFilter(meta *methodMeta) *golang.Function {
 		PageQueryFuncCall   string
 	}{
 		PluralName:          meta.modelPlural,
-		FilterQueryFuncCall: fmt.Sprintf("%s.%s(%s)", meta.receiverName, meta.filterQueryFuncName, meta.queryArgName),
-		PageQueryFuncCall:   fmt.Sprintf("%s.%s(%s)", meta.receiverName, meta.pageQueryFuncName, meta.queryArgName),
+		FilterQueryFuncCall: fmt.Sprintf("%s.%s(%s)", meta.receiverName, o.FilterQueryFuncName, o.QueryArgName),
+		PageQueryFuncCall:   fmt.Sprintf("%s.%s(%s)", meta.receiverName, o.PaginationFuncName, o.QueryArgName),
 	})
 
 	method.AddImportsVendor(goat.ImportGoat, meta.queryType.Import, goat.ImportErrors)

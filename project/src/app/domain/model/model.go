@@ -1,66 +1,135 @@
 package model
 
 import (
+	"path"
+
 	"github.com/68696c6c/capricorn_rnd/golang"
 	"github.com/68696c6c/capricorn_rnd/project/config"
+	"github.com/68696c6c/capricorn_rnd/project/goat"
 	"github.com/68696c6c/capricorn_rnd/project/src/app/enum"
+	"github.com/68696c6c/capricorn_rnd/utils"
 )
 
 type Model struct {
-	*golang.File `yaml:"-"`
-	Name         string          `yaml:"name,omitempty"`
-	Delete       string          `yaml:"delete,omitempty"`
-	BelongsTo    []string        `yaml:"belongs_to,omitempty"`
-	HasMany      []string        `yaml:"has_many,omitempty"`
-	Fields       []Field         `yaml:"fields,omitempty"`
-	Actions      []config.Action `yaml:"actions,omitempty"`
-	Custom       []string        `yaml:"custom,omitempty"`
-	modelType    *Type           `yaml:"-"`
+	*golang.Struct
+	*fields
+	hardDelete bool
 }
 
-func (m *Model) Build(pkg golang.IPackage, enums *enum.Enums, fileName string) *Model {
-	if m.modelType != nil {
-		return m
-	}
+func Build(pkg golang.IPackage, o config.ModelOptions, resource config.Model, enums *enum.Enums) *Model {
+	fileName := o.FileNameTemplate.Parse(resource.Name)
+	file := pkg.AddGoFile(fileName)
+	baseImport := pkg.GetBaseImport()
 
-	m.File = pkg.AddGoFile(fileName)
-	baseImport := m.PKG.GetBaseImport()
-	model := newModel(fileName, m.Delete == "hard")
-	m.AddStruct(model.Struct)
+	name := o.TypeNameTemplate.Parse(resource.Name)
+	model := newModel(name, resource.Delete == "hard")
+	file.AddStruct(model.Struct)
 
 	// Build the base model fields.
 	model.addBaseFields()
 
 	// Build the foreign ID fields for the Belongs-To relations.
-	for _, relation := range m.BelongsTo {
+	for _, relation := range resource.BelongsTo {
 		model.addBelongsToIdField(relation)
 	}
 
 	// Build the user-defined fields.
-	for _, f := range m.Fields {
+	for _, f := range resource.Fields {
 		model.addUserDefinedField(enums, f)
 	}
 
 	// Build the Belongs-To fields that GORM will hydrate the relation in to.
-	for _, relation := range m.BelongsTo {
-		relModel := getAssumedDDDModelType(baseImport, relation, true)
+	for _, relation := range resource.BelongsTo {
+		relModel := getAssumedModelType(baseImport, relation, true)
 		model.addBelongsToTargetField(relation, relModel)
 	}
 
 	// Build the Has-Many fields.
-	for _, relation := range m.HasMany {
-		relModel := getAssumedDDDModelType(baseImport, relation, true)
+	for _, relation := range resource.HasMany {
+		relModel := getAssumedModelType(baseImport, relation, true)
 		model.addHasManyField(relation, relModel)
 	}
 
 	// Build the struct using the accumulated fields.
 	model.buildFields()
 
-	m.modelType = model
-
-	return m
+	return model
 }
 
-func (m *Model) GetType() *Type {
-	return m.modelType
+func newModel(fileName string, hardDelete bool) *Model {
+	typeName := utils.Pascal(fileName)
+	return &Model{
+		Struct:     golang.NewStruct(typeName, false, false),
+		fields:     newFields(),
+		hardDelete: hardDelete,
+	}
+}
+
+func (m *Model) buildFields() {
+	for _, f := range m.modelFields {
+		m.AddField(f)
+	}
+}
+
+// Determine the base model type, compose it into our type, and register the base model fields.
+func (m *Model) addBaseFields() {
+	modelType := goat.MakeSoftModelStruct()
+	if m.hardDelete {
+		modelType = goat.MakeHardModelStruct()
+	}
+
+	// This "field" is the composition of the base model struct type into this struct type.
+	m.AddModelField(golang.NewField("", modelType, false))
+	m.AddImportsVendor(goat.ImportGoat)
+
+	// The fields that this struct receives from the base model are not declared on this struct, but they still need
+	// database fields made for them.
+	for _, f := range modelType.GetStructFields() {
+		m.AddDbField(f)
+	}
+}
+
+func (m *Model) addUserDefinedField(enums *enum.Enums, f config.Field) {
+	fType := f.Type
+	if fType == "email" {
+		fType = "string"
+	}
+	fieldType := golang.MockTypeFromReference(fType)
+	eType, isEnum := enums.GetEnumType(fType)
+	if isEnum {
+		fieldType = eType
+		m.AddImportsApp(eType.GetImport())
+	}
+	field := goat.MakeModelField(f.Name, fieldType, true, f.Required, false)
+	m.AddAllField(field)
+}
+
+func (m *Model) addBelongsToIdField(relation string) {
+	name := utils.Pascal(utils.Singular(relation) + "_id")
+	field := goat.MakeModelField(name, goat.MakeTypeId(), true, true, false)
+	m.AddAllField(field)
+}
+
+// Can't use relModel.GetName() to name the field because in a DDD app the name will always be "Model".
+func (m *Model) addBelongsToTargetField(relName string, relModel golang.IType) {
+	fieldName := utils.Pascal(utils.Singular(relName))
+	field := goat.MakeModelField(fieldName, relModel, true, false, true)
+	m.AddModelField(field)
+	m.AddImportsApp(relModel.GetImport())
+}
+
+// Can't use relModel.GetName() to name the field because in a DDD app the name will always be "Model".
+func (m *Model) addHasManyField(relName string, relModel golang.IType) {
+	fieldName := utils.Pascal(utils.Plural(relName))
+	relSlice := golang.MakeSliceType(false, relModel)
+	field := goat.MakeModelField(fieldName, relSlice, true, false, true)
+	m.AddModelField(field)
+	m.AddImportsApp(relModel.GetImport())
+}
+
+func getAssumedModelType(baseImport, inputName string, isPointer bool) golang.IType {
+	pkgName := utils.Plural(inputName)
+	imp := path.Join(baseImport, pkgName)
+	result := golang.MockStruct(imp, utils.Pascal(utils.Singular(inputName)), isPointer, false)
+	return result
 }

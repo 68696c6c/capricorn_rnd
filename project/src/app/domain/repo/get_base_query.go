@@ -1,9 +1,12 @@
 package repo
 
-import "github.com/68696c6c/capricorn_rnd/golang"
+import (
+	"github.com/68696c6c/capricorn_rnd/golang"
+	"github.com/68696c6c/capricorn_rnd/project/config"
+)
 
-func makeGetBaseQuery(meta *methodMeta) *golang.Function {
-	method := golang.NewFunction(meta.baseQueryFuncName)
+func makeGetBaseQuery(o config.RepoOptions, meta *methodMeta) *golang.Function {
+	method := golang.NewFunction(o.BaseQueryFuncName)
 	t := `
 	return {{ .DbRef }}.Model(&{{ .ModelTypeName }}{})
 `
