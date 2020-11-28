@@ -9,10 +9,13 @@ import (
 	"github.com/68696c6c/capricorn_rnd/utils"
 )
 
-func buildMigrate(pkg golang.IPackage, o config.CmdOptions) *golang.Var {
+func buildMigrate(pkg golang.IPackage, o config.CmdOptions, migrationsImport string) *golang.Var {
 	file := pkg.AddGoFile(o.MigrateFileName)
+	file.AddImportsApp(migrationsImport)
+
 	result := makeMigrateVar(o)
 	file.AddVar(result)
+
 	return result
 }
 
@@ -72,6 +75,6 @@ func makeMigrateRunFunc(o config.CmdOptions) *golang.Function {
 	result.AddArg(o.CmdArgName, goat.MakeTypeCobraCommand())
 	result.AddArg(o.ArgsArgName, golang.MakeTypeStringSlice(false))
 	result.SetBodyTemplate(t, nil)
-	result.AddImportsVendor(goat.ImportGoat, goat.ImportErrors, goat.ImportGoose, goat.ImportSqlDriver, goat.ImportCobra)
+	result.AddImportsVendor(goat.ImportGoat, goat.ImportErrors, goat.ImportGoose, goat.ImportCobra)
 	return result
 }

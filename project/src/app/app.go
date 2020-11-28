@@ -6,6 +6,7 @@ import (
 	"github.com/68696c6c/capricorn_rnd/project/src/app/container"
 	"github.com/68696c6c/capricorn_rnd/project/src/app/domain"
 	"github.com/68696c6c/capricorn_rnd/project/src/app/enum"
+	"github.com/68696c6c/capricorn_rnd/utils"
 )
 
 type App struct {
@@ -15,8 +16,8 @@ type App struct {
 	config    container.Config
 }
 
-func NewApp(pkg golang.IPackage, p *config.Project, o config.AppOptions) *App {
-	pkgApp := pkg.AddPackage(o.PkgName)
+func NewApp(root utils.Directory, p *config.Project, o config.AppOptions) *App {
+	pkgApp := golang.NewPackage(o.PkgName, root.GetFullPath(), p.Module)
 	appEnums := enum.NewEnums(pkgApp, o.Enums, p.Enums)
 	appDomains := domain.NewDomains(pkgApp, o.Domain, p.Resources, &appEnums)
 	return &App{
@@ -27,12 +28,8 @@ func NewApp(pkg golang.IPackage, p *config.Project, o config.AppOptions) *App {
 	}
 }
 
-func (a *App) GetDomains() domain.Map {
-	return a.domains.GetMap()
-}
-
-func (a *App) GetImportHandlers() string {
-	return a.domains.GetImportHandlers()
+func (a *App) GetDomains() *domain.Domains {
+	return a.domains
 }
 
 func (a *App) GetContainerType() golang.IType {

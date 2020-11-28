@@ -45,8 +45,9 @@ type DbOptions struct {
 }
 
 type MigrationsOptions struct {
-	PkgName  string
-	FileName string
+	PkgName                   string
+	InitialMigrationTimestamp string
+	InitialMigrationName      string
 }
 
 type HttpOptions struct {

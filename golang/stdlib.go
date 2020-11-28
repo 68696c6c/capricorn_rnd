@@ -27,3 +27,7 @@ func MakeTypeString(isPointer bool) *Type {
 func MakeTypeStringSlice(isPointer bool) *Slice {
 	return MakeSliceType(isPointer, MockType("", "string", false, false))
 }
+
+func MakeTypeSqlTransaction(isPointer bool) *Type {
+	return MockType("database/sql", "Tx", isPointer, false)
+}

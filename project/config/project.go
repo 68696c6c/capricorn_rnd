@@ -174,8 +174,10 @@ func NewProjectOptions(basePath string) ProjectOptions {
 			Db: DbOptions{
 				PkgName: "db",
 				Migrations: MigrationsOptions{
-					PkgName:  "migrations",
-					FileName: "initial",
+					PkgName: "migrations",
+					// @TODO: use timestamps and think about how to handle initial migrations with AutoMigrate safely...
+					InitialMigrationTimestamp: "20201127164400",
+					InitialMigrationName:      "initial_migration",
 				},
 			},
 

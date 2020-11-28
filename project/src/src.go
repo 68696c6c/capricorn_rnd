@@ -12,19 +12,27 @@ import (
 )
 
 func Build(root utils.Directory, p *config.Project, o config.SrcOptions) {
-	pkgSrc := golang.NewPackage(o.PkgName, root.GetFullPath(), p.Module)
-	srcApp := app.NewApp(pkgSrc, p, o.App)
+	pkgSrc := utils.NewFolder(root.GetFullPath(), o.PkgName)
 
-	db.Build(pkgSrc, o.Db, srcApp)
-	srcHttp := http.Build(pkgSrc, o.Http, srcApp)
-	srcCommands := cmd.Build(pkgSrc, p, o.Cmd, srcApp, srcHttp)
-	buildMainGo(pkgSrc, p, o.Cmd, srcCommands)
+	srcApp := app.NewApp(pkgSrc, p, o.App)
+	pkgSrc.AddDirectory(srcApp)
+
+	srcDb := db.Build(pkgSrc, p.Module, o.Db, srcApp)
+	pkgSrc.AddDirectory(srcDb)
+
+	srcHttp := http.Build(pkgSrc, p.Module, o.Http, srcApp)
+	pkgSrc.AddDirectory(srcHttp)
+
+	srcCommands := cmd.Build(pkgSrc, p, o.Cmd, srcApp, srcHttp, srcDb.GetImportMigrations(true))
+	pkgSrc.AddDirectory(srcCommands)
+
+	mainFile := buildMainGo(pkgSrc, p, o.Cmd, srcCommands)
+	pkgSrc.AddRenderableFile(mainFile)
 
 	root.AddDirectory(pkgSrc)
 }
 
-func buildMainGo(pkg golang.IPackage, p *config.Project, o config.CmdOptions, commands *cmd.Commands) {
-	file := pkg.AddGoFile("main")
+func buildMainGo(root utils.Directory, p *config.Project, o config.CmdOptions, commands *cmd.Commands) *golang.File {
 	mainFunc := golang.NewFunction("main")
 	t := `
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
@@ -63,6 +71,12 @@ func buildMainGo(pkg golang.IPackage, p *config.Project, o config.CmdOptions, co
 	})
 	mainFunc.AddImportsStandard("os", "strings")
 	mainFunc.AddImportsApp(commands.GetImport())
-	mainFunc.AddImportsVendor(goat.ImportCobra, goat.ImportViper)
-	file.AddFunction(mainFunc)
+	mainFunc.AddImportsVendor(goat.ImportSqlDriver, goat.ImportCobra, goat.ImportViper)
+
+	pkgMain := golang.NewPackage("main", root.GetFullPath(), p.Module)
+	mainFile := golang.NewFile(root.GetFullPath(), "main")
+	mainFile.PKG = pkgMain
+	mainFile.AddFunction(mainFunc)
+
+	return mainFile
 }

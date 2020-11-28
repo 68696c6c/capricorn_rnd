@@ -41,6 +41,7 @@ func (d *Domains) GetImportServices() string {
 }
 
 type Domain struct {
+	model               *model.Model
 	repo                *repo.Repo
 	service             *service.Service
 	handlers            *handlers.Handlers
@@ -96,12 +97,17 @@ func newDomain(pkgModels, pkgRepos, pkgServices, pkgHandlers golang.IPackage, o 
 	}
 
 	return &Domain{
+		model:               domainModel,
 		repo:                domainRepo,
 		externalRepoName:    externalRepoName,
 		service:             domainService,
 		externalServiceName: externalServiceName,
 		handlers:            domainHandlers,
 	}
+}
+
+func (d *Domain) GetModelType() golang.IType {
+	return d.model
 }
 
 func (d *Domain) HasRepo() bool {

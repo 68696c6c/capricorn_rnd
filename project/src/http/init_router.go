@@ -35,11 +35,11 @@ func makeInitRouter(o config.RoutesOptions, a *app.App) *golang.Function {
 
 	result.AddReturn("", goat.MakeTypeRouter())
 
-	result.AddImportsApp(serviceContainerType.GetImport(), a.GetImportHandlers())
+	result.AddImportsApp(serviceContainerType.GetImport(), a.GetDomains().GetImportHandlers())
 
 	errorsRef := fmt.Sprintf("%s.%s", o.ServicesArgName, a.GetErrorHandlerFieldName())
 	var groups routeGroups
-	for domainKey, d := range a.GetDomains() {
+	for domainKey, d := range a.GetDomains().GetMap() {
 		if !d.HasHandlers() {
 			continue
 		}

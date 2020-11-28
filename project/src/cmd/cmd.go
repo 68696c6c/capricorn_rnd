@@ -25,11 +25,11 @@ func (c *Commands) Render() string {
 	return strings.Join(result, "\n")
 }
 
-func Build(pkg golang.IPackage, p *config.Project, o config.CmdOptions, a *app.App, h *http.Http) *Commands {
-	pkgCmd := pkg.AddPackage(o.PkgName)
+func Build(root utils.Directory, p *config.Project, o config.CmdOptions, a *app.App, h *http.Http, migrationsImport string) *Commands {
+	pkgCmd := golang.NewPackage(o.PkgName, root.GetFullPath(), p.Module)
 
 	serverVar := buildServer(pkgCmd, o, p.Name, a, h)
-	migrateVar := buildMigrate(pkgCmd, o)
+	migrateVar := buildMigrate(pkgCmd, o, migrationsImport)
 
 	commands := []*golang.Var{serverVar, migrateVar}
 	for _, c := range p.Commands {
