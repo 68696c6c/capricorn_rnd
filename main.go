@@ -1,20 +1,25 @@
 package main
 
 import (
-	"fmt"
+	"os"
 
-	"github.com/68696c6c/capricorn_rnd/generator"
-	"github.com/68696c6c/capricorn_rnd/project"
-	"github.com/68696c6c/capricorn_rnd/project/config"
+	"github.com/68696c6c/capricorn_rnd/cmd"
+	"github.com/spf13/cobra"
 )
 
 func main() {
-	exampleName := "complex"
-	module, err := config.NewProjectFromSpec(fmt.Sprintf("%s.yml", exampleName))
-	if err != nil {
-		panic(err)
+	rootCmd := &cobra.Command{
+		Use:   "capricorn",
+		Short: "Root command for capricorn",
 	}
 
-	g := generator.NewGenerator(generator.PanicHandler{})
-	g.Generate(project.Build(module, config.NewProjectOptions("_examples")))
+	rootCmd.SetOutput(os.Stdout)
+	rootCmd.AddCommand(
+		cmd.GenerateGoat,
+	)
+
+	err := rootCmd.Execute()
+	if err != nil {
+		os.Exit(1)
+	}
 }

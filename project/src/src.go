@@ -11,7 +11,7 @@ import (
 	"github.com/68696c6c/capricorn_rnd/utils"
 )
 
-func Build(root utils.Directory, p *config.Project, o config.SrcOptions) {
+func Build(root utils.Directory, p *config.Project, o config.SrcOptions) string {
 	pkgSrc := utils.NewFolder(root.GetFullPath(), o.PkgName)
 
 	srcApp := app.NewApp(pkgSrc, p, o.App)
@@ -30,6 +30,8 @@ func Build(root utils.Directory, p *config.Project, o config.SrcOptions) {
 	pkgSrc.AddRenderableFile(mainFile)
 
 	root.AddDirectory(pkgSrc)
+
+	return srcApp.GetEnums().GetImport()
 }
 
 func buildMainGo(root utils.Directory, p *config.Project, o config.CmdOptions, commands *cmd.Commands) *golang.File {

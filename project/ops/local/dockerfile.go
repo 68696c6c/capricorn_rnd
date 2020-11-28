@@ -14,6 +14,7 @@ ENV GOPROXY=https://proxy.golang.org,direct
 RUN apk add --no-cache git gcc openssh mysql-client
 
 RUN go get golang.org/x/tools/cmd/goimports
+RUN go get golang.org/x/tools/cmd/stringer
 
 # Install swagger for generating API docs.
 RUN go get -v github.com/go-swagger/go-swagger/cmd/swagger

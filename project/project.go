@@ -10,9 +10,11 @@ import (
 func Build(p *config.Project, o config.ProjectOptions) utils.Directory {
 	projectDir := utils.NewFolder(o.BasePath, utils.Snake(p.Name))
 
-	ops.Build(projectDir, p.Ops)
+	enumsImport := src.Build(projectDir, p, o.Src)
 
-	src.Build(projectDir, p, o.Src)
+	p.Ops.EnumsImport = enumsImport
+
+	ops.Build(projectDir, p.Ops)
 
 	return projectDir
 }

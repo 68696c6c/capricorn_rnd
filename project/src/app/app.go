@@ -11,6 +11,7 @@ import (
 
 type App struct {
 	*golang.Package
+	enums     enum.Enums
 	domains   *domain.Domains
 	container *container.Container
 	config    container.Config
@@ -22,10 +23,15 @@ func NewApp(root utils.Directory, p *config.Project, o config.AppOptions) *App {
 	appDomains := domain.NewDomains(pkgApp, o.Domain, p.Resources, &appEnums)
 	return &App{
 		Package:   pkgApp,
+		enums:     appEnums,
 		domains:   appDomains,
 		container: container.NewContainer(pkgApp, o.ServiceContainer, appDomains),
 		config:    container.NewConfig(pkgApp, o.ServiceContainerConfig),
 	}
+}
+
+func (a *App) GetEnums() enum.Enums {
+	return a.enums
 }
 
 func (a *App) GetDomains() *domain.Domains {

@@ -7,7 +7,7 @@ import (
 
 const gitignoreTemplate = `.DS_Store
 .idea
-vendor
+src/vendor
 .app.env
 `
 

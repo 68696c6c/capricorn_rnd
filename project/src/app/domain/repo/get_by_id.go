@@ -41,7 +41,7 @@ func makeGetById(o config.RepoOptions, meta *methodMeta) *golang.Function {
 		DbRef:         meta.dbFieldRef,
 		IdArgName:     o.IdArgName,
 		ModelVarName:  o.ModelArgName,
-		ModelTypeName: meta.modelType.GetName(),
+		ModelTypeName: meta.modelType.CopyType().GetReference(),
 	})
 
 	method.AddImportsVendor(goat.ImportGoat, goat.ImportGorm)

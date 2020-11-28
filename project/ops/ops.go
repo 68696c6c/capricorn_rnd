@@ -6,16 +6,6 @@ import (
 	"github.com/68696c6c/capricorn_rnd/utils"
 )
 
-type Ops struct {
-	appEnv        local.AppEnv
-	appEnvExample local.AppEnv
-	makefile      local.Makefile
-	dockerfile    local.Dockerfile
-	dockerCompose local.DockerCompose
-	gitIgnore     local.GitIgnore
-	rootPath      string
-}
-
 func Build(root utils.Directory, c config.Ops) {
 	rootPath := root.GetFullPath()
 	root.AddRenderableFile(local.NewAppEnv(rootPath, c, false))

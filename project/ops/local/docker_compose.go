@@ -25,21 +25,21 @@ services:
       - db
     volumes:
       - pkg:/go/pkg
-      - ./:/{{ .Workdir }}
+      - ./src:/{{ .Workdir }}
     working_dir: /{{ .Workdir }}
     ports:
       - "80"
     env_file:
       - .app.env
     environment:
-      VIRTUAL_HOST: {{ .AppHTTPAlias }}.local
+      VIRTUAL_HOST: {{ .AppHTTPAlias }}
       ENV: local
       HTTP_PORT: 80
       MIGRATION_PATH: /{{ .Workdir }}/src/database
     networks:
       default:
         aliases:
-          - {{ .AppHTTPAlias }}.local
+          - {{ .AppHTTPAlias }}
 
   db:
     image: mysql:5.7

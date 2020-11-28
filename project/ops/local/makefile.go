@@ -30,6 +30,7 @@ DOC_PATH_FINAL = docs/api-spec.json
 	@echo '    local-down         tear down local dev environment'
 	@echo '    migrate            migrate the local database'
 	@echo '    migration          create a new migration'
+	@echo '    generate           generate String methods for app enum types'
 	@echo '    docs               build the Swagger docs'
 	@echo '    docs-server        build and serve the Swagger docs'
 	@echo '    test               run unit tests'
@@ -41,10 +42,10 @@ DOC_PATH_FINAL = docs/api-spec.json
 default: .DEFAULT
 
 image-local:
-	docker build . -f docker/Dockerfile --target dev -t $(APP_NAME):dev
+	docker build . --target dev -t $(APP_NAME):dev
 
 image-built:
-	docker build . -f docker/Dockerfile --target dev -t $(APP_NAME):built
+	docker build . --target dev -t $(APP_NAME):built
 
 build:
 	$(DCR) $(APP_NAME) go build -i -o $(APP_NAME)
@@ -56,9 +57,9 @@ deps:
 setup-network:
 	docker network create docker-dev || exit 0
 
-setup: setup-network image-local deps build
+setup: setup-network image-local generate deps build
 	$(DCR) $(DB_NAME) mysql -u root -p{{ .MainDatabase.Password }} -h $(DB_NAME) -e "CREATE DATABASE IF NOT EXISTS {{ .MainDatabase.Name }}"
-	$(DCR) $(APP_NAME) bash -c "./$(APP_NAME) migrate up && ./$(APP_NAME) seed"
+	$(DCR) $(APP_NAME) bash -c "./$(APP_NAME) migrate up"
 
 local: local-down build
 	NETWORK_NAME="$(NETWORK_NAME)" docker-compose up
@@ -70,10 +71,13 @@ test:
 	$(DCR) $(APP_NAME) go test ./... -cover
 
 migrate: build
-	$(DCR) $(APP_NAME) ./app migrate up
+	$(DCR) $(APP_NAME) ./$(APP_NAME) migrate up
 
 migration: build
 	$(DCR) $(APP_NAME) goose -dir src/db/migrations create $(name)
+
+generate:
+	$(DCR) $(APP_NAME) go generate {{ .EnumsImport }}
 
 docs: build
 	$(DCR) $(APP_NAME) bash -c "GO111MODULE=off swagger generate spec -mo '$(DOC_PATH_BASE)'"

@@ -4,6 +4,7 @@ type Ops struct {
 	Workdir      string   `yaml:"workdir,omitempty"`
 	AppHTTPAlias string   `yaml:"app_http_alias,omitempty"`
 	MainDatabase Database `yaml:"database,omitempty"`
+	EnumsImport  string   `yaml:"-"`
 }
 
 type Database struct {
