@@ -1,9 +1,6 @@
 package service
 
-import (
-	"github.com/68696c6c/capricorn_rnd/golang"
-	"github.com/68696c6c/capricorn_rnd/project/goat"
-)
+import "github.com/68696c6c/capricorn_rnd/golang"
 
 func makeConstructor(serviceStruct, serviceInterface, repoFieldType golang.IType, repoFieldName string) *golang.Function {
 	method := golang.NewFunction("New" + serviceInterface.GetName())
@@ -28,8 +25,6 @@ func makeConstructor(serviceStruct, serviceInterface, repoFieldType golang.IType
 		RepoFieldName: repoFieldName,
 		RepoArgName:   repoArgName,
 	})
-
-	method.AddImportsVendor(goat.ImportGorm)
 
 	return method
 }
