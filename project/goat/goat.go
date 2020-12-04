@@ -26,7 +26,7 @@ func MakeTypeQuery() *golang.Type {
 }
 
 func MakeTypePagination() *golang.Type {
-	return golang.MockType(ImportQuery, "Pagination", true, false)
+	return golang.MockType(ImportQuery, "Pagination", false, false)
 }
 
 func MakeTypeDbConnection() *golang.Type {
