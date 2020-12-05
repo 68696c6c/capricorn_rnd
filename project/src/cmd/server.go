@@ -46,7 +46,8 @@ func makeServerRunFunc(o config.CmdOptions, a *app.App, h *http.Http) *golang.Fu
 			goat.ExitError(errors.Wrap(err, "failed to initialize application services"))
 		}
 
-		{{ .RouterInitFuncRef }}(services)
+		r := {{ .RouterInitFuncRef }}(services)
+		r.Run()
 	`
 	result.AddArg(o.CmdArgName, goat.MakeTypeCobraCommand())
 	result.AddArg(o.ArgsArgName, golang.MakeTypeStringSlice(false))

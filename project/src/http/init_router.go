@@ -29,17 +29,18 @@ func makeInitRouter(o config.RoutesOptions, a *app.App) *golang.Function {
 
 	return router
 `
+	appDomains := a.GetDomains()
 	serviceContainerType := a.GetContainerType()
 
 	result.AddArg(o.ServicesArgName, serviceContainerType)
 
 	result.AddReturn("", goat.MakeTypeRouter())
 
-	result.AddImportsApp(serviceContainerType.GetImport(), a.GetDomains().GetImportHandlers())
+	result.AddImportsApp(serviceContainerType.GetImport(), appDomains.GetImportHandlers())
 
 	errorsRef := fmt.Sprintf("%s.%s", o.ServicesArgName, a.GetErrorHandlerFieldName())
 	var groups routeGroups
-	for domainKey, d := range a.GetDomains().GetMap() {
+	for domainKey, d := range appDomains.GetMap() {
 		if !d.HasHandlers() {
 			continue
 		}

@@ -44,6 +44,7 @@ func NewProjectFromSpec(specPath string) (*Project, error) {
 // provided project spec.
 type ProjectOptions struct {
 	BasePath string
+	Ops      OpsOptions
 	Src      SrcOptions
 }
 
@@ -55,6 +56,12 @@ func NewProjectOptions(basePath string) ProjectOptions {
 	repoSaveFuncName := "Save"
 	return ProjectOptions{
 		BasePath: basePath,
+
+		Ops: OpsOptions{
+			AppBinaryName:  NameTemplateF("%s", nameTemplateAppName),
+			ServiceNameApp: NameTemplateF("%s", nameTemplateAppName),
+			ServiceNameDb:  NameTemplateF("db_%s", nameTemplateAppName),
+		},
 
 		Src: SrcOptions{
 			PkgName: "src",

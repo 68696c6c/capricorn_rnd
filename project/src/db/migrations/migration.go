@@ -7,10 +7,10 @@ import (
 	"github.com/68696c6c/capricorn_rnd/golang"
 	"github.com/68696c6c/capricorn_rnd/project/config"
 	"github.com/68696c6c/capricorn_rnd/project/goat"
-	"github.com/68696c6c/capricorn_rnd/project/src/app"
+	"github.com/68696c6c/capricorn_rnd/project/src/app/domain"
 )
 
-func Build(pkg *golang.Package, o config.MigrationsOptions, a *app.App) golang.IPackage {
+func Build(pkg *golang.Package, o config.MigrationsOptions, domainMap domain.Map) golang.IPackage {
 	pkgMigrations := pkg.AddPackage(o.PkgName)
 	fileName := fmt.Sprintf("%s_%s", o.InitialMigrationTimestamp, o.InitialMigrationName)
 	file := pkgMigrations.AddGoFile(fileName)
@@ -20,9 +20,9 @@ func Build(pkg *golang.Package, o config.MigrationsOptions, a *app.App) golang.I
 
 	file.AddFunction(buildInitFunc(upFuncName, downFuncName))
 
-	file.AddFunction(buildFunc(upFuncName, a))
+	file.AddFunction(buildFunc(upFuncName, domainMap))
 
-	file.AddFunction(buildFunc(downFuncName, a))
+	file.AddFunction(buildFunc(downFuncName, domainMap))
 
 	return pkgMigrations
 }
@@ -42,7 +42,7 @@ func buildInitFunc(upFuncName, downFuncName string) *golang.Function {
 	return result
 }
 
-func buildFunc(name string, a *app.App) *golang.Function {
+func buildFunc(name string, domainMap domain.Map) *golang.Function {
 	result := golang.NewFunction(name)
 	t := `
 	goat.Init()
@@ -59,7 +59,7 @@ func buildFunc(name string, a *app.App) *golang.Function {
 
 	dbVarName := "db"
 	var migrations []string
-	for _, d := range a.GetDomains().GetMap() {
+	for _, d := range domainMap {
 		domainModel := d.GetModelType()
 		migrations = append(migrations, fmt.Sprintf("	%s.AutoMigrate(&%s{})", dbVarName, domainModel.GetReference()))
 		result.AddImportsApp(domainModel.GetImport())

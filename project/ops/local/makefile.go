@@ -8,8 +8,8 @@ import (
 const makefileTemplate = `DCR = docker-compose run --rm
 
 NETWORK_NAME ?= docker-dev
-APP_NAME = app
-DB_NAME = db
+APP_NAME = {{ .ServiceNameApp }}
+DB_NAME = {{ .ServiceNameDb }}
 
 DOC_PATH_BASE = docs/swagger.json
 DOC_PATH_FINAL = docs/api-spec.json
@@ -19,7 +19,7 @@ DOC_PATH_FINAL = docs/api-spec.json
 .DEFAULT:
 	@echo 'App targets:'
 	@echo
-	@echo '    image-local        build the $(APP_NAME):dev Docker image for local development'
+	@echo '    image-local        build the $(APP_NAME):local Docker image for local development'
 	@echo '    image-built        build the $(APP_NAME):built Docker image for task running'
 	@echo '    build              compile the app for use in Docker'
 	@echo '    init               initialize the Go module'
@@ -42,13 +42,13 @@ DOC_PATH_FINAL = docs/api-spec.json
 default: .DEFAULT
 
 image-local:
-	docker build . --target dev -t $(APP_NAME):dev
+	docker build . --target dev -t $(APP_NAME):local
 
 image-built:
-	docker build . --target dev -t $(APP_NAME):built
+	docker build . --target built -t $(APP_NAME):built
 
 build:
-	$(DCR) $(APP_NAME) go build -i -o $(APP_NAME)
+	$(DCR) $(APP_NAME) go build -i -o {{ .AppBinaryName }}
 
 deps:
 	$(DCR) $(APP_NAME) go mod tidy
@@ -58,30 +58,31 @@ setup-network:
 	docker network create docker-dev || exit 0
 
 setup: setup-network image-local generate deps build
-	$(DCR) $(DB_NAME) mysql -u root -p{{ .MainDatabase.Password }} -h $(DB_NAME) -e "CREATE DATABASE IF NOT EXISTS {{ .MainDatabase.Name }}"
-	$(DCR) $(APP_NAME) bash -c "./$(APP_NAME) migrate up"
+	@test -f ".app.env" || (echo "you need to set up your .app.env file before running this command"; exit 1)
+	$(DCR) $(DB_NAME) mysql -u root -p{{ .MainDatabasePassword }} -h $(DB_NAME) -e "CREATE DATABASE IF NOT EXISTS {{ .MainDatabaseName }}"
+	$(DCR) $(APP_NAME) bash -c "./{{ .AppBinaryName }} migrate up"
 
 local: local-down build
-	NETWORK_NAME="$(NETWORK_NAME)" docker-compose up
+	docker-compose up $(APP_NAME)
 
 local-down:
-	NETWORK_NAME="$(NETWORK_NAME)" docker-compose down
+	docker-compose rm -sf
 
 test:
 	$(DCR) $(APP_NAME) go test ./... -cover
 
 migrate: build
-	$(DCR) $(APP_NAME) ./$(APP_NAME) migrate up
+	$(DCR) $(APP_NAME) ./{{ .AppBinaryName }} migrate up
 
 migration: build
-	$(DCR) $(APP_NAME) goose -dir src/db/migrations create $(name)
+	$(DCR) $(APP_NAME) goose -dir {{ .MigrationsPath }} create $(name)
 
 generate:
-	$(DCR) $(APP_NAME) go generate {{ .EnumsImport }}
+	$(DCR) $(APP_NAME) go generate {{ .EnumsPath }}
 
 docs: build
 	$(DCR) $(APP_NAME) bash -c "GO111MODULE=off swagger generate spec -mo '$(DOC_PATH_BASE)'"
-	$(DCR) $(APP_NAME) ./$(APP_NAME) gen:docs
+	$(DCR) $(APP_NAME) ./{{ .AppBinaryName }} gen:docs
 
 docs-server: docs
 	swagger serve "$(DOC_PATH_FINAL)"
@@ -96,18 +97,36 @@ lint-fix:
 type Makefile struct {
 	*utils.File
 	data config.Ops
+	meta config.OpsMeta
 }
 
-func NewMakefile(basePath string, c config.Ops) Makefile {
+func NewMakefile(basePath string, c config.Ops, meta config.OpsMeta) Makefile {
 	file := utils.NewFile(basePath, "Makefile", "")
 	return Makefile{
 		File: file,
 		data: c,
+		meta: meta,
 	}
 }
 
 func (m Makefile) Render() string {
-	result, err := utils.ParseTemplate(m.FullPath, makefileTemplate, m.data)
+	result, err := utils.ParseTemplate(m.FullPath, makefileTemplate, struct {
+		MainDatabasePassword string
+		MainDatabaseName     string
+		MigrationsPath       string
+		EnumsPath            string
+		AppBinaryName        string
+		ServiceNameApp       string
+		ServiceNameDb        string
+	}{
+		MainDatabasePassword: m.data.MainDatabase.Password,
+		MainDatabaseName:     m.data.MainDatabase.Name,
+		MigrationsPath:       m.meta.ImportMigrations,
+		EnumsPath:            m.meta.ImportEnums,
+		AppBinaryName:        m.meta.AppBinaryName,
+		ServiceNameApp:       m.meta.ServiceNameApp,
+		ServiceNameDb:        m.meta.ServiceNameDb,
+	})
 	if err != nil {
 		panic(err)
 	}

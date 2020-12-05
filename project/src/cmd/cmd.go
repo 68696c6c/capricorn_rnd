@@ -25,8 +25,8 @@ func (c *Commands) Render() string {
 	return strings.Join(result, "\n")
 }
 
-func Build(root utils.Directory, p *config.Project, o config.CmdOptions, a *app.App, h *http.Http, migrationsImport string) *Commands {
-	pkgCmd := golang.NewPackage(o.PkgName, root.GetFullPath(), p.Module)
+func Build(rootPath string, p *config.Project, o config.CmdOptions, a *app.App, h *http.Http, migrationsImport string) *Commands {
+	pkgCmd := golang.NewPackage(o.PkgName, rootPath, p.Module)
 
 	serverVar := buildServer(pkgCmd, o, p.Name, a, h)
 	migrateVar := buildMigrate(pkgCmd, o, migrationsImport)

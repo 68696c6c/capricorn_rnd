@@ -1,10 +1,24 @@
 package config
 
+type OpsMeta struct {
+	ImportEnums      string
+	ImportMigrations string
+	ServiceNameApp   string
+	ServiceNameDb    string
+	AppBinaryName    string
+}
+
+type OpsOptions struct {
+	ServiceNameApp NameTemplate
+	ServiceNameDb  NameTemplate
+	AppBinaryName  NameTemplate
+}
+
+// @TODO: need to merge the YAML values with a set of defaults so that users don't need to include the ops section in the spec.
 type Ops struct {
 	Workdir      string   `yaml:"workdir,omitempty"`
 	AppHTTPAlias string   `yaml:"app_http_alias,omitempty"`
 	MainDatabase Database `yaml:"database,omitempty"`
-	EnumsImport  string   `yaml:"-"`
 }
 
 type Database struct {

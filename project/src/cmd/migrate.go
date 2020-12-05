@@ -20,16 +20,14 @@ func buildMigrate(pkg golang.IPackage, o config.CmdOptions, migrationsImport str
 }
 
 func makeMigrateVar(o config.CmdOptions) *golang.Var {
-	t := `{{ .RootUse }} {{ .MigrateUse }} status
-{{ .RootUse }} {{ .MigrateUse }} create init sql
-{{ .RootUse }} {{ .MigrateUse }} create add_some_column sql
-{{ .RootUse }} {{ .MigrateUse }} create fetch_user_data go
-{{ .RootUse }} {{ .MigrateUse }} up`
+	t := `{{ .MigrateUse }} status
+{{ .MigrateUse }} create init sql
+{{ .MigrateUse }} create add_some_column sql
+{{ .MigrateUse }} create fetch_user_data go
+{{ .MigrateUse }} up`
 	example, err := utils.ParseTemplate("template_migrate_example", t, struct {
-		RootUse    string
 		MigrateUse string
 	}{
-		RootUse:    o.RootCommandUse,
 		MigrateUse: o.MigrateCommandUse,
 	})
 	if err != nil {
@@ -37,7 +35,7 @@ func makeMigrateVar(o config.CmdOptions) *golang.Var {
 	}
 	return makeCommandVar(commandFuncMeta{
 		name:    utils.Pascal(o.MigrateFileName),
-		use:     fmt.Sprintf("%s %s [OPTIONS] COMMAND", o.RootCommandUse, o.MigrateCommandUse),
+		use:     fmt.Sprintf("%s [OPTIONS] COMMAND", o.MigrateCommandUse),
 		short:   "Root migration command.",
 		long:    "",
 		example: example,

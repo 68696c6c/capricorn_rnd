@@ -10,11 +10,15 @@ import (
 func Build(p *config.Project, o config.ProjectOptions) utils.Directory {
 	projectDir := utils.NewFolder(o.BasePath, utils.Snake(p.Name))
 
-	enumsImport := src.Build(projectDir, p, o.Src)
+	projectSrc := src.Build(projectDir, p, o.Src)
 
-	p.Ops.EnumsImport = enumsImport
-
-	ops.Build(projectDir, p.Ops)
+	ops.Build(projectDir, p.Ops, config.OpsMeta{
+		ImportEnums:      projectSrc.GetApp().GetEnums().GetImport(),
+		ImportMigrations: projectSrc.GetDb().GetImportMigrations(false),
+		AppBinaryName:    o.Ops.ServiceNameApp.Parse(p.Name),
+		ServiceNameApp:   o.Ops.ServiceNameApp.Parse(p.Name),
+		ServiceNameDb:    o.Ops.ServiceNameDb.Parse(p.Name),
+	})
 
 	return projectDir
 }

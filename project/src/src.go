@@ -11,30 +11,52 @@ import (
 	"github.com/68696c6c/capricorn_rnd/utils"
 )
 
-func Build(root utils.Directory, p *config.Project, o config.SrcOptions) string {
-	pkgSrc := utils.NewFolder(root.GetFullPath(), o.PkgName)
-
-	srcApp := app.NewApp(pkgSrc, p, o.App)
-	pkgSrc.AddDirectory(srcApp)
-
-	srcDb := db.Build(pkgSrc, p.Module, o.Db, srcApp)
-	pkgSrc.AddDirectory(srcDb)
-
-	srcHttp := http.Build(pkgSrc, p.Module, o.Http, srcApp)
-	pkgSrc.AddDirectory(srcHttp)
-
-	srcCommands := cmd.Build(pkgSrc, p, o.Cmd, srcApp, srcHttp, srcDb.GetImportMigrations(true))
-	pkgSrc.AddDirectory(srcCommands)
-
-	mainFile := buildMainGo(pkgSrc, p, o.Cmd, srcCommands)
-	pkgSrc.AddRenderableFile(mainFile)
-
-	root.AddDirectory(pkgSrc)
-
-	return srcApp.GetEnums().GetImport()
+type Src struct {
+	app  *app.App
+	cmd  *cmd.Commands
+	db   *db.Db
+	http *http.Http
 }
 
-func buildMainGo(root utils.Directory, p *config.Project, o config.CmdOptions, commands *cmd.Commands) *golang.File {
+func Build(root utils.Directory, p *config.Project, o config.SrcOptions) *Src {
+	dirSrc := utils.NewFolder(root.GetFullPath(), o.PkgName)
+	srcPath := dirSrc.GetFullPath()
+
+	pkgApp := app.NewApp(srcPath, p, o.App)
+	dirSrc.AddDirectory(pkgApp)
+	domainMap := pkgApp.GetDomains().GetMap()
+
+	pkgDb := db.Build(srcPath, p.Module, o.Db, domainMap)
+	dirSrc.AddDirectory(pkgDb)
+
+	pkgHttp := http.Build(srcPath, p.Module, o.Http, pkgApp) // @TODO: of pkgApp, only using domains, error handler; seems to be mostly container stuff and domains
+	dirSrc.AddDirectory(pkgHttp)
+
+	pkgCmd := cmd.Build(srcPath, p, o.Cmd, pkgApp, pkgHttp, pkgDb.GetImportMigrations(true)) // @TODO: of pkgApp, only using container, router; func names and imports
+	dirSrc.AddDirectory(pkgCmd)
+
+	mainFile := buildMainGo(srcPath, p, o.Cmd, pkgCmd) // @TODO: of pkgApp, only using cmd.Commands.Render
+	dirSrc.AddRenderableFile(mainFile)
+
+	root.AddDirectory(dirSrc)
+
+	return &Src{
+		app:  pkgApp,
+		cmd:  pkgCmd,
+		db:   pkgDb,
+		http: pkgHttp,
+	}
+}
+
+func (s *Src) GetApp() *app.App {
+	return s.app
+}
+
+func (s *Src) GetDb() *db.Db {
+	return s.db
+}
+
+func buildMainGo(rootPath string, p *config.Project, o config.CmdOptions, commands *cmd.Commands) *golang.File {
 	mainFunc := golang.NewFunction("main")
 	t := `
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
@@ -75,8 +97,8 @@ func buildMainGo(root utils.Directory, p *config.Project, o config.CmdOptions, c
 	mainFunc.AddImportsApp(commands.GetImport())
 	mainFunc.AddImportsVendor(goat.ImportSqlDriver, goat.ImportCobra, goat.ImportViper)
 
-	pkgMain := golang.NewPackage("main", root.GetFullPath(), p.Module)
-	mainFile := golang.NewFile(root.GetFullPath(), "main")
+	pkgMain := golang.NewPackage("main", rootPath, p.Module)
+	mainFile := golang.NewFile(rootPath, "main")
 	mainFile.PKG = pkgMain
 	mainFile.AddFunction(mainFunc)
 

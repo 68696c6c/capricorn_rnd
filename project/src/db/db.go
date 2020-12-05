@@ -5,9 +5,8 @@ import (
 
 	"github.com/68696c6c/capricorn_rnd/golang"
 	"github.com/68696c6c/capricorn_rnd/project/config"
-	"github.com/68696c6c/capricorn_rnd/project/src/app"
+	"github.com/68696c6c/capricorn_rnd/project/src/app/domain"
 	"github.com/68696c6c/capricorn_rnd/project/src/db/migrations"
-	"github.com/68696c6c/capricorn_rnd/utils"
 )
 
 type Db struct {
@@ -15,11 +14,11 @@ type Db struct {
 	pkgMigrations golang.IPackage
 }
 
-func Build(root utils.Directory, module string, o config.DbOptions, a *app.App) *Db {
-	pkgDb := golang.NewPackage(o.PkgName, root.GetFullPath(), module)
+func Build(rootPath string, module string, o config.DbOptions, domainMap domain.Map) *Db {
+	pkgDb := golang.NewPackage(o.PkgName, rootPath, module)
 	return &Db{
 		Package:       pkgDb,
-		pkgMigrations: migrations.Build(pkgDb, o.Migrations, a),
+		pkgMigrations: migrations.Build(pkgDb, o.Migrations, domainMap),
 	}
 }
 

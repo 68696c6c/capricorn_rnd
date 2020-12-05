@@ -57,7 +57,7 @@ func makeView(o config.HandlersOptions, meta handlerMeta) *Handler {
 	return &Handler{
 		Function:      handler,
 		verb:          verbGet,
-		uri:           `""`,
+		uri:           `"/:%s"`,
 		requestStruct: nil,
 	}
 }

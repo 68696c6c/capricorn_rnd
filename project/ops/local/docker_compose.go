@@ -18,36 +18,36 @@ volumes:
 
 services:
 
-  app:
-    image: app:dev
-    command: ./app server 80
+  {{ .ServiceNameApp }}:
+    image: app:local
+    command: ./{{ .AppBinaryName }} server
     depends_on:
-      - db
+      - {{ .ServiceNameDb }}
     volumes:
       - pkg:/go/pkg
-      - ./src:/{{ .Workdir }}
-    working_dir: /{{ .Workdir }}
+      - .:/{{ .Config.Workdir }}
+    working_dir: /{{ .Config.Workdir }}/src
     ports:
       - "80"
     env_file:
       - .app.env
     environment:
-      VIRTUAL_HOST: {{ .AppHTTPAlias }}
+      VIRTUAL_HOST: {{ .Config.AppHTTPAlias }}
       ENV: local
       HTTP_PORT: 80
-      MIGRATION_PATH: /{{ .Workdir }}/src/database
+      MIGRATION_PATH: /{{ .Config.Workdir }}/src/db
     networks:
       default:
         aliases:
-          - {{ .AppHTTPAlias }}
+          - {{ .Config.AppHTTPAlias }}
 
-  db:
+  {{ .ServiceNameDb }}:
     image: mysql:5.7
     environment:
-      MYSQL_ROOT_PASSWORD: {{ .MainDatabase.Password }}
-      MYSQL_DATABASE: {{ .MainDatabase.Name }}
+      MYSQL_ROOT_PASSWORD: {{ .Config.MainDatabase.Password }}
+      MYSQL_DATABASE: {{ .Config.MainDatabase.Name }}
     ports:
-      - "${HOST_DB_PORT:-3310}:{{ .MainDatabase.Port }}"
+      - "${HOST_DB_PORT:-3310}:{{ .Config.MainDatabase.Port }}"
     volumes:
       - db-volume:/var/lib/mysql
 `
@@ -55,18 +55,30 @@ services:
 type DockerCompose struct {
 	*utils.File
 	data config.Ops
+	meta config.OpsMeta
 }
 
-func NewDockerCompose(basePath string, c config.Ops) DockerCompose {
+func NewDockerCompose(basePath string, c config.Ops, meta config.OpsMeta) DockerCompose {
 	file := utils.NewFile(basePath, "docker-compose", "yml")
 	return DockerCompose{
 		File: file,
 		data: c,
+		meta: meta,
 	}
 }
 
 func (d DockerCompose) Render() string {
-	result, err := utils.ParseTemplate(d.FullPath, dockerComposeTemplate, d.data)
+	result, err := utils.ParseTemplate(d.FullPath, dockerComposeTemplate, struct {
+		Config         config.Ops
+		AppBinaryName  string
+		ServiceNameApp string
+		ServiceNameDb  string
+	}{
+		Config:         d.data,
+		AppBinaryName:  d.meta.AppBinaryName,
+		ServiceNameApp: d.meta.ServiceNameApp,
+		ServiceNameDb:  d.meta.ServiceNameDb,
+	})
 	if err != nil {
 		panic(err)
 	}

@@ -13,7 +13,7 @@ ENV GOPROXY=https://proxy.golang.org,direct
 
 RUN apk add --no-cache git gcc openssh mysql-client
 
-RUN go get golang.org/x/tools/cmd/goimports
+# Install stringer for generating enum String methods.
 RUN go get golang.org/x/tools/cmd/stringer
 
 # Install swagger for generating API docs.
@@ -31,19 +31,17 @@ RUN mkdir -p /{{ .Workdir }}
 WORKDIR /{{ .Workdir }}
 
 
-# Local development stage.
+## Local development stage.
 FROM env as dev
-
-RUN go get -v github.com/go-delve/delve/cmd/dlv
-
+RUN go get github.com/go-delve/delve/cmd/dlv
+RUN go get golang.org/x/tools/cmd/goimports
 RUN apk add --no-cache bash
 RUN echo 'alias ll="ls -lah"' >> ~/.bashrc
 
 
-# Pipeline stage for running unit tests, linters, etc.
+## Pipeline stage for running unit tests, linters, etc.
 FROM env as built
-
-COPY ./src /{{ .Workdir }}
+COPY src /{{ .Workdir }}
 RUN go build -i -o app
 `
 

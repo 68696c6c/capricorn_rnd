@@ -10,6 +10,7 @@ import (
 const (
 	nameTemplateResourceSingular = ":singular:"
 	nameTemplateResourcePlural   = ":plural:"
+	nameTemplateAppName          = ":app:"
 )
 
 type NameTemplate string
@@ -25,6 +26,9 @@ func (n NameTemplate) Parse(resourceName string) string {
 	}
 	if strings.Contains(template, nameTemplateResourcePlural) {
 		return strings.Replace(template, nameTemplateResourcePlural, utils.Plural(resourceName), -1)
+	}
+	if strings.Contains(template, nameTemplateAppName) {
+		return strings.Replace(template, nameTemplateAppName, utils.Snake(resourceName), -1)
 	}
 	return template
 }
